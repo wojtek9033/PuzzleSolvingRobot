@@ -1,0 +1,11 @@
+setup.py
+scara_msgs/__init__.py
+scara_msgs.egg-info/PKG-INFO
+scara_msgs.egg-info/SOURCES.txt
+scara_msgs.egg-info/dependency_links.txt
+scara_msgs.egg-info/top_level.txt
+scara_msgs/action/__init__.py
+scara_msgs/action/_scara_task.py
+scara_msgs/srv/__init__.py
+scara_msgs/srv/_euler_to_quaternion.py
+scara_msgs/srv/_quaternion_to_euler.py

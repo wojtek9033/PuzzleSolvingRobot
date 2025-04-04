@@ -1,0 +1,10 @@
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/uninstall.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/scara_utils_uninstall.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/angle_conversion.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/test.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/edit_cache.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/rebuild_cache.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/list_install_components.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/install.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/install/local.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_utils/CMakeFiles/install/strip.dir

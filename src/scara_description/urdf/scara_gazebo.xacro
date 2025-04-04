@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="scara">
+    
+    <gazebo>
+        <!--
+        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+        -->
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find scara_controller)/config/scara_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+    <!--
+    <link name="camera_link_optical"></link>
+
+    <gazebo reference="rgb_camera">
+
+        <sensor name="camera" type="camera">
+            <pose> 0 0 0 0 0 0 </pose>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <camera>
+                <camera_info_topic>camera/camera_info</camera_info_topic>
+                <horizontal_fov>1.21126</horizontal_fov>
+                <image>
+                    <format>R8G8B8</format>
+                    <width>2304</width>
+                    <height>1296</height>
+                </image>
+                <clip>
+                    <near>0.05</near>
+                    <far>5.0</far>
+                </clip>
+            </camera>
+            <topic>camera/image_raw</topic>
+            <gz_frame_id>camera_link_optical</gz_frame_id>
+        </sensor>   
+    </gazebo>
+-->
+
+</robot>

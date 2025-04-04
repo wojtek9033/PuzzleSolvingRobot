@@ -1,0 +1,32 @@
+[0.013s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs
+[0.054s] -- The C compiler identification is GNU 13.3.0
+[0.095s] -- The CXX compiler identification is GNU 13.3.0
+[0.108s] -- Detecting C compiler ABI info
+[0.175s] -- Detecting C compiler ABI info - done
+[0.181s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.181s] -- Detecting C compile features
+[0.181s] -- Detecting C compile features - done
+[0.188s] -- Detecting CXX compiler ABI info
+[0.265s] -- Detecting CXX compiler ABI info - done
+[0.274s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.274s] -- Detecting CXX compile features
+[0.275s] -- Detecting CXX compile features - done
+[0.278s] -- Found ament_cmake: 2.5.3 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.387s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.478s] -- Found std_msgs: 5.3.5 (/opt/ros/jazzy/share/std_msgs/cmake)
+[0.514s] -- Found rosidl_generator_c: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[0.526s] -- Found rosidl_generator_cpp: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[0.539s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.554s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.578s] -- Found rosidl_default_generators: 1.6.0 (/opt/ros/jazzy/share/rosidl_default_generators/cmake)
+[0.591s] -- Found rosidl_adapter: 4.6.5 (/opt/ros/jazzy/share/rosidl_adapter/cmake)
+[0.592s] [31mCMake Error at /opt/ros/jazzy/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:95 (message):
+[0.593s]   rosidl_generate_interfaces() the passed file 'action/ScaraTask.action'
+[0.593s]   doesn't exist relative to the CMAKE_CURRENT_SOURCE_DIR
+[0.593s]   '/home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs'
+[0.593s] Call Stack (most recent call first):
+[0.593s]   CMakeLists.txt:13 (rosidl_generate_interfaces)
+[0.593s] 
+[0.593s] [0m
+[0.593s] -- Configuring incomplete, errors occurred!
+[0.611s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs

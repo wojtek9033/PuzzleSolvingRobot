@@ -1,0 +1,14 @@
+source;share/scara_msgs/hook/cmake_prefix_path.ps1
+source;share/scara_msgs/hook/cmake_prefix_path.dsv
+source;share/scara_msgs/hook/cmake_prefix_path.sh
+source;share/scara_msgs/hook/ld_library_path_lib.ps1
+source;share/scara_msgs/hook/ld_library_path_lib.dsv
+source;share/scara_msgs/hook/ld_library_path_lib.sh
+source;share/scara_msgs/hook/pythonpath.ps1
+source;share/scara_msgs/hook/pythonpath.dsv
+source;share/scara_msgs/hook/pythonpath.sh
+source;share/scara_msgs/local_setup.bash
+source;share/scara_msgs/local_setup.dsv
+source;share/scara_msgs/local_setup.ps1
+source;share/scara_msgs/local_setup.sh
+source;share/scara_msgs/local_setup.zsh

@@ -1,0 +1,3 @@
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs/rosidl_adapter/scara_msgs:srv/EulerToQuaternion.idl
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs/rosidl_adapter/scara_msgs:srv/QuaternionToEuler.idl
+/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs/rosidl_adapter/scara_msgs:action/ScaraTask.idl

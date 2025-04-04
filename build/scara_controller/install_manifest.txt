@@ -1,0 +1,17 @@
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/config/scara_controllers.yaml
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/launch/controller.launch.py
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/ament_index/resource_index/package_run_dependencies/scara_controller
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/ament_index/resource_index/parent_prefix_path/scara_controller
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/environment/ament_prefix_path.sh
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/environment/ament_prefix_path.dsv
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/environment/path.sh
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/environment/path.dsv
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/local_setup.bash
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/local_setup.sh
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/local_setup.zsh
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/local_setup.dsv
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/package.dsv
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/ament_index/resource_index/packages/scara_controller
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/cmake/scara_controllerConfig.cmake
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/cmake/scara_controllerConfig-version.cmake
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/share/scara_controller/package.xml
