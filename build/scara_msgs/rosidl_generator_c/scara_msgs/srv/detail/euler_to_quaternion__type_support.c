@@ -4,10 +4,10 @@
 
 #include <string.h>
 
-#include "rosidl_typesupport_interface/macros.h"
 #include "scara_msgs/srv/detail/euler_to_quaternion__type_support.h"
-#include "scara_msgs/srv/detail/euler_to_quaternion__functions.h"
+#include "rosidl_typesupport_interface/macros.h"
 #include "scara_msgs/srv/detail/euler_to_quaternion__struct.h"
+#include "scara_msgs/srv/detail/euler_to_quaternion__functions.h"
 
 #ifdef __cplusplus
 extern "C"

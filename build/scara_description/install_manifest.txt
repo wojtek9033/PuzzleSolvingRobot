@@ -7,6 +7,7 @@
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/REDUCTION.stl
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/ARM_BOTTOM.stl
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/GRIPPER_BASE.stl
+/home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/RPI_CAM.stl
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/PEN_HOLDER.stl
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/TOP_TRIANGLE.stl
 /home/wojciech/Workspaces/ROS2/SCARA/install/scara_description/share/scara_description/meshes/MOTORS_TRIANGLE.stl

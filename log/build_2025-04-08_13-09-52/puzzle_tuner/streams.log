@@ -1,0 +1,57 @@
+[0.016s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_tuner -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner
+[0.061s] -- The C compiler identification is GNU 13.3.0
+[0.117s] -- The CXX compiler identification is GNU 13.3.0
+[0.127s] -- Detecting C compiler ABI info
+[0.190s] -- Detecting C compiler ABI info - done
+[0.196s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.196s] -- Detecting C compile features
+[0.196s] -- Detecting C compile features - done
+[0.203s] -- Detecting CXX compiler ABI info
+[0.263s] -- Detecting CXX compiler ABI info - done
+[0.270s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.270s] -- Detecting CXX compile features
+[0.271s] -- Detecting CXX compile features - done
+[0.274s] -- Found ament_cmake: 2.5.3 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.383s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.475s] -- Found rclcpp: 28.1.6 (/opt/ros/jazzy/share/rclcpp/cmake)
+[0.518s] -- Found rosidl_generator_c: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[0.531s] -- Found rosidl_generator_cpp: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[0.546s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.562s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.632s] -- Found rmw_implementation_cmake: 7.3.1 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+[0.635s] -- Found rmw_cyclonedds_cpp: 2.2.2 (/opt/ros/jazzy/share/rmw_cyclonedds_cpp/cmake)
+[0.663s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.716s] -- Found sensor_msgs: 5.3.5 (/opt/ros/jazzy/share/sensor_msgs/cmake)
+[0.757s] -- Found cv_bridge: 4.1.0 (/opt/ros/jazzy/share/cv_bridge/cmake)
+[0.768s] -- Found ament_lint_auto: 0.17.1 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[0.844s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[0.845s] -- Configured cppcheck include dirs: 
+[0.845s] -- Configured cppcheck exclude dirs and/or files: 
+[0.845s] -- Added test 'lint_cmake' to check CMake code style
+[0.846s] -- Added test 'uncrustify' to check C / C++ code style
+[0.846s] -- Configured uncrustify additional arguments: 
+[0.847s] -- Added test 'xmllint' to check XML markup files
+[0.848s] -- Configuring done (0.8s)
+[0.852s] -- Generating done (0.0s)
+[0.853s] -- Build files have been written to: /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner
+[0.860s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_tuner -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner
+[0.861s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner -- -j12 -l12
+[0.887s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner -- -j12 -l12
+[0.888s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner
+[0.892s] -- Install configuration: ""
+[0.892s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/package_run_dependencies/puzzle_tuner
+[0.892s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/parent_prefix_path/puzzle_tuner
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/ament_prefix_path.sh
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/ament_prefix_path.dsv
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/path.sh
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/path.dsv
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.bash
+[0.893s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.sh
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.zsh
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.dsv
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/package.dsv
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/packages/puzzle_tuner
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/cmake/puzzle_tunerConfig.cmake
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/cmake/puzzle_tunerConfig-version.cmake
+[0.894s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/package.xml
+[0.896s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner

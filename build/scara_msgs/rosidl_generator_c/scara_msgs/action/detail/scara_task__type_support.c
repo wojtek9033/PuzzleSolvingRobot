@@ -6,8 +6,8 @@
 
 #include "rosidl_typesupport_interface/macros.h"
 #include "scara_msgs/action/detail/scara_task__functions.h"
-#include "scara_msgs/action/detail/scara_task__type_support.h"
 #include "scara_msgs/action/detail/scara_task__struct.h"
+#include "scara_msgs/action/detail/scara_task__type_support.h"
 
 #ifdef __cplusplus
 extern "C"

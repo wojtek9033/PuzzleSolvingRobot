@@ -1,0 +1,10 @@
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/uninstall.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/puzzle_solver_uninstall.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/puzzle_solver_node.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/test.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/edit_cache.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/rebuild_cache.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/list_install_components.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/install.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/install/local.dir
+/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver/CMakeFiles/install/strip.dir
