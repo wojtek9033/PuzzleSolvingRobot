@@ -10,7 +10,6 @@
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
 std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
 
-
 class PuzzleSolverNode : public rclcpp::Node{
     public:
         PuzzleSolverNode() : Node("puzzle_solver_node"){
