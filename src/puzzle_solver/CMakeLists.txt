@@ -13,6 +13,7 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 # Include directories
 include_directories(include ${OpenCV_INCLUDE_DIRS} ${Qt5_INCLUDE_DIRS})
@@ -32,16 +33,17 @@ target_link_libraries(puzzle_solver_node
 )
 
 # ROS2 package dependencies
-ament_target_dependencies(puzzle_solver_node
-    rclcpp
-    sensor_msgs
-    cv_bridge
-    OpenCV
-)
+ament_target_dependencies(puzzle_solver_node rclcpp sensor_msgs cv_bridge OpenCV)
+ament_target_dependencies(puzzle_solver_node ament_index_cpp)
 
 install(TARGETS 
     puzzle_solver_node 
-    DESTINATION lib/${PROJECT_NAME})
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY images/
+    DESTINATION share/${PROJECT_NAME}/images
+)
 
 ament_package()
 

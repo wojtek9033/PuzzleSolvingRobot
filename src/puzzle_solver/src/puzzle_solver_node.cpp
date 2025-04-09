@@ -4,12 +4,14 @@
 #include "puzzle_matching.h"
 
 #include <rclcpp/rclcpp.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.hpp>
 
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
 std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
 
+std::string package_path = ament_index_cpp::get_package_share_directory("puzzle_solver");
 
 class PuzzleSolverNode : public rclcpp::Node{
     public:
@@ -28,6 +30,7 @@ class PuzzleSolverNode : public rclcpp::Node{
 
         int processPuzzlePieces(bool showImages = false){
             for (int i = 0; i < PUZZLE_SIZE; i++) {
+                RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
                 Mat puzzleImage = initialPuzzleImages.at(i);
                 Element elem = elementPipeline(puzzleImage, i);
                 if (!elem.edges.empty()){
@@ -38,7 +41,6 @@ class PuzzleSolverNode : public rclcpp::Node{
                     return 1;
                 }
                 if (showImages){
-                    RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << " pieces finished.");
                     plotEdges(processedPuzzlePieces.at(i).normalizedEdges, "edges", PUZZLE_IMAGES_SIZE);
                     waitKey(0);
                 }
@@ -60,7 +62,7 @@ int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<PuzzleSolverNode>();
-    node->imagesDirectory = "/home/wojciech/Workspaces/PuzzleSolvingApp/PuzzleSolver/images/*.jpg";
+    node->imagesDirectory = package_path + "/images/*.jpg";
     if(node->loadProcessingParameters()){
         RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not read processing parameters for puzzle solver!");
     }
