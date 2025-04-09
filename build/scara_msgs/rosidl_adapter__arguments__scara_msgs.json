@@ -1,8 +1,0 @@
-{
-  "package_name": "scara_msgs",
-  "non_idl_tuples": [
-    "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs:srv/EulerToQuaternion.srv",
-    "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs:srv/QuaternionToEuler.srv",
-    "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs:action/ScaraTask.action"
-  ]
-}
