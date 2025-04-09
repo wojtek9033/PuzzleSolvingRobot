@@ -32,7 +32,12 @@ target_link_libraries(puzzle_solver_node
 )
 
 # ROS2 package dependencies
-ament_target_dependencies(puzzle_solver_node rclcpp sensor_msgs cv_bridge OpenCV)
+ament_target_dependencies(puzzle_solver_node
+    rclcpp
+    sensor_msgs
+    cv_bridge
+    OpenCV
+)
 
 install(TARGETS 
     puzzle_solver_node 

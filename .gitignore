@@ -1,0 +1,20 @@
+# ROS2 build artifacts
+build/
+install/
+log/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VSCode or IDE settings (optional)
+.vscode/
+.idea/
+
+# Colcon/ROS2 workspace-specific ignores
+colcon_install_layout.*
+*.swp
