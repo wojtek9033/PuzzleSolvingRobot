@@ -6,18 +6,14 @@
         "limitSymbolsToIncludedHeaders": false
       },
       "includePath": [
+        "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/**",
         "/opt/ros/jazzy/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_tuner/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_controller/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_description/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_moveit/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_utils/include/**",
         "/usr/include/**"
       ],
       "name": "ROS",
-      "intelliSenseMode": "gcc-x64",
+      "intelliSenseMode": "gcc-arm64",
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "gnu11",
       "cppStandard": "c++14"

@@ -1,0 +1,20 @@
+[0.037s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner -- -j4 -l4
+[0.254s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner -- -j4 -l4
+[0.321s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner
+[0.351s] -- Install configuration: ""
+[0.354s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/package_run_dependencies/puzzle_tuner
+[0.354s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/parent_prefix_path/puzzle_tuner
+[0.354s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/ament_prefix_path.sh
+[0.354s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/ament_prefix_path.dsv
+[0.355s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/path.sh
+[0.355s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/environment/path.dsv
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.bash
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.sh
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.zsh
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/local_setup.dsv
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/package.dsv
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/ament_index/resource_index/packages/puzzle_tuner
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/cmake/puzzle_tunerConfig.cmake
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/cmake/puzzle_tunerConfig-version.cmake
+[0.356s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_tuner/share/puzzle_tuner/package.xml
+[0.367s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_tuner

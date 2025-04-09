@@ -1,4 +1,13 @@
 /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/lib/puzzle_solver/puzzle_solver_node
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/11.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/3.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/10.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/1.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/19.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/20.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/21.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/2.jpg
+/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/12.jpg
 /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/ament_index/resource_index/package_run_dependencies/puzzle_solver
 /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/ament_index/resource_index/parent_prefix_path/puzzle_solver
 /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/environment/ament_prefix_path.sh

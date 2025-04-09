@@ -163,7 +163,7 @@ libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/librmw.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/librosidl_dynamic_typesupport.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/librosidl_typesupport_introspection_cpp.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/librosidl_typesupport_introspection_c.so
-libscara_msgs__rosidl_generator_py.so: /usr/lib/x86_64-linux-gnu/libpython3.12.so
+libscara_msgs__rosidl_generator_py.so: /usr/lib/aarch64-linux-gnu/libpython3.12.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/libunique_identifier_msgs__rosidl_typesupport_c.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/libunique_identifier_msgs__rosidl_generator_c.so
 libscara_msgs__rosidl_generator_py.so: /opt/ros/jazzy/lib/librosidl_runtime_c.so

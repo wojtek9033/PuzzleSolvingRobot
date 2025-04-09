@@ -1,0 +1,322 @@
+[1.892s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs
+[2.163s] -- The C compiler identification is GNU 13.3.0
+[2.369s] -- The CXX compiler identification is GNU 13.3.0
+[2.441s] -- Detecting C compiler ABI info
+[2.848s] -- Detecting C compiler ABI info - done
+[2.869s] -- Check for working C compiler: /usr/bin/cc - skipped
+[2.869s] -- Detecting C compile features
+[2.870s] -- Detecting C compile features - done
+[2.893s] -- Detecting CXX compiler ABI info
+[3.431s] -- Detecting CXX compiler ABI info - done
+[3.462s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[3.462s] -- Detecting CXX compile features
+[3.462s] -- Detecting CXX compile features - done
+[3.468s] -- Found ament_cmake: 2.5.3 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[3.943s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[5.283s] -- Found std_msgs: 5.3.6 (/opt/ros/jazzy/share/std_msgs/cmake)
+[5.371s] -- Found rosidl_generator_c: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[5.405s] -- Found rosidl_generator_cpp: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[5.442s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[5.489s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[5.702s] -- Found rosidl_default_generators: 1.6.0 (/opt/ros/jazzy/share/rosidl_default_generators/cmake)
+[6.574s] -- Found rosidl_adapter: 4.6.5 (/opt/ros/jazzy/share/rosidl_adapter/cmake)
+[12.049s] -- Found ament_cmake_ros: 0.12.0 (/opt/ros/jazzy/share/ament_cmake_ros/cmake)
+[15.233s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[15.990s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[16.000s] -- Found python_cmake_module: 0.11.1 (/opt/ros/jazzy/share/python_cmake_module/cmake)
+[16.356s] -- Found PythonExtra: /usr/bin/python3  
+[17.553s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter Development NumPy Development.Module Development.Embed 
+[17.646s] -- Found ament_lint_auto: 0.17.2 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[17.731s] -- Added test 'lint_cmake' to check CMake code style
+[17.733s] -- Added test 'xmllint' to check XML markup files
+[17.742s] -- Configuring done (15.8s)
+[17.828s] -- Generating done (0.1s)
+[17.852s] -- Build files have been written to: /home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs
+[17.879s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/wojciech/Workspaces/ROS2/SCARA/src/scara_msgs -DCMAKE_INSTALL_PREFIX=/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs
+[17.882s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs -- -j4 -l4
+[18.001s] [  1%] [34m[1mGenerating type hashes for ROS interfaces[0m
+[18.639s] [  1%] Built target scara_msgs__rosidl_generator_type_description
+[18.708s] [  1%] Built target ament_cmake_python_copy_scara_msgs
+[18.731s] [  3%] [34m[1mGenerating C code for ROS interfaces[0m
+[20.366s] [  5%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/euler_to_quaternion__description.c.o[0m
+[20.485s] [  7%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/euler_to_quaternion__functions.c.o[0m
+[20.642s] [  9%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/euler_to_quaternion__type_support.c.o[0m
+[20.721s] [ 11%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/quaternion_to_euler__description.c.o[0m
+[20.840s] [ 12%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/quaternion_to_euler__functions.c.o[0m
+[20.995s] [ 14%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/srv/detail/quaternion_to_euler__type_support.c.o[0m
+[21.081s] [ 16%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/action/detail/scara_task__description.c.o[0m
+[21.259s] [ 18%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/action/detail/scara_task__functions.c.o[0m
+[21.623s] [ 20%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_c.dir/rosidl_generator_c/scara_msgs/action/detail/scara_task__type_support.c.o[0m
+[21.729s] [ 22%] [32m[1mLinking C shared library libscara_msgs__rosidl_generator_c.so[0m
+[21.824s] [ 22%] Built target scara_msgs__rosidl_generator_c
+[22.275s] running egg_info
+[22.277s] creating scara_msgs.egg-info
+[22.316s] writing scara_msgs.egg-info/PKG-INFO
+[22.316s] writing dependency_links to scara_msgs.egg-info/dependency_links.txt
+[22.316s] writing top-level names to scara_msgs.egg-info/top_level.txt
+[22.317s] writing manifest file 'scara_msgs.egg-info/SOURCES.txt'
+[22.433s] reading manifest file 'scara_msgs.egg-info/SOURCES.txt'
+[22.434s] writing manifest file 'scara_msgs.egg-info/SOURCES.txt'
+[22.532s] [ 22%] Built target ament_cmake_python_build_scara_msgs_egg
+[22.557s] [ 24%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[23.513s] [ 25%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/scara_msgs/srv/detail/euler_to_quaternion__type_support.c.o[0m
+[23.614s] [ 27%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/scara_msgs/srv/detail/quaternion_to_euler__type_support.c.o[0m
+[23.712s] [ 29%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/scara_msgs/action/detail/scara_task__type_support.c.o[0m
+[24.573s] [ 31%] [32m[1mLinking C shared library libscara_msgs__rosidl_typesupport_introspection_c.so[0m
+[25.369s] [ 31%] Built target scara_msgs__rosidl_typesupport_introspection_c
+[25.390s] [ 33%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[26.354s] [ 35%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/scara_msgs/srv/euler_to_quaternion__type_support.cpp.o[0m
+[26.457s] [ 37%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/scara_msgs/srv/quaternion_to_euler__type_support.cpp.o[0m
+[26.563s] [ 38%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/scara_msgs/action/scara_task__type_support.cpp.o[0m
+[26.679s] [ 40%] [32m[1mLinking CXX shared library libscara_msgs__rosidl_typesupport_c.so[0m
+[26.772s] [ 40%] Built target scara_msgs__rosidl_typesupport_c
+[26.797s] [ 42%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[28.100s] [ 44%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/scara_msgs/srv/detail/euler_to_quaternion__type_support_c.cpp.o[0m
+[28.992s] [ 46%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/scara_msgs/action/detail/scara_task__type_support_c.cpp.o[0m
+[30.022s] [ 48%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/scara_msgs/srv/detail/quaternion_to_euler__type_support_c.cpp.o[0m
+[31.338s] [ 50%] [32m[1mLinking CXX shared library libscara_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[31.471s] [ 50%] Built target scara_msgs__rosidl_typesupport_fastrtps_c
+[31.517s] [ 51%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[32.790s] [ 51%] Built target scara_msgs__cpp
+[32.816s] [ 53%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[33.539s] [ 55%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/scara_msgs/srv/euler_to_quaternion__type_support.cpp.o[0m
+[34.247s] [ 57%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/scara_msgs/srv/quaternion_to_euler__type_support.cpp.o[0m
+[34.943s] [ 59%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/scara_msgs/action/scara_task__type_support.cpp.o[0m
+[36.336s] [ 61%] [32m[1mLinking CXX shared library libscara_msgs__rosidl_typesupport_cpp.so[0m
+[36.597s] [ 61%] Built target scara_msgs__rosidl_typesupport_cpp
+[36.620s] [ 62%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[37.504s] [ 64%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/scara_msgs/srv/detail/euler_to_quaternion__type_support.cpp.o[0m
+[38.256s] [ 66%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/scara_msgs/action/detail/scara_task__type_support.cpp.o[0m
+[39.620s] [ 68%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/scara_msgs/srv/detail/quaternion_to_euler__type_support.cpp.o[0m
+[40.430s] [ 70%] [32m[1mLinking CXX shared library libscara_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[40.759s] [ 70%] Built target scara_msgs__rosidl_typesupport_introspection_cpp
+[40.786s] [ 72%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[42.354s] [ 75%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/scara_msgs/srv/detail/dds_fastrtps/euler_to_quaternion__type_support.cpp.o[0m
+[42.354s] [ 75%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/scara_msgs/srv/detail/dds_fastrtps/quaternion_to_euler__type_support.cpp.o[0m
+[44.019s] [ 77%] [32mBuilding CXX object CMakeFiles/scara_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/scara_msgs/action/detail/dds_fastrtps/scara_task__type_support.cpp.o[0m
+[45.627s] [ 79%] [32m[1mLinking CXX shared library libscara_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[45.954s] [ 79%] Built target scara_msgs__rosidl_typesupport_fastrtps_cpp
+[46.006s] [ 79%] Built target scara_msgs
+[46.051s] [ 81%] [34m[1mGenerating Python code for ROS interfaces[0m
+[47.971s] [ 81%] Built target scara_msgs__py
+[48.011s] [ 83%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_py.dir/rosidl_generator_py/scara_msgs/srv/_euler_to_quaternion_s.c.o[0m
+[48.261s] [ 85%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_py.dir/rosidl_generator_py/scara_msgs/action/_scara_task_s.c.o[0m
+[48.590s] [ 87%] [32mBuilding C object CMakeFiles/scara_msgs__rosidl_generator_py.dir/rosidl_generator_py/scara_msgs/srv/_quaternion_to_euler_s.c.o[0m
+[48.839s] [ 88%] [32m[1mLinking C shared library libscara_msgs__rosidl_generator_py.so[0m
+[48.932s] [ 88%] Built target scara_msgs__rosidl_generator_py
+[48.972s] [ 90%] [32mBuilding C object CMakeFiles/scara_msgs_s__rosidl_typesupport_fastrtps_c.dir/rosidl_generator_py/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[49.224s] [ 92%] [32m[1mLinking C shared module rosidl_generator_py/scara_msgs/scara_msgs_s__rosidl_typesupport_fastrtps_c.so[0m
+[49.288s] [ 92%] Built target scara_msgs_s__rosidl_typesupport_fastrtps_c
+[49.329s] [ 94%] [32mBuilding C object CMakeFiles/scara_msgs_s__rosidl_typesupport_c.dir/rosidl_generator_py/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[49.576s] [ 96%] [32m[1mLinking C shared module rosidl_generator_py/scara_msgs/scara_msgs_s__rosidl_typesupport_c.so[0m
+[49.638s] [ 96%] Built target scara_msgs_s__rosidl_typesupport_c
+[49.678s] [ 98%] [32mBuilding C object CMakeFiles/scara_msgs_s__rosidl_typesupport_introspection_c.dir/rosidl_generator_py/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[49.924s] [100%] [32m[1mLinking C shared module rosidl_generator_py/scara_msgs/scara_msgs_s__rosidl_typesupport_introspection_c.so[0m
+[49.989s] [100%] Built target scara_msgs_s__rosidl_typesupport_introspection_c
+[50.014s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs -- -j4 -l4
+[50.016s] Invoking command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs
+[50.033s] -- Install configuration: ""
+[50.033s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/ament_index/resource_index/rosidl_interfaces/scara_msgs
+[50.033s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/EulerToQuaternion.json
+[50.034s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/QuaternionToEuler.json
+[50.034s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/action/ScaraTask.json
+[50.034s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.034s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/quaternion_to_euler.h
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__functions.c
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__type_support.h
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__description.c
+[50.035s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__type_support.c
+[50.036s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__description.c
+[50.036s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__functions.c
+[50.036s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__struct.h
+[50.036s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__type_support.h
+[50.036s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__functions.h
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__struct.h
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__functions.h
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__type_support.c
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/euler_to_quaternion.h
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.037s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__functions.c
+[50.038s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__struct.h
+[50.038s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__type_support.c
+[50.038s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__functions.h
+[50.038s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__type_support.h
+[50.038s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__description.c
+[50.039s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/scara_task.h
+[50.039s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg
+[50.039s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg/rosidl_generator_c__visibility_control.h
+[50.039s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/library_path.sh
+[50.039s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/library_path.dsv
+[50.040s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_generator_c.so
+[50.041s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_generator_c.so" to ""
+[50.042s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.042s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.042s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.042s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__rosidl_typesupport_fastrtps_c.h
+[50.042s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__rosidl_typesupport_fastrtps_c.h
+[50.042s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.042s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.043s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__rosidl_typesupport_fastrtps_c.h
+[50.043s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg
+[50.043s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[50.044s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_fastrtps_c.so
+[50.044s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[50.044s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.044s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.044s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/euler_to_quaternion.hpp
+[50.044s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/quaternion_to_euler.hpp
+[50.045s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__struct.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__builder.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__traits.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__traits.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__builder.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__type_support.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__struct.hpp
+[50.045s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__type_support.hpp
+[50.046s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.046s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/scara_task.hpp
+[50.046s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.046s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__traits.hpp
+[50.046s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__type_support.hpp
+[50.046s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__struct.hpp
+[50.046s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__builder.hpp
+[50.047s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg
+[50.047s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[50.047s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.047s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.047s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.047s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/dds_fastrtps
+[50.047s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__rosidl_typesupport_fastrtps_cpp.hpp
+[50.047s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__rosidl_typesupport_fastrtps_cpp.hpp
+[50.048s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.048s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.048s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/dds_fastrtps
+[50.048s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__rosidl_typesupport_fastrtps_cpp.hpp
+[50.048s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg
+[50.051s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[50.051s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_fastrtps_cpp.so
+[50.051s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[50.051s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.051s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.052s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.052s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__type_support.c
+[50.052s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__rosidl_typesupport_introspection_c.h
+[50.052s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__rosidl_typesupport_introspection_c.h
+[50.052s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__type_support.c
+[50.052s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.052s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.052s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__type_support.c
+[50.053s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__rosidl_typesupport_introspection_c.h
+[50.053s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg
+[50.053s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[50.053s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_introspection_c.so
+[50.057s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_introspection_c.so" to ""
+[50.057s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_c.so
+[50.057s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_c.so" to ""
+[50.057s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs
+[50.057s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv
+[50.058s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__rosidl_typesupport_introspection_cpp.hpp
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__rosidl_typesupport_introspection_cpp.hpp
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/quaternion_to_euler__type_support.cpp
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/srv/detail/euler_to_quaternion__type_support.cpp
+[50.058s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action
+[50.058s] -- Up-to-date: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__rosidl_typesupport_introspection_cpp.hpp
+[50.058s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/scara_msgs/scara_msgs/action/detail/scara_task__type_support.cpp
+[50.059s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_introspection_cpp.so
+[50.060s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[50.060s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_cpp.so
+[50.060s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_typesupport_cpp.so" to ""
+[50.061s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/pythonpath.sh
+[50.061s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/pythonpath.dsv
+[50.061s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs-0.0.0-py3.12.egg-info
+[50.061s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs-0.0.0-py3.12.egg-info/dependency_links.txt
+[50.061s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs-0.0.0-py3.12.egg-info/PKG-INFO
+[50.062s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs-0.0.0-py3.12.egg-info/top_level.txt
+[50.062s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs-0.0.0-py3.12.egg-info/SOURCES.txt
+[50.062s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs
+[50.062s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_introspection_c.so
+[50.062s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_quaternion_to_euler_s.c
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_euler_to_quaternion_s.c
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/__init__.py
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_quaternion_to_euler.py
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_euler_to_quaternion.py
+[50.063s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_c.c
+[50.064s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action
+[50.064s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action/_scara_task_s.c
+[50.064s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action/__init__.py
+[50.064s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action/_scara_task.py
+[50.065s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_c.so
+[50.065s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[50.065s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/__init__.py
+[50.065s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_fastrtps_c.so
+[50.066s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/_scara_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[50.153s] Listing '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs'...
+[50.153s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/__init__.py'...
+[50.153s] Listing '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action'...
+[50.153s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action/__init__.py'...
+[50.153s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/action/_scara_task.py'...
+[50.153s] Listing '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv'...
+[50.153s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/__init__.py'...
+[50.154s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_euler_to_quaternion.py'...
+[50.154s] Compiling '/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/srv/_quaternion_to_euler.py'...
+[50.166s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_fastrtps_c.so
+[50.167s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_fastrtps_c.so" to ""
+[50.167s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_introspection_c.so
+[50.168s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_introspection_c.so" to ""
+[50.168s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_c.so
+[50.169s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/python3.12/site-packages/scara_msgs/scara_msgs_s__rosidl_typesupport_c.so" to ""
+[50.169s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_generator_py.so
+[50.170s] -- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/lib/libscara_msgs__rosidl_generator_py.so" to ""
+[50.170s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/EulerToQuaternion.idl
+[50.171s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/QuaternionToEuler.idl
+[50.171s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/action/ScaraTask.idl
+[50.171s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/EulerToQuaternion.srv
+[50.171s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/srv/QuaternionToEuler.srv
+[50.171s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/action/ScaraTask.action
+[50.172s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/ament_index/resource_index/package_run_dependencies/scara_msgs
+[50.172s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/ament_index/resource_index/parent_prefix_path/scara_msgs
+[50.172s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/ament_prefix_path.sh
+[50.172s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/ament_prefix_path.dsv
+[50.173s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/path.sh
+[50.173s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/environment/path.dsv
+[50.173s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/local_setup.bash
+[50.173s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/local_setup.sh
+[50.173s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/local_setup.zsh
+[50.174s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/local_setup.dsv
+[50.174s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/package.dsv
+[50.174s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/ament_index/resource_index/packages/scara_msgs
+[50.174s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_generator_cExport.cmake
+[50.175s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_generator_cExport-noconfig.cmake
+[50.175s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[50.175s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[50.175s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_generator_cppExport.cmake
+[50.176s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[50.176s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[50.176s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_introspection_cExport.cmake
+[50.176s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[50.176s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_cExport.cmake
+[50.177s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[50.177s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[50.177s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[50.177s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_cppExport.cmake
+[50.177s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[50.178s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_generator_pyExport.cmake
+[50.178s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/export_scara_msgs__rosidl_generator_pyExport-noconfig.cmake
+[50.178s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/rosidl_cmake-extras.cmake
+[50.178s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[50.179s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgsConfig.cmake
+[50.180s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/cmake/scara_msgsConfig-version.cmake
+[50.180s] -- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/share/scara_msgs/package.xml
+[50.184s] Invoked command in '/home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/wojciech/Workspaces/ROS2/SCARA/build/scara_msgs

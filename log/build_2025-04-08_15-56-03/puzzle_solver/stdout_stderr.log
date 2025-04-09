@@ -1,0 +1,113 @@
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 2.5.3 (/opt/ros/jazzy/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- Found rclcpp: 28.1.8 (/opt/ros/jazzy/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+-- Found rosidl_generator_cpp: 4.6.5 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 7.3.2 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+-- Found rmw_fastrtps_cpp: 8.4.2 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+-- Found OpenSSL: /usr/lib/aarch64-linux-gnu/libcrypto.so (found version "3.0.13")  
+-- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Found sensor_msgs: 5.3.6 (/opt/ros/jazzy/share/sensor_msgs/cmake)
+-- Found cv_bridge: 4.1.0 (/opt/ros/jazzy/share/cv_bridge/cmake)
+-- Found OpenCV: /usr (found version "4.6.0") 
+-- Configuring done (13.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/wojciech/Workspaces/ROS2/SCARA/build/puzzle_solver
+[ 20%] [32mBuilding CXX object CMakeFiles/puzzle_solver_node.dir/src/puzzle_solver_node.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/puzzle_solver_node.dir/src/puzzle_utils.cpp.o[0m
+[ 60%] [32mBuilding CXX object CMakeFiles/puzzle_solver_node.dir/src/puzzle_processing.cpp.o[0m
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:[m[K In function ‘[01m[Kint[01;32m[K loadImages[m[K(std::string)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:62:25:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Ksize_t[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} and ‘[01m[Kint[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+   62 |     for(size_t i = 0; [01;35m[Ki < PUZZLE_SIZE[m[K; i++)
+      |                       [01;35m[K~~^~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:[m[K In function ‘[01m[Kstd::vector<cv::Point_<int> >[01;32m[K getLargestArea[m[K(std::vector<cv::Point_<int> >)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:207:23:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  207 |     for (int i = 0; [01;35m[Ki < vcorners.size() - 3[m[K; i++) {
+      |                     [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:208:31:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  208 |         for (int j = i + 1; [01;35m[Kj < vcorners.size() - 2[m[K; j++) {
+      |                             [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:209:35:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  209 |             for (int k = j + 1; [01;35m[Kk < vcorners.size() - 1[m[K; k++) {
+      |                                 [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:210:39:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  210 |                 for (int l = k + 1; [01;35m[Kl < vcorners.size()[m[K; l++) {
+      |                                     [01;35m[K~~^~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:[m[K In function ‘[01m[Kstd::vector<cv::Point_<int> >[01;32m[K reinforceCorners[m[K(std::vector<cv::Point_<int> >, std::vector<cv::Point_<int> >, int)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:259:27:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  259 |         for (int j = 0; [01;35m[Kj < contourInBox.at(i).size()[m[K; j++)
+      |                         [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:[m[K In function ‘[01m[Kvoid[01;32m[K normalizeEdges[m[K(Element&, int)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:350:23:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<std::vector<cv::Point_<int> > >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  350 |     for (int i = 0; [01;35m[Ki < edges.size()[m[K; i++){
+      |                     [01;35m[K~~^~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_processing.cpp:369:36:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kstd::vector<cv::Point_<int> >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} and ‘[01m[Kint[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  369 |         while([01;35m[KresampledEdge.size() < numSamples - 1[m[K){
+      |               [01;35m[K~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~[m[K
+[ 80%] [32mBuilding CXX object CMakeFiles/puzzle_solver_node.dir/src/puzzle_matching.cpp.o[0m
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:[m[K In function ‘[01m[Kstd::map<std::pair<int, int>, std::vector<MatchInfo> >[01;32m[K findMatches[m[K(std::vector<Element>&)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:48:23:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<Element>::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+   48 |     for (int i = 0; [01;35m[Ki < allElementsData.size()[m[K; i++){
+      |                     [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:51:27:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<Element>::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+   51 |         for (int j = 0; [01;35m[Kj < allElementsData.size()[m[K; j++) {
+      |                         [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:55:33:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<std::vector<cv::Point_<int> > >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+   55 |             for (int ii = 0; [01;35m[Kii < elemA.normalizedEdges.size()[m[K; ii++){
+      |                              [01;35m[K~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:58:37:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<std::vector<cv::Point_<int> > >::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+   58 |                 for (int jj = 0; [01;35m[Kjj < elemB.normalizedEdges.size()[m[K; jj++){
+      |                                  [01;35m[K~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:[m[K In function ‘[01m[Kstd::vector<Element>[01;32m[K puzzleAssembly[m[K(const std::vector<Element>&)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:136:23:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<Element>::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  136 |     for (int i = 0; [01;35m[Ki < allElementsData.size()[m[K; i++){
+      |                     [01;35m[K~~^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:[m[K In function ‘[01m[Kvoid[01;32m[K drawAssembly[m[K(std::vector<Element>)[m[K’:
+[01m[K/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/src/puzzle_matching.cpp:264:23:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kint[m[K’ and ‘[01m[Kstd::vector<Element>::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsign-compare-Wsign-compare]8;;[m[K]
+  264 |     for (int i = 0; [01;35m[Ki < assembly.size()[m[K; i++){
+      |                     [01;35m[K~~^~~~~~~~~~~~~~~~~[m[K
+[100%] [32m[1mLinking CXX executable puzzle_solver_node[0m
+[100%] Built target puzzle_solver_node
+-- Install configuration: ""
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/lib/puzzle_solver/puzzle_solver_node
+-- Set non-toolchain portion of runtime path of "/home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/lib/puzzle_solver/puzzle_solver_node" to ""
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/11.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/3.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/10.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/1.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/19.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/20.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/21.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/2.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/images/12.jpg
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/ament_index/resource_index/package_run_dependencies/puzzle_solver
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/ament_index/resource_index/parent_prefix_path/puzzle_solver
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/environment/ament_prefix_path.sh
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/environment/ament_prefix_path.dsv
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/environment/path.sh
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/environment/path.dsv
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/local_setup.bash
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/local_setup.sh
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/local_setup.zsh
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/local_setup.dsv
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/package.dsv
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/ament_index/resource_index/packages/puzzle_solver
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/cmake/puzzle_solverConfig.cmake
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/cmake/puzzle_solverConfig-version.cmake
+-- Installing: /home/wojciech/Workspaces/ROS2/SCARA/install/puzzle_solver/share/puzzle_solver/package.xml
