@@ -21,9 +21,11 @@ int PUZZLE_SIZE{9};
 Size PUZZLE_IMAGES_SIZE;
 vector<Mat> initialPuzzleImages;
 
-void loadParameters(const char* configFile ) {
+int loadParameters(std::string configFile ) {
+    std::cout << "Searching \"" + configFile + "\" for config file..."<< std::endl;
     std::ifstream file(configFile);
     if (file.is_open()) {
+        std::cout << "Succesfully found solver config file."<< std::endl;
         std::string line;
         if (std::getline(file,line)){
             std::stringstream ss(line);
@@ -33,11 +35,13 @@ void loadParameters(const char* configFile ) {
                   >> delim >> CORNERS_BLOCK_SIZE >> delim >> CORNERS_K_SIZE >> delim >> CORNERS_TRESH_VAL
                   >> delim >> SCALE_DOWN)){
                 std::cerr << "@@@ Error parsing parameters!" << std::endl;
-                return;
+                return 1;
             }
+            return 0;
         }
     } else {
         std::cerr << "@@@ Error! No config file found. Using default parameters." << std::endl;
+        return 0;
     }
 }
 

@@ -45,5 +45,9 @@ install(DIRECTORY images/
     DESTINATION share/${PROJECT_NAME}/images
 )
 
+install(DIRECTORY config/
+    DESTINATION share/${PROJECT_NAME}/config
+)
+
 ament_package()
 

@@ -22,15 +22,29 @@ class PuzzleSolverNode : public rclcpp::Node{
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node destroyed.");
         }
         int loadProcessingParameters(){
-            if(loadImages(imagesDirectory)){
+            if(loadParameters(configFile)){
+                RCLCPP_ERROR(this->get_logger(), "Could not read processing parameters for puzzle solver!");
                 return 1;
             }
             return 0;
         }
+        int loadPuzzleImages(bool simulation = false){
+            if (simulation){
+                // simulation without the use of camera. Sample images provided.
+                if(loadImages(imagesDirectory)){
+                    RCLCPP_ERROR(this->get_logger(), "Could not read puzzle images!");
+                    return 1;
+                }
+            } else {
+                // for camera integration
+                return 0;
+            }
+
+        }
 
         int processPuzzlePieces(bool showImages = false){
             for (int i = 0; i < PUZZLE_SIZE; i++) {
-                RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
+                RCLCPP_INFO_STREAM(this->get_logger(), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
                 Mat puzzleImage = initialPuzzleImages.at(i);
                 Element elem = elementPipeline(puzzleImage, i);
                 if (!elem.edges.empty()){
@@ -45,6 +59,7 @@ class PuzzleSolverNode : public rclcpp::Node{
                     waitKey(0);
                 }
             }
+            if (showImages) destroyAllWindows();
             return 0;
         }
 
@@ -52,9 +67,9 @@ class PuzzleSolverNode : public rclcpp::Node{
             matchingPipeline(processedPuzzlePieces);
         }
 
-        std::string imagesDirectory;
     private:
-        const char* configFile =  "config.txt";
+        std::string configFile = package_path + "/config/solverConfig.txt";
+        std::string imagesDirectory = package_path + "/images/*.jpg";
         std::vector<Element> processedPuzzlePieces;
 };
 
@@ -62,12 +77,10 @@ int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<PuzzleSolverNode>();
-    node->imagesDirectory = package_path + "/images/*.jpg";
-    if(node->loadProcessingParameters()){
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not read processing parameters for puzzle solver!");
-    }
+    node->loadProcessingParameters();
+    node->loadPuzzleImages(true);
     node->processPuzzlePieces(true);
-    
+    node->assembly();
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
