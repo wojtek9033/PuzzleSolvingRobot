@@ -1,9 +1,0 @@
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/uninstall.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/scara_controller_uninstall.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/test.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/edit_cache.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/rebuild_cache.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/list_install_components.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/install.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/install/local.dir
-/home/wojciech/Workspaces/ROS2/SCARA/build/scara_controller/CMakeFiles/install/strip.dir
