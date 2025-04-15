@@ -4,9 +4,9 @@
 #include "puzzle_matching.h"
 
 #include <rclcpp/rclcpp.hpp>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <sensor_msgs/msg/image.hpp>
-#include <cv_bridge/cv_bridge.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp> // For getting package paths
+#include <sensor_msgs/msg/image.hpp> // ROS 2 Image message type
+#include <cv_bridge/cv_bridge.hpp> // Bridge between ROS 2 and OpenCV
 
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
 std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
@@ -17,6 +17,12 @@ class PuzzleSolverNode : public rclcpp::Node{
     public:
         PuzzleSolverNode() : Node("puzzle_solver_node"){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node started.");
+            // Subscribe to the topic publishing puzzle piece images
+            image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+                "/puzzle_piece/image_raw",
+                rclcpp::SensorDataQoS(),
+                std::bind(&PuzzleSolverNode::imageCallback, this, std::placeholders::_1)
+            );
         }
         ~PuzzleSolverNode(){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node destroyed.");
@@ -28,6 +34,26 @@ class PuzzleSolverNode : public rclcpp::Node{
             }
             return 0;
         }
+
+        void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg){
+            try{
+                // Convert a sensor_msgs::Image message to an OpenCV-compatible CvImage
+                Mat image = cv_bridge::toCvShare(msg, "bgr8")->image.clone();
+                // Store the image in a thread-safe manner
+                {
+                    std::lock_guard<std::mutex> lock(image_mutex_);
+                    puzzle_images_.push_back(image);
+                    new_image_received_ = true;
+                }
+                image_cv_.notify_one(); // Notify waiting threads
+                RCLCPP_INFO(this->get_logger(), "Image %ld received and stored.", puzzle_images_.size());
+
+            } catch (cv_bridge::Exception &e) {
+                RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+                return;
+            }
+        }
+
         int loadPuzzleImages(bool simulation = false){
             if (simulation){
                 // simulation without the use of camera. Sample images provided.
@@ -35,8 +61,24 @@ class PuzzleSolverNode : public rclcpp::Node{
                     RCLCPP_ERROR(this->get_logger(), "Could not read puzzle images!");
                     return 1;
                 }
+                return 0;
             } else {
-                // for camera integration
+                puzzle_images_.clear();
+                for (int i = 0; i < PUZZLE_SIZE; i++){
+                    RCLCPP_INFO_STREAM(this->get_logger(), "Triggering robot movement to position " << i);
+                    // TODO: call to move robot
+
+                    RCLCPP_INFO_STREAM(this->get_logger(), "Waiting for image" << i +1 << " from camera...");
+                    // Wait for a new image to be received
+                    std::unique_lock<std::mutex> lock(image_mutex_);
+                    image_cv_.wait(lock, [&] { return new_image_received_; });
+                    new_image_received_ = false;
+                }
+                
+                initialPuzzleImages = puzzle_images_;
+                PUZZLE_IMAGES_SIZE = initialPuzzleImages.at(0).size();
+
+
                 return 0;
             }
 
@@ -71,6 +113,11 @@ class PuzzleSolverNode : public rclcpp::Node{
         std::string configFile = package_path + "/config/solverConfig.txt";
         std::string imagesDirectory = package_path + "/images/*.jpg";
         std::vector<Element> processedPuzzlePieces;
+        std::vector<cv::Mat> puzzle_images_;
+        rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
+        std::mutex image_mutex_; // Mutex for thread-safe image storage
+        std::condition_variable image_cv_; // Condition variable for image synchronization
+        bool new_image_received_ = false;
 };
 
 int main(int argc, char** argv)
