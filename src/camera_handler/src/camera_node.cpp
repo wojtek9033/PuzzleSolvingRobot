@@ -66,3 +66,12 @@ private:
     int apiID = cv::CAP_ANY;      // 0 = autodetect default API
 };
 
+
+int main(int argc, char** argv){
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<CameraNode>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+
+    return 0;
+}

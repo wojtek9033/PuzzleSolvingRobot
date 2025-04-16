@@ -14,13 +14,19 @@ find_package(std_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
 
-ament_target_dependencies(
-  camera_node
+add_executable(camera_node src/camera_node.cpp)
+
+ament_target_dependencies( camera_node
   rclcpp
   sensor_msgs
   std_msgs
   cv_bridge
   OpenCV
+)
+
+install(TARGETS
+  camera_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
