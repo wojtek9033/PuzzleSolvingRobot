@@ -32,22 +32,28 @@ public:
     // callback function to trigger camera when robot is in position
     void camera_callback(const std_msgs::msg::Bool::SharedPtr msg){
         if(msg->data){
-            cv::Mat frame;
-            cap_ >> frame;
-
-            if(!frame.empty()){
-                try {
-                    auto img_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", frame).toImageMsg();
-                    img_msg->header.stamp = this->now();
-                    img_msg->header.frame_id = "camera_frame";
-                    camera_publisher_->publish(*img_msg);
-                } catch (cv_bridge::Exception &e) {
-                    RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-                    return;
-                }
-                
+            if(!cap_.isOpened()){
+                RCLCPP_FATAL(this->get_logger(), "Error! Camera shutdown during operation!");
+                rclcpp::shutdown();
+                return;
             } else {
-                RCLCPP_ERROR(this->get_logger(), "Error! Captured empty frame!");
+                cv::Mat frame;
+                cap_ >> frame;
+    
+                if(frame.empty()){
+                    RCLCPP_ERROR(this->get_logger(), "Error! Captured empty frame!");
+                } else {
+                    try {
+                        auto img_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", frame).toImageMsg();
+                        img_msg->header.stamp = this->now();
+                        img_msg->header.frame_id = "camera_frame";
+                        camera_publisher_->publish(*img_msg);
+                    } catch (cv_bridge::Exception &e) {
+                        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+                        return;
+                    }
+                    RCLCPP_INFO(this->get_logger(), "Captured and published image.");
+                }
             }
         }
     }
