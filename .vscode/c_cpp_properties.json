@@ -8,7 +8,6 @@
       "includePath": [
         "/home/wojciech/Workspaces/SCARA/install/scara_msgs/include/**",
         "/opt/ros/jazzy/include/**",
-        "/home/wojciech/Workspaces/SCARA/src/camera_handler/include/**",
         "/home/wojciech/Workspaces/SCARA/src/puzzle_solver/include/**",
         "/home/wojciech/Workspaces/SCARA/src/puzzle_tuner/include/**",
         "/usr/include/**"
