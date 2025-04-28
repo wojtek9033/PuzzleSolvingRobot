@@ -19,7 +19,7 @@ using namespace cv;
 using std::vector;
 using std::pair;
 
-extern int PUZZLE_SIZE;
+extern size_t PUZZLE_SIZE;
 extern Size PUZZLE_IMAGES_SIZE;
 extern vector<Mat> initialPuzzleImages;
 

@@ -17,7 +17,7 @@ const unsigned int NORMALIZE_SAMPLES_VAL{300};
 const double FLAT_TRESHOLD{10.0};
 const int LOCAL_MAXIMA_NEIGHBORHOOD{6}; // neighborhood size of the pixel for finding local maximas
 
-int PUZZLE_SIZE{9};
+size_t PUZZLE_SIZE{9};
 Size PUZZLE_IMAGES_SIZE;
 vector<Mat> initialPuzzleImages;
 
