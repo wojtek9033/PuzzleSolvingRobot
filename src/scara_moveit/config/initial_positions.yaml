@@ -1,6 +1,6 @@
 # Default initial positions for scara ros2_control sim system
 
 initial_positions:
-  joint_1: 0.0
-  joint_2: 0.0
-  joint_3: 0.0
+  joint_1: 0.1
+  joint_2: 0
+  joint_3: 0

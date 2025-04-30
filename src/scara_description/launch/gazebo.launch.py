@@ -17,14 +17,6 @@ def generate_launch_description():
                                         scara_description_dir, 'urdf', 'scara.urdf.xacro'
                                         ),
                                       description='Absolute path to robot urdf file')
-    
-    physics_engine = "--physics-engine gz-physics-bullet-featherstone-plugin"
-
-    robot_description = ParameterValue(Command([
-        'xacro ',
-        LaunchConfiguration('model')
-        ]),
-        value_type=str)
 
     gazebo_resource_path = SetEnvironmentVariable(
         name="GZ_SIM_RESOURCE_PATH",
@@ -32,6 +24,13 @@ def generate_launch_description():
             str(Path(scara_description_dir).parent.resolve())
         ]    
     )
+    physics_engine = "--physics-engine gz-physics-bullet-featherstone-plugin"
+
+    robot_description = ParameterValue(Command([
+        'xacro ',
+        LaunchConfiguration('model')
+        ]),
+        value_type=str)
 
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
