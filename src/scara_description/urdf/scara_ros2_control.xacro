@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="scara">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="SCARA">
 
     <xacro:property name="PI" value="3.14159265359" />
 
@@ -18,20 +18,31 @@
 
         <joint name="joint_2">
             <command_interface name="position">
-                <param name="min">0.0</param>
-                <param name="max">3.490</param>
+                <param name="min">-1.66</param>
+                <param name="max">1.66</param>
             </command_interface>
             <state_interface name="position"/>
         </joint>
 
         <joint name="joint_3">
             <command_interface name="position">
-                <param name="min">-4.538</param>
-                <param name="max">0.0</param>
+                <param name="min">-2.37</param>
+                <param name="max">2.37</param>
             </command_interface>
             <state_interface name="position"/>
         </joint>
-        
-    </ros2_control>
-
+    
+    </ros2_control>   
+    
+    <!-- Transmissions -->
+    <transmission name="trans_joint_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_joint_1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>1.0</mechanicalReduction>
+        </actuator>
+    </transmission>
 </robot>

@@ -84,40 +84,21 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          base_plate:
+          z_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          claw_support:
+          shoulder:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          forward_drive_arm:
+          elbow:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          gripper_left:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          gripper_right:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          horizontal_arm:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          tool_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
           world:
             Alpha: 1
             Show Axes: false
@@ -173,40 +154,21 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          base_plate:
+          z_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          claw_support:
+          shoulder:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          forward_drive_arm:
+          elbow:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          gripper_left:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          gripper_right:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          horizontal_arm:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          tool_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
           world:
             Alpha: 1
             Show Axes: false

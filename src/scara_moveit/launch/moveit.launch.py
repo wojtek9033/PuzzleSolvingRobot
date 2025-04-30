@@ -17,7 +17,7 @@ def generate_launch_description():
     )
 
     moveit_config = (
-        MoveItConfigsBuilder("scara", package_name="scara_moveit")
+        MoveItConfigsBuilder("SCARA", package_name="scara_moveit")
         .robot_description(file_path=os.path.join(
             get_package_share_directory("scara_description"),
             "urdf",

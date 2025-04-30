@@ -55,7 +55,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=["-topic", "robot_description",
-                   "-name", "scara"]
+                   "-name", "SCARA"]
     )
 
     gz_ros2_bridge = Node(

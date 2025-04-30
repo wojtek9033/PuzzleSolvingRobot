@@ -23,7 +23,6 @@
 
     <!-- links -->
     <link name="world"/>
-
     <link name="base_link">
         <!-- Base Mesh -->
         <visual>
@@ -32,7 +31,6 @@
                 <mesh filename="package://scara_description/meshes/BASEPLATE.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
         <!-- Rod 1 -->
         <visual>
             <origin xyz="0.67 0 1.3" rpy="0 0 0"/>
@@ -40,7 +38,6 @@
                 <cylinder radius="0.04" length="2.50"/>
             </geometry>
         </visual>
-
         <!-- Rod 2 -->
         <visual>
             <origin xyz="-0.08 0.48 1.3" rpy="0 0 0"/>
@@ -48,7 +45,12 @@
                 <cylinder radius="0.04" length="2.50"/>
             </geometry>
         </visual>
-
+        <collision>
+            <origin xyz="-0.08 -0.48 1.3" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.04" length="2.50"/>
+            </geometry>
+        </collision>
         <!-- Rod 3 -->
         <visual>
             <origin xyz="-0.08 -0.48 1.3" rpy="0 0 0"/>
@@ -56,7 +58,12 @@
                 <cylinder radius="0.04" length="2.50"/>
             </geometry>
         </visual>
-
+        <collision>
+            <origin xyz="-0.08 -0.48 1.3" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.04" length="2.50"/>
+            </geometry>
+        </collision>
         <!-- Threaded Rod -->
         <visual>
             <origin xyz="0 0 1.3" rpy="0 0 0"/>
@@ -64,7 +71,6 @@
                 <cylinder radius="0.04" length="2.50"/>
             </geometry>
         </visual>
-
         <!-- Base cover -->
         <visual>
             <origin xyz="0.17 0 3.08" rpy="-${PI/2} 0 -${PI/2}"/>
@@ -72,7 +78,6 @@
                 <mesh filename="package://scara_description/meshes/TOP_TRIANGLE.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
         <!-- Motors triangle -->
         <visual>
             <origin xyz="0.17 0 3.1" rpy="-${PI/2} 0 -${PI/2}"/>
@@ -90,6 +95,12 @@
                 <mesh filename="package://scara_description/meshes/Z_BASE.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
+        <collision>
+            <origin xyz="0.17 0 1.55" rpy="-${PI/2} 0 -${PI/2}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/Z_BASE.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
         <xacro:default_inertial mass="1.5"/>
     </link>
 
@@ -101,7 +112,12 @@
                 <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
+        <collision>
+            <origin xyz="-0.015 0.5 -0.4" rpy="${PI/2} 0 0"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.01 0.01 0.01"/>
+            </geometry>    
+        </collision>
         <!-- arm bottom -->
         <visual>
             <origin xyz="0.49 0 -0.44" rpy="${PI/2} 0 -${PI/2} "/>
@@ -109,7 +125,6 @@
                 <mesh filename="package://scara_description/meshes/ARM_BOTTOM.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
         <!-- reduction -->
         <visual>
             <origin xyz="0.18 -0.245 -0.07" rpy="${PI} 0 0"/>
@@ -122,8 +137,6 @@
     </link>
 
     <link name="elbow">
-        <!-- elbow -->
-
         <!-- elbow hub -->
         <visual>
             <origin xyz="-0.187 0.245 -0.11" rpy="${PI} 0 ${PI}"/>
@@ -131,7 +144,6 @@
                 <mesh filename="package://scara_description/meshes/ARM_HUB.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
         <!-- elbow arm -->
         <visual>
             <origin xyz="-0.187 0.245 -0.11" rpy="${PI} 0 ${PI}"/>
@@ -139,8 +151,12 @@
                 <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </visual>
-
-
+        <collision>
+            <origin xyz="-0.187 0.245 -0.11" rpy="${PI} 0 ${PI}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
         <xacro:default_inertial mass="1.5"/>
     </link>
 
@@ -162,16 +178,17 @@
     <joint name="joint_2" type="revolute">
         <parent link="z_base"/>
         <child link="shoulder"/>
-        <origin xyz="0.67 0 -0.07" rpy="0 0 -1.745"/>
+        <origin xyz="0.67 0 -0.07" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="3.490"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-1.66" upper="1.66"/>
     </joint>
 
-        <joint name="joint_3" type="revolute">
+    <joint name="joint_3" type="revolute">
         <parent link="shoulder"/>
         <child link="elbow"/>
-        <origin xyz="0.92 0 0" rpy="0 0 2.269"/>
+        <origin xyz="0.92 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="-4.538" upper="0.0"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-2.37" upper="2.37"/>
     </joint>
+      
 </robot>

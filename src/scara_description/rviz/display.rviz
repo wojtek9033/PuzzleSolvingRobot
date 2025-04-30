@@ -41,19 +41,11 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
-        base_plate:
+        z_base:
           Value: true
-        claw_support:
+        shoulder:
           Value: true
-        forward_drive_arm:
-          Value: true
-        gripper_left:
-          Value: true
-        gripper_right:
-          Value: true
-        horizontal_arm:
-          Value: true
-        tool_link:
+        elbow:
           Value: true
         world:
           Value: true
