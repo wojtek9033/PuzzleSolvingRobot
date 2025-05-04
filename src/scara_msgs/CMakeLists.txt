@@ -9,11 +9,12 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/EulerToQuaternion.srv"
-  "srv/QuaternionToEuler.srv"
+  "msg/PiecePose.msg"
   "action/ScaraTask.action"
+  DEPENDENCIES geometry_msgs
 )
 
 

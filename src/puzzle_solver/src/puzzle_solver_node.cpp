@@ -11,6 +11,8 @@
 #include <std_msgs/msg/bool.hpp>
 #include <cv_bridge/cv_bridge.hpp> // Bridge between ROS 2 and OpenCV
 
+#include "scara_msgs/msg/piece_pose.hpp"
+
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
 std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
 
@@ -33,6 +35,10 @@ public:
             );
             confirm_pub_ = this->create_publisher<std_msgs::msg::Bool> (
                 "/capture/confirm",
+                10
+            );
+            assemble_pub_ = this->create_publisher<scara_msgs::msg::PiecePose>(
+                "/assembly/solution",
                 10
             );
             loadProcessingParameters();
@@ -104,6 +110,17 @@ private:
 
     void assembly(){
         matchingPipeline(processedPuzzlePieces);
+
+        /*
+            scara_msgs::msg::PiecePose msg;
+            msg.piece_id = id;
+            msg.start_pose.position.x = start_x;
+            msg.start_pose.position.y = start_y;
+            pose.start_pose.orientation.w = start_orientation; //QUATERNION!
+            msg.goal_pose.position.x = goal_x;
+            msg.goal_pose.position.y = goal_y;
+            pose.goal_pose.orientation.w = goal_orientation; //QUATERNION!
+        */
     }
 
     int loadProcessingParameters(){
@@ -122,6 +139,7 @@ private:
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr robot_sub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr confirm_pub_;
+    rclcpp::Publisher<scara_msgs::msg::PiecePose>::SharedPtr assemble_pub_;
 };
 
 int main(int argc, char** argv)

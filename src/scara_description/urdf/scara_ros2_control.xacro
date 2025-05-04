@@ -31,7 +31,15 @@
             </command_interface>
             <state_interface name="position"/>
         </joint>
-    
+
+        <joint name="joint_4">
+            <command_interface name="position">
+                <param name="min">-${PI}</param>
+                <param name="max">${PI}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint>
+        
     </ros2_control>   
     
     <!-- Transmissions -->

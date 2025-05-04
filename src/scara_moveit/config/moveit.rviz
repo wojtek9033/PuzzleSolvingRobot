@@ -84,7 +84,12 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          z_base:
+          elbow:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -94,15 +99,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          elbow:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           world:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+          z_base:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
         Loop Animation: true
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
@@ -154,7 +159,12 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          z_base:
+          elbow:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_base:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -164,15 +174,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          elbow:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           world:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+          z_base:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
         Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true

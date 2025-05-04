@@ -1,8 +1,8 @@
 # Goal
-int32 task_number
+string command
 ---
 # Result
 bool success
 ---
 # Feedback
-int32 percentage
+string current_step

@@ -14,6 +14,7 @@ find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(scara_msgs REQUIRED)
 
 # Include directories
 include_directories(include ${OpenCV_INCLUDE_DIRS} ${Qt5_INCLUDE_DIRS})
@@ -38,6 +39,7 @@ ament_target_dependencies(puzzle_solver_node
     std_msgs
     cv_bridge
     OpenCV
+    scara_msgs
 )
 ament_target_dependencies(puzzle_solver_node ament_index_cpp)
 

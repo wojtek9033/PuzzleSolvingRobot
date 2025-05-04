@@ -1,0 +1,3 @@
+int32 piece_id
+geometry_msgs/Pose start_pose
+geometry_msgs/Pose goal_pose
