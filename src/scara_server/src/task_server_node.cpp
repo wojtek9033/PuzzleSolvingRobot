@@ -93,24 +93,23 @@ private:
             RCLCPP_INFO(get_logger(), "Goal succeeded");
 
         } else if (cmd == "capture") {
-            for (size_t i = 0; i < 1; i++) {
+            for (size_t i = 0; i < capture_poses_.size(); i++) {
                 if (goal_handle->is_canceling()) {
                     result->success = false;
                     goal_handle->canceled(result);
                     RCLCPP_WARN(this->get_logger(), "Capture task canceled.");
                     return;
                 }
-    
+                rclcpp::sleep_for(std::chrono::milliseconds(250));
                 feedback->current_step = "Moving  to capture pose " + std::to_string(i + 1);
                 goal_handle->publish_feedback(feedback);
 
                 move_arm_->setPoseReferenceFrame("base_link");
                 move_arm_->setStartStateToCurrentState();
-                //move_arm_->setGoalTolerance(0.01);
-                //move_arm_->setGoalPositionTolerance(0.01);   // 1 cm tolerance in position
-                //move_arm_->setGoalOrientationTolerance(0.05);
+                move_arm_->setGoalPositionTolerance(0.01);
+                move_arm_->setGoalOrientationTolerance(0.01);
+
                 bool arm_within_bounds = move_arm_->setPoseTarget(capture_poses_.at(i));
-                //move_arm_->setRandomTarget();
                 
                 if (!arm_within_bounds)
                 {
@@ -120,7 +119,7 @@ private:
                 
                 moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
                 bool arm_plan_success = (move_arm_->plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-                
+            
                 if(arm_plan_success)
                 {
                   RCLCPP_INFO(get_logger(), "Planner SUCCEED for pose %ld, moving the arm", i + 1);
@@ -131,9 +130,8 @@ private:
                   RCLCPP_ERROR(get_logger(), "One or more planners FAILED for pose %ld!", i + 1);
                   return;
                 }
-                //geometry_msgs::msg::PoseStamped TestPose = move_arm_->getCurrentPose();
-                //RCLCPP_INFO(this->get_logger(), "Current pose is x: %lf y: %lf z: %lf w: %lf", TestPose.pose.position.x, TestPose.pose.position.y, TestPose.pose.position.z, TestPose.pose.orientation.w);
-                // rclcpp::sleep_for(std::chrono::milliseconds(250));
+                
+                
                 std_msgs::msg::Bool msg;
                 msg.data = true;
                 ready_pub_->publish(msg);
@@ -154,14 +152,16 @@ private:
 
     void generate_capture_waypoints() {
         geometry_msgs::msg::Pose pose;
-        for (int i = 0; i < 9; i ++) {
+        int puzzleSize{9};
+        for (int i = 0; i < puzzleSize; i ++) {
             // x: 2.002987 y: 0.247675 z: 1.340460 w: 0.612770 - from setRandomPose()
-            pose.orientation.x = 1e-6;
-            pose.orientation.y = 1e-6;
-            pose.orientation.z = 1e-6;
-            pose.orientation.w = 0.612770;
-            pose.position.x = 2.002987;
-            pose.position.y = 0.247675;
+            double theta = M_PI;
+            pose.orientation.x = 0.0;
+            pose.orientation.y = 0.0;
+            pose.orientation.z = sin(theta/ 2.0);
+            pose.orientation.w = cos(theta/ 2.0);
+            pose.position.x = 0.7 + 0.4*(i / (int)sqrt(puzzleSize));
+            pose.position.y = -1.8 + 0.4*(i % (int)sqrt(puzzleSize));
             pose.position.z = 1.340460;
             capture_poses_.push_back(pose);
         }
