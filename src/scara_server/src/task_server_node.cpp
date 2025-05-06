@@ -100,7 +100,6 @@ private:
                     RCLCPP_WARN(this->get_logger(), "Capture task canceled.");
                     return;
                 }
-                rclcpp::sleep_for(std::chrono::milliseconds(250));
                 feedback->current_step = "Moving  to capture pose " + std::to_string(i + 1);
                 goal_handle->publish_feedback(feedback);
 
@@ -124,6 +123,7 @@ private:
                 {
                   RCLCPP_INFO(get_logger(), "Planner SUCCEED for pose %ld, moving the arm", i + 1);
                   move_arm_->move();
+                  rclcpp::sleep_for(std::chrono::milliseconds(2000));
                 }
                 else
                 {
