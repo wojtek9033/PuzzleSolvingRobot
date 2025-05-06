@@ -1,56 +1,72 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="SCARA">
 
-    <xacro:property name="PI" value="3.14159265359" />
+  <ros2_control name="RobotSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
 
-    <ros2_control type="system" name="RobotSystem">
-        <hardware>
-            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-        </hardware>
+    <joint name="joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+  </ros2_control>
 
-        <joint name="joint_1">
-            <command_interface name="position">
-                <param name="min">0.0</param>
-                <param name="max">1.47</param>
-            </command_interface>
-            <state_interface name="position"/>
-        </joint>
+  <!-- Transmissions for all joints -->
+  <transmission name="trans_joint_1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_joint_1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </actuator>
+  </transmission>
 
-        <joint name="joint_2">
-            <command_interface name="position">
-                <param name="min">-1.66</param>
-                <param name="max">1.66</param>
-            </command_interface>
-            <state_interface name="position"/>
-        </joint>
+  <transmission name="trans_joint_2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_2">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_joint_2">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </actuator>
+  </transmission>
 
-        <joint name="joint_3">
-            <command_interface name="position">
-                <param name="min">-2.37</param>
-                <param name="max">2.37</param>
-            </command_interface>
-            <state_interface name="position"/>
-        </joint>
+  <transmission name="trans_joint_3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_3">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_joint_3">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </actuator>
+  </transmission>
 
-        <joint name="joint_4">
-            <command_interface name="position">
-                <param name="min">-${PI}</param>
-                <param name="max">${PI}</param>
-            </command_interface>
-            <state_interface name="position"/>
-        </joint>
-        
-    </ros2_control>   
-    
-    <!-- Transmissions -->
-    <transmission name="trans_joint_1">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint_1">
-          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor_joint_1">
-          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
-          <mechanicalReduction>1.0</mechanicalReduction>
-        </actuator>
-    </transmission>
+  <transmission name="trans_joint_4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_4">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_joint_4">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </actuator>
+  </transmission>
+
 </robot>

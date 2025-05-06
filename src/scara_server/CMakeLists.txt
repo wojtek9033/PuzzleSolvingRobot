@@ -5,8 +5,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(puzzle_task_server
-    src/puzzle_task_server.cpp
+add_executable(task_server_node
+    src/task_server_node.cpp
 )
 
 # find dependencies
@@ -19,7 +19,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(scara_msgs REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 
-ament_target_dependencies(puzzle_task_server
+ament_target_dependencies(task_server_node
   rclcpp
   rclcpp_action
   scara_msgs
@@ -34,7 +34,12 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS 
-  puzzle_task_server
+  task_server_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
