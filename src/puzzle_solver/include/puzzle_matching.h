@@ -26,7 +26,7 @@ struct Puzzle {
 };
 
 double chamferDistance(const std::vector<cv::Point> e1, const std::vector<cv::Point> e2);
-void matchingPipeline(std::vector<Element> &processedElements);
+std::vector<Element> matchingPipeline(std::vector<Element> &processedElements);
 void printMatches(const std::map<std::pair<int,int>, std::vector<MatchInfo>> data);
 std::map<std::pair<int,int>, std::vector<MatchInfo>> findMatches(std::vector<Element> &allElementsData);
 std::map<std::pair<int,int>, MatchInfo> extractBestMatches(std::map<std::pair<int,int>, std::vector<MatchInfo>> allMatches);

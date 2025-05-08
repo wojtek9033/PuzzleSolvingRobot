@@ -279,7 +279,7 @@ void drawAssembly(vector<Element> assembly){
 }
 
 
-void matchingPipeline(std::vector<Element> &processedElements){
+std::vector<Element> matchingPipeline(std::vector<Element> &processedElements){
     std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
     std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
 
@@ -290,7 +290,7 @@ void matchingPipeline(std::vector<Element> &processedElements){
     printMatches(puzzleBestMatches);
     assignMatches(processedElements,puzzleBestMatches);
     std::vector<Element> assembly = puzzleAssembly(processedElements);
-    drawAssembly(assembly);
-
+    // drawAssembly(assembly);
+    return assembly;
 }
 
