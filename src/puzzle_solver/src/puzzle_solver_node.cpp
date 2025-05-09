@@ -7,8 +7,8 @@
 #include "puzzle_matching.h"
 
 #include <rclcpp/rclcpp.hpp>
-#include <ament_index_cpp/get_package_share_directory.hpp> // For getting package paths
-#include <sensor_msgs/msg/image.hpp> // ROS 2 Image message type
+#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <cv_bridge/cv_bridge.hpp> // Bridge between ROS 2 and OpenCV
 
@@ -23,7 +23,7 @@ class PuzzleSolverNode : public rclcpp::Node{
 public:
         PuzzleSolverNode(size_t puzzle_size) : Node("puzzle_solver_node"){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node started.");
-            // Subscribe to the topic publishing puzzle piece images
+
             image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
                 "/camera/image_raw",
                 1,
@@ -44,7 +44,7 @@ public:
             );
             loadProcessingParameters();
             PUZZLE_SIZE = puzzle_size;
-            RCLCPP_INFO(this->get_logger(), "Solver waiting for trigger...");
+            RCLCPP_INFO(this->get_logger(), "Solver waiting for capture trigger...");
         }
         ~PuzzleSolverNode(){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node destroyed.");
@@ -63,6 +63,8 @@ private:
     cv::Mat latest_image_;
     std::string configFile = package_path + "/config/solverConfig.txt";
     std::string imagesDirectory = package_path + "/images/*.jpg";
+    const double milimeters_per_pixel_x = 0.125;
+    const double milimeters_per_pixel_y = 0.125;
 
     void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg){
         try {
@@ -154,8 +156,8 @@ private:
             pose.start_pose.orientation.y = 0.0;
             pose.start_pose.orientation.z = sin(theta/ 2.0);
             pose.start_pose.orientation.w = cos(theta/ 2.0);
-            pose.start_pose.position.x = 0;
-            pose.start_pose.position.y = 0; 
+            pose.start_pose.position.x = assembly.at(i).centroid.x * milimeters_per_pixel_x;
+            pose.start_pose.position.y = assembly.at(i).centroid.y * milimeters_per_pixel_y; 
             pose.start_pose.position.z = 0; // fixed for every piece
 
             theta = assembly.at(i).rotationAngle;
@@ -163,10 +165,17 @@ private:
             pose.goal_pose.orientation.y = 0.0;
             pose.goal_pose.orientation.z = sin(theta/ 2.0);
             pose.goal_pose.orientation.w = cos(theta/ 2.0);
-            pose.goal_pose.position.x = 0;
-            pose.goal_pose.position.y = 0;
-            pose.goal_pose.position.z = 0; // fixed for every piece
-            
+            if (i == 0) {
+                // First element has allways position
+                pose.goal_pose.position.x = 0.7;
+                pose.goal_pose.position.y = 0.10;
+                pose.goal_pose.position.z = 0.50; // fixed for every piece
+            } else {
+                pose.goal_pose.position.x = 0;
+                pose.goal_pose.position.y = 0;
+                pose.goal_pose.position.z = 0; // fixed for every piece
+            }
+
             robot_poses.push_back(pose);
         }
 

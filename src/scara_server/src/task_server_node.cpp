@@ -197,9 +197,9 @@ private:
             pose.orientation.y = 0.0;
             pose.orientation.z = sin(theta/ 2.0);
             pose.orientation.w = cos(theta/ 2.0);
-            pose.position.x = 0.7 + 0.4*(i / (int)sqrt(puzzleSize));
-            pose.position.y = -1.8 + 0.4*(i % (int)sqrt(puzzleSize));
-            pose.position.z = 1.340460;
+            pose.position.x = 0.07 + 0.04*(i / (int)sqrt(puzzleSize));
+            pose.position.y = -0.18 + 0.04*(i % (int)sqrt(puzzleSize));
+            pose.position.z = 0.13;
             capture_poses_.push_back(pose);
         }
     }
