@@ -247,8 +247,8 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
         for (int j = 0; j < 4; j++){
             int x = pair.edgeCentroid.at(j).x;
             int y = pair.edgeCentroid.at(j).y;
-            double new_x = x_c + (x - x_c)*cos(pair.rotationAngle) - (y - y_c)*sin(pair.rotationAngle);
-            double new_y = y_c + (x - x_c)*sin(pair.rotationAngle) + (y - y_c)*cos(pair.rotationAngle);
+            double new_x = x_c + (x - x_c)*cos(-pair.rotationAngle) - (y - y_c)*sin(-pair.rotationAngle);
+            double new_y = y_c + (x - x_c)*sin(-pair.rotationAngle) + (y - y_c)*cos(-pair.rotationAngle);
 
             pair.edgeCentroid.at(j).x = new_x;
             pair.edgeCentroid.at(j).y = new_y;
