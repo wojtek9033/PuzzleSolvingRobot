@@ -87,14 +87,9 @@ private:
             std::vector<double> arm_joint_goal = {1.2, 1.2, 1.2, 0.0};
             move_arm_->setPoseReferenceFrame("base_link");
             move_arm_->setStartStateToCurrentState();
-
-            bool arm_within_bounds = move_arm_->setJointValueTarget(arm_joint_goal);
-            if (!arm_within_bounds)
-            {
-              RCLCPP_WARN(get_logger(), "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
-              return;
-            }
-
+            
+            move_arm_->setRandomTarget();
+   
             moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
             bool arm_plan_success = (move_arm_->plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
             
