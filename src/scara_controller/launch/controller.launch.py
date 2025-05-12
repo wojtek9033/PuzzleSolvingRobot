@@ -27,6 +27,7 @@ def generate_launch_description():
                     "urdf",
                     "scara.urdf.xacro",
                 ),
+                " is_sim:=False"
             ]
         ),
         value_type=str,
@@ -35,8 +36,8 @@ def generate_launch_description():
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        condition=UnlessCondition(is_sim),
         parameters=[{"robot_description": robot_description}],
+        condition=UnlessCondition(is_sim), # When starting simulation, robot_state_publisher is already started by gazebo.launch.py
     )
 
     controller_manager = Node(

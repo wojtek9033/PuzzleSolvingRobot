@@ -2,9 +2,19 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="SCARA">
 
   <ros2_control name="RobotSystem" type="system">
-    <hardware>
-      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-    </hardware>
+
+    <xacro:if value="$(arg is_sim)">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+    </xacro:if>
+
+    <xacro:unless value="$(arg is_sim)">
+      <hardware>
+        <plugin>scara_controller/ScaraInterface/plugin></plugin>
+        <param name ="port">/dev/ttyACM0</param>
+      </hardware>
+    </xacro:unless>
 
     <joint name="joint_1">
       <command_interface name="position"/>

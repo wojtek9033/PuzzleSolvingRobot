@@ -1,0 +1,9 @@
+<library path="scara_controller">
+    <class name="scara_controller/ScaraInterface"
+           type="scara_controller::ScaraInterface"
+           base_class_type="scara_interface::SystemInterface">
+        <description>
+            Scara Hardware Interface
+        </description>
+    </class>
+</library>

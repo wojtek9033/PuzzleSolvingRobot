@@ -10,6 +10,8 @@
         "/opt/ros/jazzy/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_bringup/include/**",
+        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_controller/include/**",
+        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_firmware/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_server/include/**",
         "/usr/include/**"
       ],
