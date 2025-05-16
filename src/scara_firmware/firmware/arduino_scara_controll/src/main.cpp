@@ -1,23 +1,43 @@
 #include <Arduino.h>
+/*
+int incomingByte = 0; // for incoming serial data
+int counter = 0;
+    void setup() {
+      Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+    }
+
+    void loop() {
+      // send data only when you receive data:
+      while (Serial.available()) {
+        Serial.println("Received new command!");
+        // read the incoming byte:
+        incomingByte = Serial.read();
+        char c = incomingByte;
+        // say what you got:
+        Serial.print("I received: ");
+        Serial.println(c);
+        Serial.println(counter);
+      }
+      counter++;
+    }
+*/
+
 #include <AccelStepper.h>
 
 #define MOTOR_STEPS 200
 
-#define BASE_STEP_PIN 0
-#define BASE_DIR_PIN 0
-#define SHOULDER_STEP_PIN 0
-#define SHOULDER_DIR_PIN 0
-#define ELBOW_STEP_PIN 0
-#define ELBOW_DIR_PIN 0
+#define BASE_STEP_PIN 2
+#define BASE_DIR_PIN 3
+#define SHOULDER_STEP_PIN 4
+#define SHOULDER_DIR_PIN 5
+#define ELBOW_STEP_PIN 6
+#define ELBOW_DIR_PIN 7
 #define WRIST_PIN 0
 
+// clockwise rotation means negative angle
 AccelStepper base(AccelStepper::DRIVER, BASE_STEP_PIN, BASE_DIR_PIN);
 AccelStepper shoulder(AccelStepper::DRIVER, SHOULDER_STEP_PIN, SHOULDER_DIR_PIN);
 AccelStepper elbow(AccelStepper::DRIVER, ELBOW_STEP_PIN, ELBOW_DIR_PIN);
-
-uint8_t idx = 0;
-uint8_t value_idx = 0;
-char value[4] = "000";
 
 const double MICROSTEPS = 16.0; // Number of microsteps
 const double MOTOR_STEPS_PER_REV = 200.0; // Number of steps per revolution for the motor
@@ -37,8 +57,12 @@ bool prev_baseIsMoving = false;
 bool prev_shoulderIsMoving = false;
 bool prev_elbowIsMoving = false;
 
-void moveAxisRevolute(AccelStepper& motor, double angle);
+// Buffer for receiving a command
+String serialData = "";
+
+void moveAxisRevolute(AccelStepper& motor, double angle, double gear_ratio);
 void moveAxisPrismatic(AccelStepper& motor, double distance);
+void parseCommand(String cmd);
 
 void setup() {
 
@@ -46,7 +70,7 @@ void setup() {
   shoulder.setCurrentPosition(0);
   elbow.setCurrentPosition(0);
 
-  base.setMaxSpeed(STEPS_PER_REV * 2.0);
+  base.setMaxSpeed(STEPS_PER_REV * 6.0);
   shoulder.setMaxSpeed(STEPS_PER_REV  * 2.0);
   elbow.setMaxSpeed(STEPS_PER_REV * 2.0);
 
@@ -55,9 +79,7 @@ void setup() {
   elbow.setAcceleration(STEPS_PER_REV * 4.0);
   
 
-  Serial.begin(115200);
-  Serial.setTimeout(1);
-  Serial.println("SCARA Arduino Controller ready to receive commands!");
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -65,64 +87,79 @@ void loop() {
   prev_shoulderIsMoving = shoulderIsMoving;
   prev_elbowIsMoving = elbowIsMoving;
 
-  if(Serial.available()) {
+  if (Serial.available()) {
     char chr = Serial.read();
-
-    if (chr == 'b') {
-      idx = 0;
-      value_idx = 0;
-    } else if (chr == 's') {
-      idx = 1;
-      value_idx = 0;
-    } else if (chr == 'e') {
-      idx = 2;
-      value_idx = 0;
-    } else if (chr == ',') {
-      int angle = atoi(value);
-      if (idx == 0) {
-        moveAxisPrismatic(base, angle);
-        baseIsMoving = base.run();
-      } else if (idx == 1) {
-        moveAxisRevolute(shoulder, angle);
-        shoulderIsMoving = shoulder.run();
-      } else if (idx == 2) {
-        moveAxisRevolute(elbow, angle);
-        elbowIsMoving = elbow.run();
-      }
-      value[0] = '0';
-      value[1] = '0';
-      value[2] = '0';
-      value[3] = '\0';
+    Serial.print(chr);
+    if (chr == '\n') {
+      parseCommand(serialData);
+      Serial.print("Data is: ");
+      Serial.print(serialData);
+      Serial.print('\n');
+      serialData = "";
     } else {
-      value[value_idx] = chr;
-      value_idx++;
+      serialData += chr;
     }
+  }
 
-    if (prev_baseIsMoving && !baseIsMoving) {
-      Serial.print("Base motor actuated: SUCCESS");
-    }
-    if (prev_shoulderIsMoving && !shoulderIsMoving) {
-      Serial.print("Shoulder motor actuated: SUCCESS");
-    }
-    if (prev_elbowIsMoving && !elbowIsMoving) {
-      Serial.print("Elbow motor actuated: SUCCESS");
-    }
+  baseIsMoving = base.run();
+  shoulderIsMoving = shoulder.run();
+  elbowIsMoving = elbow.run();
 
+  if (prev_baseIsMoving && !baseIsMoving) {
+    Serial.print("Base motor actuated: SUCCESS\n");
+  }
+  if (prev_shoulderIsMoving && !shoulderIsMoving) {
+    Serial.print("Shoulder motor actuated: SUCCESS\n");
+  }
+  if (prev_elbowIsMoving && !elbowIsMoving) {
+    Serial.print("Elbow motor actuated: SUCCESS\n");
   }
 }
-void moveAxisRevolute(AccelStepper& motor, double angle) {
-  // Convert angle to steps
-  double steps = (angle / 360.0) * STEPS_PER_REV;
 
-  while (motor.distanceToGo() != 0) {
-    motor.moveTo(steps);
+void parseCommand(String cmd) {
+  cmd += ',';
+  int lastIdx = 0;
+  while (true) {
+    int nextIdx = cmd.indexOf(',', lastIdx);
+    if (nextIdx == -1) break;
+
+    String token = cmd.substring(lastIdx, nextIdx);
+    char axis = token.charAt(0);
+    int position = token.substring(1).toInt();
+
+    if (axis == 'b') {
+      Serial.print("Axis base, position: ");
+      Serial.print(position);
+      Serial.print("\n");
+      moveAxisPrismatic(base, position);
+    } else if (axis == 's') {
+      Serial.print("Axis shoulder, position: ");
+      Serial.print(position);
+      Serial.print("\n");
+      moveAxisRevolute(shoulder, position, SHOULDER_GEAR_RATIO);
+    } else if (axis == 'e') {
+      Serial.print("Axis elbow, position: ");
+      Serial.print(position);
+      Serial.print("\n");
+      moveAxisRevolute(elbow, position, ELBOW_GEAR_RATIO);
+    }
+    lastIdx = nextIdx + 1;
   }
+}
+
+void moveAxisRevolute(AccelStepper& motor, double angle, double gear_ratio) {
+  // Convert angle to steps
+  double steps = (angle / 360.0) * STEPS_PER_REV * gear_ratio;
+
+  //if (motor.distanceToGo() != 0) {
+    motor.moveTo(steps);
+  //}
 }
 void moveAxisPrismatic(AccelStepper& motor, double distance) {
   // Convert distance to steps
-  double steps = (distance / BASE_SCREW_PITCH) * STEPS_PER_REV;
+  double steps = ((-1) * distance / BASE_SCREW_PITCH) * STEPS_PER_REV;
 
-  while (motor.distanceToGo() != 0) {
+  //if (motor.distanceToGo() != 0) {
     motor.moveTo(steps);
-  }
+  //}
 }
