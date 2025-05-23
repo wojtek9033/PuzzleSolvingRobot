@@ -108,8 +108,14 @@ private:
             goal_handle->succeed(result);
             RCLCPP_INFO(get_logger(), "Goal succeeded");
 
-        } else if (cmd == "capture") {
-            for (size_t i = 0; i < capture_poses_.size(); i++) {
+        } else if (cmd == "capture" || cmd == "calibrate") {
+            size_t num_poses{0};
+            if (cmd == "calibrate") 
+                num_poses = 2;
+            else 
+                num_poses = capture_poses_.size();
+
+            for (size_t i = 0; i < num_poses; i++) {
                 if (goal_handle->is_canceling()) {
                     result->success = false;
                     goal_handle->canceled(result);
@@ -143,7 +149,7 @@ private:
                   std_msgs::msg::Bool msg;
                   msg.data = true;
                   ready_pub_->publish(msg);
-                  RCLCPP_INFO(this->get_logger(), "At pose %ld, notified puzzle solver.", i + 1);
+                  RCLCPP_INFO(this->get_logger(), "At pose %ld, notified client", i + 1);
                   {
                     RCLCPP_INFO(this->get_logger(), "Waiting for confirmation from solver...");
                     std::unique_lock<std::mutex> lock(confirm_mutex_);
