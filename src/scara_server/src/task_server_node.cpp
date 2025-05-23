@@ -32,6 +32,12 @@ public:
                 std::bind(&ScaraTaskServer::confirm_callback, this, std::placeholders::_1)
             );
 
+            joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
+                "/joint_states",
+                10,
+                std::bind(&ScaraTaskServer::joint_states_callback, this, std::placeholders::_1)
+            );
+
             generate_capture_waypoints();
             RCLCPP_INFO(this->get_logger(), "Scara Task Server started.");
         }
@@ -42,10 +48,14 @@ private:
     std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_arm_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr ready_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr confirm_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
     std::vector<geometry_msgs::msg::Pose> capture_poses_;
-    std::mutex confirm_mutex_;
-    std::condition_variable confirm_; 
-    bool confirm_received_ = false;
+    std::mutex solver_confirm_mutex_;
+    std::mutex robot_confirm_mutex_;
+    std::condition_variable solver_confirm_;
+    std::condition_variable robot_confirm_; 
+    bool solver_confirm_received_ = false;
+    bool robot_confirm_received_ = false;
     bool canceled_ = false;
 
     rclcpp_action::GoalResponse handle_goal(
@@ -62,10 +72,10 @@ private:
         auto move_arm_ = moveit::planning_interface::MoveGroupInterface(shared_from_this(), "arm");
         move_arm_.stop();
         {
-            std::lock_guard<std::mutex> lock(confirm_mutex_);
+            std::lock_guard<std::mutex> lock(solver_confirm_mutex_);
             canceled_ = true;
         }
-        confirm_.notify_all();
+        solver_confirm_.notify_all();
         return rclcpp_action::CancelResponse::ACCEPT;
     }
 
@@ -140,27 +150,39 @@ private:
                 
                 moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
                 bool arm_plan_success = (move_arm_->plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-                
                 if(arm_plan_success)
                 {
-                  RCLCPP_INFO(get_logger(), "Planner SUCCEED for pose %ld, moving the arm", i + 1);
-                  move_arm_->move();
-                  rclcpp::sleep_for(std::chrono::milliseconds(2000));
-                  std_msgs::msg::Bool msg;
-                  msg.data = true;
-                  ready_pub_->publish(msg);
-                  RCLCPP_INFO(this->get_logger(), "At pose %ld, notified client", i + 1);
-                  {
-                    RCLCPP_INFO(this->get_logger(), "Waiting for confirmation from solver...");
-                    std::unique_lock<std::mutex> lock(confirm_mutex_);
-                    // while waiting for the flags, unlock the mutex in order to modify states of flags by other threads (ex. confirm_callback)
-                    confirm_.wait(lock, [this]{return confirm_received_ || canceled_; });
-                    if (canceled_){
-                        result->success = false;
-                        goal_handle->canceled(result);
-                        return;
+                    RCLCPP_INFO(get_logger(), "Planner SUCCEED for pose %ld, moving the arm", i + 1);
+                    move_arm_->move();
+
+                    {
+                        RCLCPP_INFO(this->get_logger(), "Waiting for robot to reach target position...");
+                        std::unique_lock<std::mutex> lock(robot_confirm_mutex_);
+                        robot_confirm_.wait(lock, [this]{return robot_confirm_received_ || canceled_; });
+                        if (canceled_){
+                            result->success = false;
+                            goal_handle->canceled(result);
+                            return;
+                        }
+                        robot_confirm_received_ = false;
                     }
-                    confirm_received_ = false;
+
+                    std_msgs::msg::Bool msg;
+                    msg.data = true;
+                    ready_pub_->publish(msg);
+                    RCLCPP_INFO(this->get_logger(), "Robot at pose %ld, notified client", i + 1);
+                    
+                    {
+                        RCLCPP_INFO(this->get_logger(), "Waiting for confirmation from solver...");
+                        std::unique_lock<std::mutex> lock(solver_confirm_mutex_);
+                        // while waiting for the flags, unlock the mutex in order to modify states of flags by other threads (ex. confirm_callback)
+                        solver_confirm_.wait(lock, [this]{return solver_confirm_received_ || canceled_; });
+                        if (canceled_){
+                            result->success = false;
+                            goal_handle->canceled(result);
+                            return;
+                        }
+                        solver_confirm_received_ = false;
                   }
                   RCLCPP_INFO(this->get_logger(), "Confirm received.");
 
@@ -188,9 +210,20 @@ private:
     void confirm_callback(const std_msgs::msg::Bool::SharedPtr msg){
         if(!msg->data)
             return;
-        std::lock_guard<std::mutex> lock(confirm_mutex_); // temporary locking the confirm_mutex_ to set the confirmation flag 
-        confirm_received_ = true;
-        confirm_.notify_one(); // waking up the waiting thread in execute()
+        std::lock_guard<std::mutex> lock(solver_confirm_mutex_); // temporary locking the solver_confirm_mutex_ to set the confirmation flag 
+        solver_confirm_received_ = true;
+        solver_confirm_.notify_one(); // waking up the waiting thread in execute()
+    }
+
+    void joint_states_callback(const sensor_msgs::msg::JointState msg) {
+        auto joint_pose = move_arm_->getCurrentJointValues();        
+        if (msg.position.at(0) == joint_pose.at(0) 
+            && msg.position.at(1) == joint_pose.at(1) 
+            && msg.position.at(2) == joint_pose.at(2)) {
+                std::lock_guard<std::mutex> lock (robot_confirm_mutex_);
+                robot_confirm_received_ = true;
+                robot_confirm_.notify_one();
+            }
     }
 
     void generate_capture_waypoints() {
