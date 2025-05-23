@@ -59,6 +59,10 @@ bool prev_elbowIsMoving = false;
 
 // Buffer for receiving a command
 String serialData = "";
+String baseStatus = "";
+String shoulderStatus = "";
+String elbowStatus = "";
+String status = "";
 
 void moveAxisRevolute(AccelStepper& motor, double angle, double gear_ratio);
 void moveAxisPrismatic(AccelStepper& motor, double distance);
@@ -105,14 +109,8 @@ void loop() {
   shoulderIsMoving = shoulder.run();
   elbowIsMoving = elbow.run();
 
-  if (prev_baseIsMoving && !baseIsMoving) {
-    Serial.print("Base motor actuated: SUCCESS\n");
-  }
-  if (prev_shoulderIsMoving && !shoulderIsMoving) {
-    Serial.print("Shoulder motor actuated: SUCCESS\n");
-  }
-  if (prev_elbowIsMoving && !elbowIsMoving) {
-    Serial.print("Elbow motor actuated: SUCCESS\n");
+  if ((prev_baseIsMoving || prev_elbowIsMoving || prev_shoulderIsMoving) && (!baseIsMoving && !shoulderIsMoving && !elbowIsMoving)) {
+      Serial.println("1,1,1"); //ASSUMING STEPS ARE NEVER LOST - WE ONLY SEND DATA WHEN MOVEMENT IS DONE
   }
 }
 

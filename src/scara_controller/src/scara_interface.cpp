@@ -1,6 +1,7 @@
 #include "scara_interface.hpp"
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
 #include <pluginlib/class_list_macros.hpp>
+#include <sstream>
 
 namespace scara_controller {
 
@@ -80,7 +81,7 @@ CallbackReturn ScaraInterface::on_activate(const rclcpp_lifecycle::State &previo
 
     try {
         arduino_.Open(port_);
-        arduino_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
+        arduino_.SetBaudRate(LibSerial::BaudRate::BAUD_9600);
     } catch (...) {
         RCLCPP_FATAL_STREAM(this->get_logger(), "Something went wrong while interacting with the port " << port_);
     }
@@ -108,7 +109,28 @@ CallbackReturn ScaraInterface::on_deactivate(const rclcpp_lifecycle::State &prev
 hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, const rclcpp::Duration &period) {
     (void)time;
     (void)period;
-    position_states_ = position_commands_; // NOT USING ENCODERS SO THERE IS NO FEEDBACK FROM ROBOT POSITION
+    std::string data;
+
+    try {
+        arduino_.ReadLine(data,'\n');
+        data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
+    } catch (...) {
+        RCLCPP_WARN(this->get_logger(), "Failed to read joints status from serial.");
+        return hardware_interface::return_type::OK;
+    }
+
+    std::vector<std::string> tokens;
+    std::stringstream ss(data);
+    std::string token;
+    while (std::getline(ss, token, ',')) {
+        tokens.push_back(token);
+    }
+
+    if (tokens.size() == 3 && tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1") {
+        position_states_ = position_commands_;
+        RCLCPP_INFO(this->get_logger(), "Robot reached target position.");
+    }
+
     return hardware_interface::return_type::OK;
 }
 
