@@ -1,32 +1,45 @@
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
+#include <chrono>
 
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/opencv.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
-
 #include <fstream>
-#include <ament_index_cpp/get_package_share_directory.hpp> // For getting package paths
+
+#include "scara_msgs/action/scara_task.hpp"
+
+using namespace std::chrono_literals;
+using namespace cv;
+using ClientGoalHandle = rclcpp_action::ClientGoalHandle<scara_msgs::action::ScaraTask>;
 
 class TunerNode : public rclcpp::Node {
 
 public:
     TunerNode() : rclcpp::Node("tuner_node") {
+
+        client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
+        timer_ = create_wall_timer(1s, std::bind(&TunerNode::timerCallback, this));
+
         camera_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
             "/camera/image_raw",
             1,
             std::bind(&TunerNode::camera_callback, this, std::placeholders::_1)
         );
+        loadParameters();
     }
 
 private:
+    rclcpp_action::Client<scara_msgs::action::ScaraTask>::SharedPtr client_;
+    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr camera_sub_;
     bool captured_ = false;
-    cv::Mat image_;
+    bool robot_in_pos_ = false;
+    cv::Mat src_, temp_, processed_;
     std::mutex image_mutex;
 
     double scale_down = 0.4;
@@ -46,15 +59,60 @@ private:
     const int maxCornersTreshVal{255};
 
     const char* preprocWindowName = "Adjusting preprocessing";
-    const char* cornersWindowName = "Adjusting corner detection";
+    const char* cornersWindowName = "";
+    
+    void timerCallback() {
+        timer_->cancel();
+
+        if (!client_->wait_for_action_server()) {
+            RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting!");
+            rclcpp::shutdown();
+        }
+        auto goal_msg = scara_msgs::action::ScaraTask::Goal();
+        goal_msg.command = "calibrate";
+        RCLCPP_INFO(this->get_logger(), "Tuner client sending calibration request");
+
+        auto send_goal_options = rclcpp_action::Client<scara_msgs::action::ScaraTask>::SendGoalOptions();
+        send_goal_options.goal_response_callback = std::bind(&TunerNode::goalCallback, this, std::placeholders::_1);
+        send_goal_options.result_callback = std::bind(&TunerNode::resultCallback, this, std::placeholders::_1);
+
+        client_->async_send_goal(goal_msg, send_goal_options);
+
+    }
+
+    void goalCallback (const ClientGoalHandle::SharedPtr &goal_handle) {
+        if (!goal_handle)
+            RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+        else
+            RCLCPP_INFO(this->get_logger(), "Calibration goal accepted by server, waiting for robot...");
+    }
+
+    void resultCallback (const ClientGoalHandle::WrappedResult &result) {
+        switch (result.code) {
+            case rclcpp_action::ResultCode::SUCCEEDED:
+                break;
+            case rclcpp_action::ResultCode::ABORTED:
+                RCLCPP_ERROR(get_logger(), "Calibration was aborted");
+                return;
+            case rclcpp_action::ResultCode::CANCELED:
+                RCLCPP_ERROR(get_logger(), "Calibration was canceled");
+                return;
+            default:
+                RCLCPP_ERROR(get_logger(), "Unknown result code");
+                return;
+            }
+        
+        robot_in_pos_ = result.result->success;
+        preprocImage();
+    }
 
     void camera_callback(const sensor_msgs::msg::Image::SharedPtr msg) {
         try {
             if(!captured_)
             {
-                image_ = cv_bridge::toCvCopy(msg, "bgr8")->image.clone();
+                src_ = cv_bridge::toCvCopy(msg, "bgr8")->image.clone();
                 captured_ = true;
-                std::thread(std::bind(&adjust_proc_params, this)).detach();
+                //adjust_proc_params();
             }
         } 
         catch (cv_bridge::Exception &e) {
@@ -64,11 +122,33 @@ private:
     }
 
     void adjust_proc_params() {
-        loadParameters()
+        temp_ = src_.clone();
+
+        preprocImage();
+        while (true){
+            char key = (char)cv::waitKey(0);
+            if (key == 's') {
+                saveParameters();
+                break;
+            }
+            if (key == 27) break;
+        }
+        adjustCorners();
+        while (true){
+            char key = (char)cv::waitKey(0);
+            if (key == 's') {
+                saveParameters();
+                break;
+            }
+            if (key == 27) break;
+        }
+
+
+        destroyAllWindows();
     }
 
     void loadParameters() {
-        std::ifstream file(configFile);
+        std::ifstream file("src/config.txt");
         int tempBlurKernelSize;
         int tempThresholdValue;
         int tempStructElementSize;
@@ -83,7 +163,7 @@ private:
                 if (!(ss >> tempBlurKernelSize >> delim >> tempThresholdValue >> delim >> tempStructElementSize
                          >> delim  >> tempcornersBlockSize >> delim >>tempcornersKSize >> delim >> tempcornersTreshVal
                          >> delim >> scale_down)) {
-                    std::cout << "Error parsing parameters, using initial values" << std::endl;
+                    RCLCPP_WARN(this->get_logger(), "Could not parse parameters, using initial values");
                     return;
                 }
                 else {
@@ -97,41 +177,97 @@ private:
             }
             file.close();
         } else {
-            std::cerr << "No config file found. Using default parameters." << std::endl;
+            RCLCPP_ERROR(this->get_logger(), "No config file found. Using default parameters!");
         }
     }
 
-    void updateImage(int, void*){
-        int blurKernel = blurKernelSize * 2 + 1;
-        int elemKernel = structElementSize * 2 + 1;
-        cv::Mat blured = cv::Mat::zeros(image_.size(), CV_8UC1);
-        cv::GaussianBlur(image_, blured, cv::Size(blurKernel, blurKernel), 0);
-        cv::threshold(blured, blured, thresholdValue, maxThreshold, cv::THRESH_BINARY_INV);
-    
-        //Mat element = getStructuringElement(MORPH_RECT, Size(7,7)); // fill small gaps
-        cv::morphologyEx(blured, blured,cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(elemKernel,elemKernel)));
-        // processed = blured.clone();
-        //cv::imshow(preprocWindowName, processed);
-    }    
-
-    void preprocImage(){
-        cv::cvtColor(image_, image_, cv::COLOR_BGR2GRAY);
-        cv::namedWindow(preprocWindowName, cv::WindowFlags::WINDOW_AUTOSIZE);
-        cv::createTrackbar("Blur", preprocWindowName, &blurKernelSize, maxBlur, 
-            [](int pos, void* userdata) {
-                static_cast<TunerNode*>(userdata)->updateImage(pos, userdata);
-            });
-        cv::createTrackbar("Binary thresh.", preprocWindowName, &thresholdValue, maxThreshold, 
-            [](int pos, void* userdata) {
-                static_cast<TunerNode*>(userdata)->updateImage(pos, userdata);
-            });
-        cv::createTrackbar("Struct elem.", preprocWindowName, &structElementSize, maxStructElementSize,
-            [](int pos, void* userdata) {
-                static_cast<TunerNode*>(userdata)->updateImage(pos, userdata);
-            });
-        updateImage(0,0);
+    void saveParameters() {
+    std::ofstream file("src/configFile");
+    if(file.is_open()){
+        file << (blurKernelSize * 2 + 1) << "," << thresholdValue << "," << (structElementSize  * 2 + 1) << ","
+             << cornersBlockSize * 2 << "," << cornersKSize * 2 +1 << "," << cornersTreshVal << ","
+             << scale_down << std::endl;
+        file.close();
+        RCLCPP_INFO(this->get_logger(), "Parameters saved to configFile");
+    } else {
+        RCLCPP_ERROR(this->get_logger(), "@@@ Error saving parameters!");
+    }
     }
 
+    static void preprocOnTrackbar(int, void* userdata) {
+        auto *self = static_cast<TunerNode*>(userdata);
+        self->updateImage();
+    }
+
+    void preprocImage() {
+        cvtColor(temp_,temp_,COLOR_BGR2GRAY);
+        namedWindow(preprocWindowName, WINDOW_AUTOSIZE);
+        createTrackbar("Blur", preprocWindowName, &blurKernelSize, maxBlur, preprocOnTrackbar);
+        createTrackbar("Binary thresh.", preprocWindowName, &thresholdValue, maxThreshold, preprocOnTrackbar);
+        createTrackbar("Struct elem.", preprocWindowName, &structElementSize, maxStructElementSize, preprocOnTrackbar);
+        preprocOnTrackbar(0,0);
+    }
+
+    static void cornersOnTrackbar(int, void* userdata) {
+        auto *self = static_cast<TunerNode*>(userdata);
+        self->getCorners();
+    }
+
+    void adjustCorners() {
+
+        namedWindow(cornersWindowName, WINDOW_AUTOSIZE);
+        createTrackbar("Block Size", cornersWindowName, &cornersBlockSize, maxCornersBlockSize, cornersOnTrackbar);
+        createTrackbar("KSize", cornersWindowName, &cornersKSize, maxCornersKSize, cornersOnTrackbar);
+        createTrackbar("Treshold", cornersWindowName, &cornersTreshVal, maxCornersTreshVal, cornersOnTrackbar);
+        cornersOnTrackbar(0,0);
+    }
+
+    void updateImage() {
+        int blurKernel = blurKernelSize * 2 + 1;
+        int elemKernel = structElementSize * 2 + 1;
+        cv::Mat blured = cv::Mat::zeros(temp_.size(), CV_8UC1);
+        cv::GaussianBlur(temp_, blured, cv::Size(blurKernel, blurKernel), 0);
+        cv::threshold(blured, blured, thresholdValue, maxThreshold, cv::THRESH_BINARY_INV);
+        cv::morphologyEx(blured, blured,cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(elemKernel,elemKernel)));
+        cv::Mat processed = blured.clone();
+        cv::imshow(preprocWindowName, processed);
+    }    
+
+    void getCorners() {
+
+        int blockSize = cornersBlockSize * 2;
+        int kSize = cornersKSize * 2 + 1;
+
+        Mat corners = Mat::zeros( processed_.size(), CV_32FC1 );
+        Mat cornersTresholded = Mat::zeros( processed_.size(), CV_32FC1 );
+
+        cornerHarris( processed_, corners, blockSize, kSize, cornersK );
+        Mat corners_norm, corners_scaled;
+        normalize( corners, corners_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
+        convertScaleAbs( corners_norm, corners_scaled );
+
+        // apply tresholding
+        for (int i = 0; i < corners_norm.rows; i++) {
+            for (int j = 0; j < corners_norm.cols; j++) {
+                if (static_cast<int>(corners_norm.at<float>(i, j)) > cornersTreshVal) {
+                    cornersTresholded.at<float>(i, j) = static_cast<int>(corners_norm.at<float>(i, j));
+                }
+            }
+        }
+
+        Mat extractedCorners = processed_.clone();
+        cvtColor(extractedCorners, extractedCorners, COLOR_GRAY2BGR);
+
+        for (int i = 0; i < cornersTresholded.rows; i++){
+            for (int j = 0; j < cornersTresholded.cols; j++){
+                if (cornersTresholded.at<float>(i,j) != 0){
+                    circle(extractedCorners, cv::Point(j,i), 1, cv::Scalar(0, 0, 255),2);
+                }
+            }
+        }
+        imshow(cornersWindowName,extractedCorners);
+        waitKey(0);
+    }
 };
 
 
