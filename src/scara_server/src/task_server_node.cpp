@@ -121,7 +121,7 @@ private:
         } else if (cmd == "capture" || cmd == "calibrate") {
             size_t num_poses{0};
             if (cmd == "calibrate") 
-                num_poses = 2;
+                num_poses = 1; // for calibration, we only need one pose
             else 
                 num_poses = capture_poses_.size();
 
