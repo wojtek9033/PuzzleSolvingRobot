@@ -109,54 +109,78 @@
     <link name="shoulder">
         <!-- arm top -->
         <visual>
-            <origin xyz="-0.0015 0.05 -0.04" rpy="${PI/2} 0 0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/MY_ARM_TOP.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="-0.0015 0.05 -0.04" rpy="${PI/2} 0 0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/MY_ARM_TOP.stl" scale="0.001 0.001 0.001"/>
             </geometry>    
         </collision>
         <!-- arm bottom -->
         <visual>
-            <origin xyz="0.049 0 -0.044" rpy="${PI/2} 0 -${PI/2} "/>
+            <origin xyz="0 0 -0.029" rpy="${PI/2} 0 -${PI/2} "/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/ARM_BOTTOM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/MY_ARM_BOTTOM.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <!-- reduction -->
         <visual>
-            <origin xyz="0.018 -0.0245 -0.007" rpy="${PI} 0 0"/>
+            <origin xyz="0.018 -0.0245 -0.0005" rpy="${PI} 0 0"/>
             <geometry>
                 <mesh filename="package://scara_description/meshes/REDUCTION.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
-
         <xacro:default_inertial mass="1.5"/>
     </link>
 
     <link name="elbow">
         <!-- elbow hub -->
         <visual>
-            <origin xyz="-0.0187 0.0245 -0.011" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="-0.0183 0.0242 0" rpy="${PI} 0 ${PI}"/>
             <geometry>
                 <mesh filename="package://scara_description/meshes/ARM_HUB.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <!-- elbow arm -->
         <visual>
-            <origin xyz="-0.0187 0.0245 -0.011" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0 0 -0.003" rpy="${PI/2} 0 -${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/MY_FOREARM.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
-        <collision>
-            <origin xyz="-0.0187 0.0245 -0.011" rpy="${PI} 0 ${PI}"/>
+
+        <!-- camera base-->
+        <visual>
+            <origin xyz="0.1625 0.0195 0.011" rpy="${PI/2} 0 ${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/MY_CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
+
+        <!-- camera -->
+        <visual>
+            <origin xyz="0.173 0.0195 0.011" rpy="${PI} 0 -${PI/2}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/CAMERA.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 -0.003" rpy="${PI/2} 0 -${PI/2}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/MY_FOREARM.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </collision>
+        <xacro:default_inertial mass="1.5"/>
+
+        <collision>
+            <origin xyz="0.1625 0.0195 0.011" rpy="${PI/2} 0 ${PI/2}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/MY_CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
@@ -164,13 +188,13 @@
 
     <link name="gripper_base">        
         <visual>
-            <origin xyz="0 0 -0.015" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0 0 -0.0305" rpy="${PI/2} 0 0"/>
             <geometry>
-                <cylinder radius="0.012" length="0.01"/>
+                <mesh filename="package://scara_description/meshes/MY_GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 -0.015" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0 0 -0.0305" rpy="${PI/2} 0 0"/>
             <geometry>
                 <cylinder radius="0.004" length="0.05"/>
             </geometry>
@@ -180,19 +204,19 @@
 
     <link name="gripper">        
         <visual>
-            <origin xyz="0 0 -0.03" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0 0 -0.015" rpy="${PI} 0 ${PI}"/>
             <geometry>
-                <cylinder radius="0.004" length="0.05"/>
+                <cylinder radius="0.004" length="0.065"/>
             </geometry>
         </visual>
         <visual>
-            <origin xyz="0.01 0 -0.05" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0.005 0 -0.040" rpy="${PI} 0 ${PI}"/>
             <geometry>
-                <box size="0.02 0.001 0.01"/>
+                <box size="0.01 0.001 0.01"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0 0 -0.015" rpy="${PI} 0 ${PI}"/>
             <geometry>
                 <cylinder radius="0.004" length="0.05"/>
             </geometry>
@@ -210,33 +234,32 @@
     <joint name="joint_1" type="prismatic">
         <parent link="base_link"/>
         <child link="z_base"/>
-        <origin xyz="0 0 0.09" rpy="0 0 0"/>
+        <origin xyz="0 0 0.239" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <!--<limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="1.47"/>-->
-        <limit effort="1000" velocity="10" lower="0.0" upper="0.147"/>
+        <limit effort="1000" velocity="10" lower="-0.143" upper="0.0"/>
         <dynamics damping="0.5" friction="0.5"/>
     </joint> 
 
     <joint name="joint_2" type="revolute">
         <parent link="z_base"/>
         <child link="shoulder"/>
-        <origin xyz="0.067 0 -0.007" rpy="0 0 0"/>
+        <origin xyz="0.067 0 -0.0125" rpy="0 0 1.98"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="-1.66" upper="1.66"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-3.96" upper="0.0"/>
     </joint>
 
     <joint name="joint_3" type="revolute">
         <parent link="shoulder"/>
         <child link="elbow"/>
-        <origin xyz="0.092 0 0" rpy="0 0 0"/>
+        <origin xyz="0.092 0 -0.006" rpy="0 0 -2.27"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="-2.44" upper="2.44"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="4.54"/>
     </joint>
     
     <joint name="joint_4" type="revolute">
         <parent link="elbow"/>
         <child link="gripper_base"/>
-        <origin xyz="0.12 0 0" rpy="0 0 0"/>
+        <origin xyz="0.1 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
         <limit effort="${effort}" velocity="${velocity}" lower="-${PI}" upper="${PI}"/>
     </joint>
@@ -244,7 +267,7 @@
     <joint name="joint_5" type="fixed">
         <parent link="gripper_base"/>
         <child link="gripper"/>
-        <origin xyz="0 0 -0.01" rpy="0 0 0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
 </robot>
