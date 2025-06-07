@@ -11,8 +11,7 @@ def generate_launch_description():
 
     is_sim_arg = DeclareLaunchArgument(
         "is_sim",
-        default_value="True",
-        description="Set to true to launch in simulation mode"
+        default_value="True"
     )
 
     is_sim = LaunchConfiguration("is_sim")
@@ -22,7 +21,7 @@ def generate_launch_description():
         .robot_description(file_path=os.path.join(
             get_package_share_directory("scara_description"),
             "urdf",
-            "arduinobot.urdf.xacro"
+            "scara.urdf.xacro"
             )
         )
         .robot_description_semantic(file_path="config/scara.srdf")

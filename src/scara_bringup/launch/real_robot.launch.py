@@ -28,7 +28,8 @@ def generate_launch_description():
             get_package_share_directory("scara_server"),
             "launch",
             "scara_server.launch.py"
-            )
+            ),
+            launch_arguments={"is_sim": "False"}.items()
         )
     
     return LaunchDescription([

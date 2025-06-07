@@ -1,4 +1,4 @@
-#include "scara_interface.hpp"
+#include "scara_controller/scara_interface.hpp"
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <sstream>
@@ -32,7 +32,6 @@ ScaraInterface::~ScaraInterface () {
 }
 
 CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &hardware_info) {
-    
     CallbackReturn result = hardware_interface::SystemInterface::on_init(hardware_info);
 
     if (result != CallbackReturn::SUCCESS)
@@ -45,14 +44,21 @@ CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &h
         return CallbackReturn::FAILURE;
     }
 
-    position_commands_.reserve(info_.joints.size());
-    position_states_.reserve(info_.joints.size());
-    prev_position_commands_.reserve(info_.joints.size());
+    //position_commands_.reserve(info_.joints.size());
+    //position_states_.reserve(info_.joints.size());
+    //prev_position_commands_.reserve(info_.joints.size());
+    position_states_.resize(info_.joints.size(), 0.0);
+    position_commands_.resize(info_.joints.size(), 0.0);
+    prev_position_commands_.resize(info_.joints.size(), 0.0);
 
     return CallbackReturn::SUCCESS;
 }
 
 std::vector<hardware_interface::StateInterface> ScaraInterface::export_state_interfaces() {
+    if (position_commands_.size() != info_.joints.size()) {
+    RCLCPP_FATAL(this->get_logger(), "Invalid size of position_commands_ vector!");
+    throw std::runtime_error("Mismatched vector size");
+    }
 
     std::vector<hardware_interface::StateInterface> state_interfaces;
     for (size_t i = 0; i < info_.joints.size(); i++) {
@@ -63,6 +69,10 @@ std::vector<hardware_interface::StateInterface> ScaraInterface::export_state_int
 }
 
 std::vector<hardware_interface::CommandInterface> ScaraInterface::export_command_interfaces() {
+    if (position_commands_.size() != info_.joints.size()) {
+    RCLCPP_FATAL(this->get_logger(), "Invalid size of position_commands_ vector!");
+    throw std::runtime_error("Mismatched vector size");
+    }
 
     std::vector<hardware_interface::CommandInterface> command_interfaces;
     for (size_t i = 0; i < info_.joints.size(); i++) {
@@ -75,10 +85,12 @@ std::vector<hardware_interface::CommandInterface> ScaraInterface::export_command
 CallbackReturn ScaraInterface::on_activate(const rclcpp_lifecycle::State &previous_state) {
     (void)previous_state;
     RCLCPP_INFO(this->get_logger(), "Starting the robot hardware...");
-    position_commands_ = {0.0, 0.0, 0.0, 0.0};
-    prev_position_commands_ = {0.0, 0.0, 0.0, 0.0};
-    position_states_ = {0.0, 0.0, 0.0, 0.0};
-
+    //position_commands_ = {0.0, 0.0, 0.0, 0.0};
+    //prev_position_commands_ = {0.0, 0.0, 0.0, 0.0};
+    //position_states_ = {0.0, 0.0, 0.0, 0.0};
+    std::fill(position_commands_.begin(), position_commands_.end(), 0.0);
+    std::fill(prev_position_commands_.begin(), prev_position_commands_.end(), 0.0);
+    std::fill(position_states_.begin(), position_states_.end(), 0.0);
     try {
         arduino_.Open(port_);
         arduino_.SetBaudRate(LibSerial::BaudRate::BAUD_9600);
@@ -112,23 +124,28 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
     std::string data;
 
     try {
+        if(arduino_.IsDataAvailable()) {
         arduino_.ReadLine(data,'\n');
         data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
+        }
     } catch (...) {
         RCLCPP_WARN(this->get_logger(), "Failed to read joints status from serial.");
         return hardware_interface::return_type::OK;
     }
 
-    std::vector<std::string> tokens;
-    std::stringstream ss(data);
-    std::string token;
-    while (std::getline(ss, token, ',')) {
-        tokens.push_back(token);
-    }
+    if(!data.empty()) {
+        std::vector<std::string> tokens;
+        std::stringstream ss(data);
+        std::string token;
 
-    if (tokens.size() == 3 && tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1") {
+        while (std::getline(ss, token, ',')) {
+            tokens.push_back(token);
+        }
+
+        if (tokens.size() == 3 && tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1") {
         position_states_ = position_commands_;
         RCLCPP_INFO(this->get_logger(), "Robot reached target position.");
+        }
     }
 
     return hardware_interface::return_type::OK;
@@ -157,15 +174,16 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
     msg.append(std::to_string(elbow));
     msg.append(",");
     int wrist = static_cast<int>(((position_commands_.at(3) + (M_PI/2)) * 180.0) / M_PI);
-    msg.append("wrist");
+    msg.append("w");
     msg.append(compensateZeros(wrist));
     msg.append(std::to_string(wrist));
     msg.append(",");
+    /*
     int gripper = static_cast<int>(position_commands_.at(4));
-    msg.append("gripper");
+    msg.append("g");
     msg.append(compensateZeros(gripper));
     msg.append(std::to_string(gripper));
-    
+    */
     try {
         arduino_.Write(msg);
     } catch (...) {
@@ -179,4 +197,4 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
 
 }
 
-PLUGINLIB_EXPORT_CLASS(scara_controller::ScaraInterface, hardware_interface::SystemInterface);
+PLUGINLIB_EXPORT_CLASS(scara_controller::ScaraInterface, hardware_interface::SystemInterface)
