@@ -15,6 +15,7 @@ find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(scara_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 
 # Include directories
 include_directories(include ${OpenCV_INCLUDE_DIRS} ${Qt5_INCLUDE_DIRS})
@@ -36,6 +37,7 @@ target_link_libraries(puzzle_solver_node
 # ROS2 package dependencies
 ament_target_dependencies(puzzle_solver_node
     rclcpp sensor_msgs
+    rclcpp_action
     std_msgs
     cv_bridge
     OpenCV

@@ -223,6 +223,8 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
             return {};
         }
         int matchEdgeIdx = std::distance(pair.matchingElements.begin(), matchFirstIt);
+        first.pairedEdges.first = firstFreeEdgeIdx;
+        first.pairedEdges.second = matchEdgeIdx;
         lastMatchedEdgeIdx = matchEdgeIdx;
         // acquiring rotation angle of the pair puzzle
         double alfa = first.finalEdgeOrientation.at(firstFreeEdgeIdx);

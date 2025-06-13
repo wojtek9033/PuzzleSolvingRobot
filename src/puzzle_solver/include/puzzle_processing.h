@@ -39,6 +39,7 @@ struct Element {
     bool isCornerPiece{false};
     bool isEdgePiece{false};
     double rotationAngle{0};
+    std::pair<int, int> pairedEdges;
 };
 
 void preprocImage(Mat &img);
