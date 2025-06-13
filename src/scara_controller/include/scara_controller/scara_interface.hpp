@@ -11,6 +11,7 @@
 #include <string>
 
 namespace scara_controller {
+    
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -37,7 +38,6 @@ private:
     std::vector<double> position_commands_;
     std::vector<double> prev_position_commands_;
     std::vector<double> position_states_;
-    
 };
 
 }

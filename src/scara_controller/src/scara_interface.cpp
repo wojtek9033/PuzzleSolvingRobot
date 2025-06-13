@@ -1,21 +1,13 @@
 #include "scara_controller/scara_interface.hpp"
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
-#include <pluginlib/class_list_macros.hpp>
 #include <sstream>
+#include <iomanip>
 
 namespace scara_controller {
 
-std::string compensateZeros(int value) {
-    std::string compensate_zeros;
-    if (value < 10) {
-        compensate_zeros = "00";
-    } else if (value < 100) {
-        compensate_zeros = "0";
-    } else {
-        compensate_zeros = "";
-    }
-    return compensate_zeros;
-}
+const double init_shoulder_pos{3.96};
+const double init_elbow_pos{-4.54};
+const double init_wrist_pos{0.0};
 
 ScaraInterface::ScaraInterface() {
 
@@ -85,9 +77,6 @@ std::vector<hardware_interface::CommandInterface> ScaraInterface::export_command
 CallbackReturn ScaraInterface::on_activate(const rclcpp_lifecycle::State &previous_state) {
     (void)previous_state;
     RCLCPP_INFO(this->get_logger(), "Starting the robot hardware...");
-    //position_commands_ = {0.0, 0.0, 0.0, 0.0};
-    //prev_position_commands_ = {0.0, 0.0, 0.0, 0.0};
-    //position_states_ = {0.0, 0.0, 0.0, 0.0};
     std::fill(position_commands_.begin(), position_commands_.end(), 0.0);
     std::fill(prev_position_commands_.begin(), prev_position_commands_.end(), 0.0);
     std::fill(position_states_.begin(), position_states_.end(), 0.0);
@@ -122,7 +111,6 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
     (void)time;
     (void)period;
     std::string data;
-
     try {
         if(arduino_.IsDataAvailable()) {
         arduino_.ReadLine(data,'\n');
@@ -143,8 +131,8 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
         }
 
         if (tokens.size() == 3 && tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1") {
-        position_states_ = position_commands_;
-        RCLCPP_INFO(this->get_logger(), "Robot reached target position.");
+            position_states_ = position_commands_;
+            RCLCPP_INFO(this->get_logger(), "Robot reached target position.");
         }
     }
 
@@ -157,35 +145,29 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
     if (position_commands_ == prev_position_commands_)
         return hardware_interface::return_type::OK;
 
-    std::string msg;
-    int base = static_cast<int>(position_commands_.at(0));
-    msg.append("b");
-    msg.append(compensateZeros(base));
-    msg.append(std::to_string(base));
-    msg.append(",");
-    int shoulder = static_cast<int>(((position_commands_.at(1) + (M_PI/2)) * 180.0) / M_PI);
-    msg.append("s");
-    msg.append(compensateZeros(shoulder));
-    msg.append(std::to_string(shoulder));
-    msg.append(",");
-    int elbow = static_cast<int>(((position_commands_.at(2) + (M_PI/2)) * 180.0) / M_PI);
-    msg.append("e");
-    msg.append(compensateZeros(elbow));
-    msg.append(std::to_string(elbow));
-    msg.append(",");
-    int wrist = static_cast<int>(((position_commands_.at(3) + (M_PI/2)) * 180.0) / M_PI);
-    msg.append("w");
-    msg.append(compensateZeros(wrist));
-    msg.append(std::to_string(wrist));
-    msg.append(",");
-    /*
-    int gripper = static_cast<int>(position_commands_.at(4));
-    msg.append("g");
-    msg.append(compensateZeros(gripper));
-    msg.append(std::to_string(gripper));
-    */
+    double base = position_commands_.at(0 * 100.0);
+    double shoulder = (position_commands_.at(1) * 180.0)/ M_PI; 
+    double elbow = -(position_commands_.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
+    double wrist = (position_commands_.at(3) * 180.0)/ M_PI;
+
+    std::ostringstream oss;
+    oss << std::fixed
+        << std::setprecision(2)
+        << 'b'
+        << base << ';'
+        << 's'
+        << shoulder * 10.0 << ';'
+        << 'e'
+        << elbow << ';'
+        << 'w'
+        << wrist;
+
+    std::string msg = oss.str();    
+    RCLCPP_INFO_STREAM(this->get_logger(), "Command to arduino: " << msg);
     try {
-        arduino_.Write(msg);
+        arduino_.Write(msg + '\n');
+        last_sent_positions_ = position_commands_;
+        sent_this_command_ = true;
     } catch (...) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Something went wrong while sending the message " << msg << "to the port " << port_);
         return hardware_interface::return_type::ERROR;
@@ -195,6 +177,8 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
     return hardware_interface::return_type::OK;
 }
 
-}
+} // namespace scara_controller
+
+#include <pluginlib/class_list_macros.hpp>
 
 PLUGINLIB_EXPORT_CLASS(scara_controller::ScaraInterface, hardware_interface::SystemInterface)
