@@ -21,27 +21,26 @@ def generate_launch_description():
             launch_arguments={"is_sim": "True"}.items()
         )
     
-    moveit = IncludeLaunchDescription(
+    iksolver = IncludeLaunchDescription(
         os.path.join(
-            get_package_share_directory("scara_moveit"),
+            get_package_share_directory("scara_ik_solver"),
             "launch",
-            "moveit.launch.py"
-            ),
-            launch_arguments={"is_sim": "True"}.items()
-        )
-    
-    server = IncludeLaunchDescription(
-        os.path.join(
-            get_package_share_directory("scara_server"),
-            "launch",
-            "scara_server.launch.py"
+            "ik_solver.launch.py"
             )
         )
+    
+    #server = IncludeLaunchDescription(
+    #    os.path.join(
+    #        get_package_share_directory("scara_server"),
+    #        "launch",
+    #        "scara_server.launch.py"
+    #        )
+    #    )
     
     return LaunchDescription([
         gazebo,
         controller,
-        moveit,
-        server
+        iksolver
+        #server
     ])
     

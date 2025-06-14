@@ -27,7 +27,7 @@ CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &h
     CallbackReturn result = hardware_interface::SystemInterface::on_init(hardware_info);
 
     if (result != CallbackReturn::SUCCESS)
-        return result;
+        return result; 
 
     try {
         port_ = info_.hardware_parameters.at("port");
@@ -42,6 +42,7 @@ CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &h
     position_states_.resize(info_.joints.size(), 0.0);
     position_commands_.resize(info_.joints.size(), 0.0);
     prev_position_commands_.resize(info_.joints.size(), 0.0);
+    last_sent_position_.resize(info_.joints.size(), 0.0);
 
     return CallbackReturn::SUCCESS;
 }
@@ -139,16 +140,11 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, const rclcpp::Duration &period) { 
-    (void)time;
-    (void)period;
-    if (position_commands_ == prev_position_commands_)
-        return hardware_interface::return_type::OK;
-
-    double base = position_commands_.at(0 * 100.0);
-    double shoulder = (position_commands_.at(1) * 180.0)/ M_PI; 
-    double elbow = -(position_commands_.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
-    double wrist = (position_commands_.at(3) * 180.0)/ M_PI;
+bool ScaraInterface::send_command_to_arduino(std::vector<double> position_commands) {
+    double base = position_commands.at(0 * 100.0);
+    double shoulder = (position_commands.at(1) * 180.0)/ M_PI; 
+    double elbow = -(position_commands.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
+    double wrist = (position_commands.at(3) * 180.0)/ M_PI;
 
     std::ostringstream oss;
     oss << std::fixed
@@ -166,11 +162,35 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
     RCLCPP_INFO_STREAM(this->get_logger(), "Command to arduino: " << msg);
     try {
         arduino_.Write(msg + '\n');
-        last_sent_positions_ = position_commands_;
-        sent_this_command_ = true;
+        RCLCPP_INFO(this->get_logger(), "Command to arduino: %s", msg.c_str());
     } catch (...) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Something went wrong while sending the message " << msg << "to the port " << port_);
-        return hardware_interface::return_type::ERROR;
+        return 1;
+    }
+    return 0;
+}
+
+hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, const rclcpp::Duration &period) { 
+    (void)time;
+    (void)period;
+
+    if (position_commands_ == prev_position_commands_)
+        return hardware_interface::return_type::OK;
+
+    bool new_command = false;
+    for (size_t i = 0; i < position_commands_.size(); i++) {
+        if (std::abs(position_commands_.at(i) - last_sent_position_[i]) > epsilon_) {
+            new_command = true;
+            break;
+        }
+    }
+
+    if (new_command && !goal_sent_) {
+        if (send_command_to_arduino(position_commands_)) {
+            return hardware_interface::return_type::ERROR;
+        }
+        last_sent_position_ = position_commands_;
+        goal_sent_ = true;
     }
 
     prev_position_commands_ = position_commands_;

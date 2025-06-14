@@ -31,6 +31,7 @@ public:
     virtual hardware_interface::return_type read(const rclcpp::Time &time, const rclcpp::Duration &period) override;
     virtual hardware_interface::return_type write(const rclcpp::Time &time, const rclcpp::Duration &period) override;
 
+    bool send_command_to_arduino(std::vector<double> position_commands);
 private:
     LibSerial::SerialPort arduino_;
     std::string port_;
@@ -38,6 +39,10 @@ private:
     std::vector<double> position_commands_;
     std::vector<double> prev_position_commands_;
     std::vector<double> position_states_;
+
+    std::vector<double> last_sent_position_;
+    bool goal_sent_ = false;
+    double epsilon_ = 1e-4;
 };
 
 }
