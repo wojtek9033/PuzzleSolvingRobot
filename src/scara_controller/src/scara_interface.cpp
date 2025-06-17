@@ -115,6 +115,7 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
     try {
         if(arduino_.IsDataAvailable()) {
         arduino_.ReadLine(data,'\n');
+        data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
         data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
         }
     } catch (...) {
@@ -126,12 +127,11 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
         std::vector<std::string> tokens;
         std::stringstream ss(data);
         std::string token;
-
         while (std::getline(ss, token, ',')) {
             tokens.push_back(token);
         }
 
-        if (tokens.size() == 3 && tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1") {
+        if (tokens.at(0) == "1" && tokens.at(1) == "1" && tokens.at(2) == "1" && tokens.at(3) == "1") {
             position_states_ = position_commands_;
             RCLCPP_INFO(this->get_logger(), "Robot reached target position.");
         }
@@ -143,7 +143,7 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
 bool ScaraInterface::send_command_to_arduino(std::vector<double> position_commands) {
     double base = position_commands.at(0 * 100.0);
     double shoulder = (position_commands.at(1) * 180.0)/ M_PI; 
-    double elbow = -(position_commands.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
+    double elbow = (position_commands.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
     double wrist = (position_commands.at(3) * 180.0)/ M_PI;
 
     std::ostringstream oss;
@@ -152,17 +152,16 @@ bool ScaraInterface::send_command_to_arduino(std::vector<double> position_comman
         << 'b'
         << base << ';'
         << 's'
-        << shoulder * 10.0 << ';'
+        << shoulder << ';'
         << 'e'
         << elbow << ';'
         << 'w'
         << wrist;
 
     std::string msg = oss.str();    
-    RCLCPP_INFO_STREAM(this->get_logger(), "Command to arduino: " << msg);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Sending command to arduino: " << msg);
     try {
         arduino_.Write(msg + '\n');
-        RCLCPP_INFO(this->get_logger(), "Command to arduino: %s", msg.c_str());
     } catch (...) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Something went wrong while sending the message " << msg << "to the port " << port_);
         return 1;
@@ -173,7 +172,6 @@ bool ScaraInterface::send_command_to_arduino(std::vector<double> position_comman
 hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, const rclcpp::Duration &period) { 
     (void)time;
     (void)period;
-
     if (position_commands_ == prev_position_commands_)
         return hardware_interface::return_type::OK;
 
@@ -185,12 +183,11 @@ hardware_interface::return_type ScaraInterface::write(const rclcpp::Time &time, 
         }
     }
 
-    if (new_command && !goal_sent_) {
+    if (new_command) {
         if (send_command_to_arduino(position_commands_)) {
             return hardware_interface::return_type::ERROR;
         }
         last_sent_position_ = position_commands_;
-        goal_sent_ = true;
     }
 
     prev_position_commands_ = position_commands_;

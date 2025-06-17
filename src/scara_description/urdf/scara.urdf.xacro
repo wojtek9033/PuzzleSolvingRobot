@@ -196,7 +196,7 @@
         <collision>
             <origin xyz="0 0 -0.0305" rpy="${PI/2} 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.05"/>
+                <mesh filename="package://scara_description/meshes/MY_GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
@@ -243,17 +243,21 @@
     <joint name="joint_2" type="revolute">
         <parent link="z_base"/>
         <child link="shoulder"/>
-        <origin xyz="0.067 0 -0.0125" rpy="0 0 1.98"/>
+        <!--<origin xyz="0.067 0 -0.0125" rpy="0 0 1.98"/>-->
+        <origin xyz="0.067 0 -0.0125" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="-3.96" upper="0.0"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-1.98" upper="1.98"/>
+        <!--<limit effort="${effort}" velocity="${velocity}" lower="-3.96" upper="0.0"/>-->
     </joint>
 
     <joint name="joint_3" type="revolute">
         <parent link="shoulder"/>
         <child link="elbow"/>
-        <origin xyz="0.092 0 -0.006" rpy="0 0 -2.27"/>
+        <!--<origin xyz="0.092 0 -0.006" rpy="0 0 -2.27"/>-->
+        <origin xyz="0.092 0 -0.006" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="4.54"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-2.27" upper="2.27"/>
+        <!--<limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="4.54"/>-->
     </joint>
     
     <joint name="joint_4" type="revolute">

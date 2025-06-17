@@ -26,8 +26,10 @@ Servo valve;
 Servo pump;
 
 const double MICROSTEPS = 16.0; // Number of microsteps
+const double WRIST_MICROSTEPS = 2.0;
 const double MOTOR_STEPS_PER_REV = 200.0; // Number of steps per revolution for the motor
 const double STEPS_PER_REV = MOTOR_STEPS * MICROSTEPS; // Total steps per revolution
+const double WRIST_STEPS_PER_REV = MOTOR_STEPS * WRIST_MICROSTEPS;
 
 const double BASE_SCREW_PITCH = 2.0; // Pitch of the screw in mm  
 const double SHOULDER_GEAR_RATIO = 4.5; // Gear ratio for the shoulder motor
@@ -71,7 +73,7 @@ void setup() {
   base.setMaxSpeed(STEPS_PER_REV);
   shoulder.setMaxSpeed(STEPS_PER_REV);
   elbow.setMaxSpeed(STEPS_PER_REV);
-  wrist.setMaxSpeed(STEPS_PER_REV);
+  wrist.setMaxSpeed(WRIST_STEPS_PER_REV);
 /*
   base.setMaxSpeed(STEPS_PER_REV * 6.0);
   shoulder.setMaxSpeed(STEPS_PER_REV  * 2.0);
@@ -81,7 +83,7 @@ void setup() {
   base.setAcceleration(STEPS_PER_REV * 4.0);
   shoulder.setAcceleration(STEPS_PER_REV * 4.0);
   elbow.setAcceleration(STEPS_PER_REV * 4.0);
-  wrist.setAcceleration(STEPS_PER_REV);
+  wrist.setAcceleration(STEPS_PER_REV * 2.0);
 
   //basing
   base.setCurrentPosition(0);
@@ -101,17 +103,13 @@ void loop() {
   prev_elbowIsMoving = elbowIsMoving;
   prev_wristIsMoving = wristwIsMoving;
 
-  if (Serial.available()) {
-    if (firstScan) {
+   if (Serial.available()) {
+     /*if (firstScan) {
       Serial.println("1,1,1,1");
       firstScan = false;
-    }
+    }*/
     char chr = Serial.read();
-    Serial.print(chr);
     if (chr == '\n') {
-      Serial.print("Data is: ");
-      Serial.print(serialData);
-      Serial.print('\n');
       parseCommand(serialData);
       serialData = "";
     } else {

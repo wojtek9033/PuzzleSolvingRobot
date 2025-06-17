@@ -14,6 +14,7 @@
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_controller/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_firmware/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_iksolver/include/**",
+        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_kinematics/include/**",
         "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_server/include/**",
         "/usr/include/**"
       ],
