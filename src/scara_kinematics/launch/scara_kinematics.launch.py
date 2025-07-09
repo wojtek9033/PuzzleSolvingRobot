@@ -7,9 +7,18 @@ import os
 
 
 def generate_launch_description():
+
+    is_sim_arg = DeclareLaunchArgument(
+        "is_sim",
+        default_value="False"
+    )
+
+    is_sim = LaunchConfiguration("is_sim")
+
     ik_node = Node(
         package="scara_kinematics",
         executable="scara_kinematics_node",
+        parameters=[{"is_sim": is_sim}]
     )
 
     return LaunchDescription([
