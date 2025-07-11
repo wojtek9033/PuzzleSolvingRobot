@@ -113,9 +113,11 @@ private:
             return {0.0, 0.0, 0.0, 0.0, false};
 
         double sin_theta3 = std::sqrt(1.0 - cos_theta3 * cos_theta3);
+        if (y < 0.0)
+            sin_theta3 = -sin_theta3;  // elbow-down
 
         double theta2 = std::atan2(y, dx) - std::atan2(j4_length * sin_theta3, j3_length + j4_length * cos_theta3);
-        double theta3 = std::atan2(sqrt(1 - cos_theta3 * cos_theta3), cos_theta3);
+        double theta3 = std::atan2(sin_theta3, cos_theta3);
 
         tf2::Quaternion q(
             goal_pose.orientation.x,
@@ -124,8 +126,8 @@ private:
             goal_pose.orientation.w);
         double roll, pitch, yaw;
         tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
-        double theta4 = yaw - (theta2 + theta3);
-
+        //double theta4 = yaw - (theta2 + theta3);
+        double theta4 = yaw;
         // In real robot, elbow and shoulder engines are mounted in the base
         // so in the theta3 we compensate theta2 movement by the elbow reductions mounted in shoulder
         if (!is_sim_) 
@@ -188,19 +190,19 @@ private:
         }
 
         if (res.joint1 < lower_limits_.at(0) || res.joint1 > upper_limits_.at(0)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 1 out of bounds! %f < %f < %f", lower_limits_.at(0), res.joint1, upper_limits_.at(0));
+            RCLCPP_ERROR(this->get_logger(), "Joint 1 out of bounds! %f < %f < %f", lower_limits_.at(0) * (180/M_PI), res.joint1 * (180/M_PI), upper_limits_.at(0) * (180/M_PI));
             return;
         }
         if (res.joint2 < lower_limits_.at(1) || res.joint2 > upper_limits_.at(1)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 2 out of bounds! %f < %f < %f", lower_limits_.at(1), res.joint2, upper_limits_.at(1));
+            RCLCPP_ERROR(this->get_logger(), "Joint 2 out of bounds! %f < %f < %f", lower_limits_.at(1) * (180/M_PI), res.joint2 * (180/M_PI), upper_limits_.at(1) * (180/M_PI));
             return;
         }
         if (res.joint3 < lower_limits_.at(2) || res.joint3 > upper_limits_.at(2)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 3 out of bounds! %f < %f < %f", lower_limits_.at(2), res.joint3, upper_limits_.at(2));
+            RCLCPP_ERROR(this->get_logger(), "Joint 3 out of bounds! %f < %f < %f", lower_limits_.at(2) * (180/M_PI), res.joint3 * (180/M_PI), upper_limits_.at(2) * (180/M_PI));
             return;
         }
         if (res.joint4 < lower_limits_.at(3) || res.joint4 > upper_limits_.at(3)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 4 out of bounds! %f < %f < %f", lower_limits_.at(3), res.joint4, upper_limits_.at(3));
+            RCLCPP_ERROR(this->get_logger(), "Joint 4 out of bounds! %f < %f < %f", lower_limits_.at(3) * (180/M_PI), res.joint4 * (180/M_PI), upper_limits_.at(3) * (180/M_PI));
             return;
         }
                 
@@ -215,10 +217,10 @@ private:
         }
         else {
             out.data = {
-                res.joint1 + initial_joint_positions_.at(0),
-                res.joint2 - std::abs(initial_joint_positions_.at(1)),
-                res.joint3 + ((shoulder_gear_no_/elbow_gear_no_) * std::abs(initial_joint_positions_.at(2))),
-                res.joint4 + initial_joint_positions_.at(3)};
+                res.joint1 - initial_joint_positions_.at(0),
+                res.joint2 - initial_joint_positions_.at(1),
+                res.joint3 - ((shoulder_gear_no_/elbow_gear_no_) * initial_joint_positions_.at(2)),
+                res.joint4 - initial_joint_positions_.at(3)};
         }
 
         joint_pub_->publish(out);

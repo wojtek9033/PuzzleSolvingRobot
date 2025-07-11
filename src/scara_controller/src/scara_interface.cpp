@@ -36,9 +36,6 @@ CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &h
         return CallbackReturn::FAILURE;
     }
 
-    //position_commands_.reserve(info_.joints.size());
-    //position_states_.reserve(info_.joints.size());
-    //prev_position_commands_.reserve(info_.joints.size());
     position_states_.resize(info_.joints.size(), 0.0);
     position_commands_.resize(info_.joints.size(), 0.0);
     prev_position_commands_.resize(info_.joints.size(), 0.0);
@@ -141,14 +138,14 @@ hardware_interface::return_type ScaraInterface::read(const rclcpp::Time &time, c
 }
 
 bool ScaraInterface::send_command_to_arduino(std::vector<double> position_commands) {
-    double base = position_commands.at(0 * 100.0);
+    double base = position_commands.at(0) * 1000.0; // meters to milimeters
     double shoulder = (position_commands.at(1) * 180.0)/ M_PI; 
-    double elbow = (position_commands.at(2) * 180.0)/ M_PI; // minus is to meet requirements of AccelStepper library in Arduino -> minus means counterclockwise from 0.0
+    double elbow = (position_commands.at(2) * 180.0)/ M_PI;
     double wrist = (position_commands.at(3) * 180.0)/ M_PI;
 
     std::ostringstream oss;
     oss << std::fixed
-        << std::setprecision(2)
+        << std::setprecision(3) 
         << 'b'
         << base << ';'
         << 's'

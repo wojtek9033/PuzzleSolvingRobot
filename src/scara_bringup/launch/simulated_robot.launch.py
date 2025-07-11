@@ -23,10 +23,11 @@ def generate_launch_description():
     
     iksolver = IncludeLaunchDescription(
         os.path.join(
-            get_package_share_directory("scara_ik_solver"),
+            get_package_share_directory("scara_kinematics"),
             "launch",
-            "ik_solver.launch.py"
-            )
+            "scara_kinematics.launch.py"
+            ),
+            launch_arguments={"is_sim": "True"}.items()
         )
     
     #server = IncludeLaunchDescription(

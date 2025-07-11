@@ -39,16 +39,9 @@ def generate_launch_description():
             get_package_share_directory("scara_kinematics"),
             "launch",
             "scara_kinematics.launch.py"
-            )
+            ),
+            launch_arguments={"is_sim": "False"}.items()
         )
-    
-    #iksolver = IncludeLaunchDescription(
-    #    os.path.join(
-    #        get_package_share_directory("scara_iksolver"),
-    #        "launch",
-    #        "ik_solver.launch.py"
-    #        )
-    #    )
 
     #server = IncludeLaunchDescription(
     #    os.path.join(
