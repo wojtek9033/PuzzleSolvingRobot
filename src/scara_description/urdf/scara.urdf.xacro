@@ -35,47 +35,47 @@
         </visual>
         <!-- Rod 1 -->
         <visual>
-            <origin xyz="0.067 0 0.13" rpy="0 0 0"/>
+            <origin xyz="0.067 0 0.168" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.320"/>
             </geometry>
         </visual>
         <!-- Rod 2 -->
         <visual>
-            <origin xyz="-0.008 0.048 0.13" rpy="0 0 0"/>
+            <origin xyz="-0.008 0.048 0.168" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.320"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="-0.008 -0.048 0.13" rpy="0 0 0"/>
+            <origin xyz="-0.008 -0.048 0.168" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.320"/>
             </geometry>
         </collision>
         <!-- Rod 3 -->
         <visual>
-            <origin xyz="-0.008 -0.048 0.13" rpy="0 0 0"/>
+            <origin xyz="-0.008 -0.048 0.168" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.320"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="-0.008 -0.048 0.13" rpy="0 0 0"/>
+            <origin xyz="-0.008 -0.048 0.168" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.320"/>
             </geometry>
         </collision>
         <!-- Threaded Rod -->
         <visual>
-            <origin xyz="0 0 0.13" rpy="0 0 0"/>
+            <origin xyz="0 0 0.200" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.004" length="0.250"/>
+                <cylinder radius="0.004" length="0.280"/>
             </geometry>
         </visual>
         <!-- Base cover -->
         <visual>
-            <origin xyz="0.017 0 0.308" rpy="-${PI/2} 0 -${PI/2}"/>
+            <origin xyz="0.017 0 0.382" rpy="-${PI/2} 0 -${PI/2}"/>
             <geometry>
                 <mesh filename="package://scara_description/meshes/TOP_TRIANGLE.stl" scale="0.001 0.001 0.001"/>
             </geometry>
@@ -234,9 +234,9 @@
     <joint name="joint_1" type="prismatic">
         <parent link="base_link"/>
         <child link="z_base"/>
-        <origin xyz="0 0 0.239" rpy="0 0 0"/>
+        <origin xyz="0 0 0.310" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit effort="1000" velocity="10" lower="-0.143" upper="0.0"/>
+        <limit effort="1000" velocity="10" lower="-0.221" upper="0.0"/>
         <dynamics damping="0.5" friction="0.5"/>
     </joint> 
 

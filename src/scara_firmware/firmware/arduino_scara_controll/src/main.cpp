@@ -35,7 +35,7 @@ const double ELBOW_STEPS_PER_REV = MOTOR_STEPS_PER_REV * ELBOW_MICROSTEPS;
 const double BASE_STEPS_PER_REV = MOTOR_STEPS_PER_REV * BASE_MICROSTEPS;
 const double WRIST_STEPS_PER_REV = MOTOR_STEPS_PER_REV * WRIST_MICROSTEPS;
 
-const double BASE_SCREW_PITCH = 2.0; // Pitch of the screw in mm  
+const double BASE_SCREW_PITCH = 8.0; // Pitch of the screw in mm  
 const double SHOULDER_GEAR_RATIO = 4.5; // Gear ratio for the shoulder motor
 const double ELBOW_GEAR_RATIO = 7.28; // Gear ratio for the elbow motor
 const double WRIST_GEAR_RATIO = 3.0;
@@ -69,7 +69,7 @@ void controlGripper(int state);
 
 void setup() {
 
-  base.setMaxSpeed(BASE_STEPS_PER_REV * 10);
+  base.setMaxSpeed(BASE_STEPS_PER_REV * 5);
   shoulder.setMaxSpeed(SHOULDER_STEPS_PER_REV * 2);
   elbow.setMaxSpeed(ELBOW_STEPS_PER_REV * 2);
   wrist.setMaxSpeed(WRIST_STEPS_PER_REV);
