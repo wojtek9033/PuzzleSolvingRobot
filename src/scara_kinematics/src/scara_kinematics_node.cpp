@@ -4,6 +4,8 @@
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <urdf/model.h>
 #include <tf2/LinearMath/Quaternion.hpp>
 #include <tf2/LinearMath/Matrix3x3.hpp>
@@ -28,24 +30,29 @@ public:
         );
 
         goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
-            "/scara_ik_goal",
+            "/scara/ik_goal",
             10,
             std::bind(&ScaraKinematics::goal_callback, this, _1)
+        );
+
+        joint_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
+            "/joint_states",
+            10,
+            std::bind(&ScaraKinematics::joint_states_callback, this, _1)
         );
 
         joint_pub_ = this->create_publisher<std_msgs::msg::Float64MultiArray> (
             "/arm_controller/commands",
             10
         );
-        filepath_ = ament_index_cpp::get_package_share_directory("scara_kinematics") + "/config/initial_positions.yaml";
-        load_initial_positions(filepath_);
 
-        if (is_sim_) {
-            init_pos_timer_ = this->create_wall_timer(
-                std::chrono::seconds(5),
-                std::bind(&ScaraKinematics::timer_callback, this)
-            );
-        }
+        arm_in_pos_pub_ = this->create_publisher<std_msgs::msg::Bool> (
+            "/scara/in_pos",
+            10
+        );
+
+        config_filepath_ = ament_index_cpp::get_package_share_directory("scara_kinematics") + "/config/initial_positions.yaml";
+        load_initial_positions(config_filepath_);
 
         RCLCPP_INFO(this->get_logger(), "SCARA IK Node initialized");
     }
@@ -58,20 +65,7 @@ private:
         double joint3;
         double joint4;
         bool success;
-        IKResult(double j1, double j2, double j3, double j4, bool result) 
-        : joint1(j1), joint2(j2), joint3(j3), joint4(j4), success(result) {};
     };
-    
-    void timer_callback() {
-        std_msgs::msg::Float64MultiArray msg;
-        msg.data = {
-            initial_joint_positions_.at(0),
-            initial_joint_positions_.at(1),
-            initial_joint_positions_.at(2),
-            initial_joint_positions_.at(3)};
-        init_pos_timer_->cancel();
-        RCLCPP_INFO(this->get_logger(), "Sent initial joint positions. (simulation)");
-    }
 
     void load_initial_positions(const std::string &filepath) {
 
@@ -133,7 +127,14 @@ private:
         if (!is_sim_) 
             theta3 += (shoulder_gear_no_/elbow_gear_no_) * theta2;
 
-        return IKResult(j1_goal, theta2, theta3 , theta4, true);
+        IKResult res;
+        res.joint1 = j1_goal;
+        res.joint2 = theta2;
+        res.joint3 = theta3;
+        res.joint4 = theta4;
+        res.success = true;
+
+        return res;
     }
 
     void urdf_callback(const std_msgs::msg::String::SharedPtr msg) {
@@ -182,56 +183,75 @@ private:
     }
 
     void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
-        IKResult res = compute_ik_from_pose(*msg);
+        IKResult result_ = compute_ik_from_pose(*msg);
 
-        if(!res.success) {
+        if(!result_.success) {
             RCLCPP_ERROR(this->get_logger(), "IK Solver failed!");
             return;
         }
 
-        if (res.joint1 < lower_limits_.at(0) || res.joint1 > upper_limits_.at(0)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 1 out of bounds! %f < %f < %f", lower_limits_.at(0) * (180/M_PI), res.joint1 * (180/M_PI), upper_limits_.at(0) * (180/M_PI));
+        if (result_.joint1 < lower_limits_.at(0) || result_.joint1 > upper_limits_.at(0)) {
+            RCLCPP_ERROR(this->get_logger(), "Joint 1 out of bounds! %f < %f < %f", lower_limits_.at(0) * (180/M_PI), result_.joint1 * (180/M_PI), upper_limits_.at(0) * (180/M_PI));
             return;
         }
-        if (res.joint2 < lower_limits_.at(1) || res.joint2 > upper_limits_.at(1)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 2 out of bounds! %f < %f < %f", lower_limits_.at(1) * (180/M_PI), res.joint2 * (180/M_PI), upper_limits_.at(1) * (180/M_PI));
+        if (result_.joint2 < lower_limits_.at(1) || result_.joint2 > upper_limits_.at(1)) {
+            RCLCPP_ERROR(this->get_logger(), "Joint 2 out of bounds! %f < %f < %f", lower_limits_.at(1) * (180/M_PI), result_.joint2 * (180/M_PI), upper_limits_.at(1) * (180/M_PI));
             return;
         }
-        if (res.joint3 < lower_limits_.at(2) || res.joint3 > upper_limits_.at(2)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 3 out of bounds! %f < %f < %f", lower_limits_.at(2) * (180/M_PI), res.joint3 * (180/M_PI), upper_limits_.at(2) * (180/M_PI));
+        if (result_.joint3 < lower_limits_.at(2) || result_.joint3 > upper_limits_.at(2)) {
+            RCLCPP_ERROR(this->get_logger(), "Joint 3 out of bounds! %f < %f < %f", lower_limits_.at(2) * (180/M_PI), result_.joint3 * (180/M_PI), upper_limits_.at(2) * (180/M_PI));
             return;
         }
-        if (res.joint4 < lower_limits_.at(3) || res.joint4 > upper_limits_.at(3)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 4 out of bounds! %f < %f < %f", lower_limits_.at(3) * (180/M_PI), res.joint4 * (180/M_PI), upper_limits_.at(3) * (180/M_PI));
+        if (result_.joint4 < lower_limits_.at(3) || result_.joint4 > upper_limits_.at(3)) {
+            RCLCPP_ERROR(this->get_logger(), "Joint 4 out of bounds! %f < %f < %f", lower_limits_.at(3) * (180/M_PI), result_.joint4 * (180/M_PI), upper_limits_.at(3) * (180/M_PI));
             return;
         }
-                
 
         std_msgs::msg::Float64MultiArray out;
         if (is_sim_) {
             out.data = {
-                res.joint1,
-                res.joint2,
-                res.joint3,
-                res.joint4};
+                result_.joint1,
+                result_.joint2,
+                result_.joint3,
+                result_.joint4};
         }
         else {
             out.data = {
-                res.joint1 - initial_joint_positions_.at(0),
-                res.joint2 - initial_joint_positions_.at(1),
-                res.joint3 - ((shoulder_gear_no_/elbow_gear_no_) * initial_joint_positions_.at(2)),
-                res.joint4 - initial_joint_positions_.at(3)};
+                result_.joint1 - initial_joint_positions_.at(0),
+                result_.joint2 - initial_joint_positions_.at(1),
+                result_.joint3 - (shoulder_gear_no_/elbow_gear_no_) * initial_joint_positions_.at(2),
+                result_.joint4 - initial_joint_positions_.at(3)};
         }
 
         joint_pub_->publish(out);
         RCLCPP_INFO(this->get_logger(), "Published joint targers.");
     }
+
+    void joint_states_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+
+        if (msg->position.at(0) != last_joint_1 ||
+            msg->position.at(1) != last_joint_2 ||
+            msg->position.at(2) != last_joint_3 ||
+            msg->position.at(3) != last_joint_4){
+            std_msgs::msg::Bool status;
+            status.data = true;
+            arm_in_pos_pub_->publish(status);
+        }
+        last_joint_1 = msg->position.at(0);
+        last_joint_2 = msg->position.at(1);
+        last_joint_3 = msg->position.at(2);
+        last_joint_4 = msg->position.at(3);
+    }
+
     bool is_sim_;
     double shoulder_gear_no_{33.0};
     double elbow_gear_no_{62.0};
-    std::string filepath_;
+    double last_joint_1, last_joint_2, last_joint_3, last_joint_4;
+    IKResult result_;
+    std::string config_filepath_;
     std::vector<double> initial_joint_positions_, joint_length_, lower_limits_, upper_limits_;
-    rclcpp::TimerBase::SharedPtr init_pos_timer_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr arm_in_pos_pub_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_sub_;
     rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr goal_sub_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr desc_sub_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr  joint_pub_;
