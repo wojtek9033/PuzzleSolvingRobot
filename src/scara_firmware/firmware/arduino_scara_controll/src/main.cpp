@@ -4,16 +4,16 @@
 
 #include <cmath>
 
-#define BASE_STEP_PIN 2
-#define BASE_DIR_PIN 3
-#define SHOULDER_STEP_PIN 4
-#define SHOULDER_DIR_PIN 5
-#define ELBOW_STEP_PIN 6
-#define ELBOW_DIR_PIN 7
-#define WRIST_STEP_PIN 8
-#define WRIST_DIR_PIN 9
-#define VALVE_PIN 10
-#define PUMP_PIN 11
+const u_int8_t BASE_STEP_PIN = 2;
+const u_int8_t BASE_DIR_PIN = 3;
+const u_int8_t SHOULDER_STEP_PIN = 4;
+const u_int8_t SHOULDER_DIR_PIN = 5;
+const u_int8_t ELBOW_STEP_PIN  = 6;
+const u_int8_t ELBOW_DIR_PIN = 7;
+const u_int8_t WRIST_STEP_PIN = 8;
+const u_int8_t WRIST_DIR_PIN = 9;
+const u_int8_t VALVE_PIN = 10;
+const u_int8_t PUMP_PIN = 11;
 
 // clockwise rotation means negative angle
 AccelStepper base(AccelStepper::DRIVER, BASE_STEP_PIN, BASE_DIR_PIN);
@@ -38,7 +38,7 @@ const double WRIST_STEPS_PER_REV = MOTOR_STEPS_PER_REV * WRIST_MICROSTEPS;
 const double BASE_SCREW_PITCH = 8.0; // Pitch of the screw in mm  
 const double SHOULDER_GEAR_RATIO = 4.5; // Gear ratio for the shoulder motor
 const double ELBOW_GEAR_RATIO = 7.28; // Gear ratio for the elbow motor
-const double WRIST_GEAR_RATIO = 3.0;
+const double WRIST_GEAR_RATIO = 3.5;
 
 // Status of axis
 bool baseIsMoving = false;
@@ -73,12 +73,7 @@ void setup() {
   shoulder.setMaxSpeed(SHOULDER_STEPS_PER_REV * 2);
   elbow.setMaxSpeed(ELBOW_STEPS_PER_REV * 2);
   wrist.setMaxSpeed(WRIST_STEPS_PER_REV);
-/*
-  base.setMaxSpeed(STEPS_PER_REV * 6.0);
-  shoulder.setMaxSpeed(STEPS_PER_REV  * 2.0);
-  elbow.setMaxSpeed(STEPS_PER_REV * 2.0);
-  wrist.setMaxSpeed(STEPS_PER_REV);
-*/
+
   base.setAcceleration(BASE_STEPS_PER_REV * 4.0);
   shoulder.setAcceleration(SHOULDER_STEPS_PER_REV * 4.0);
   elbow.setAcceleration(ELBOW_STEPS_PER_REV * 4.0);
@@ -146,8 +141,9 @@ void parseCommand(String cmd) {
       moveAxisRevolute(elbow, position, ELBOW_STEPS_PER_REV, ELBOW_GEAR_RATIO);
     } else if (axis == 'w') {
       moveAxisRevolute(wrist, position, WRIST_STEPS_PER_REV, WRIST_GEAR_RATIO);
-    } //else if (axis == 'g') {
-      //controlGripper(position);
+    } else if (axis == 'g') {
+      controlGripper(position);
+    }
     lastIdx = nextIdx + 1;
   }
 }
@@ -155,18 +151,11 @@ void parseCommand(String cmd) {
 void moveAxisRevolute(AccelStepper& motor, double angle, double steps_per_rev, double gear_ratio) {
   // Convert angle to steps
   double steps = (angle / 360.0) * steps_per_rev * gear_ratio;
-
-  //if (motor.distanceToGo() != 0) {
-    motor.moveTo(steps);
-  //}
+  motor.moveTo(steps);
 }
 void moveAxisPrismatic(AccelStepper& motor, double steps_per_rev, double distance) {
-  // Convert distance to steps
   double steps = ((-1) * distance / BASE_SCREW_PITCH) * steps_per_rev;
-
-  //if (motor.distanceToGo() != 0) {
-    motor.moveTo(steps);
-  //}
+  motor.moveTo(steps);
 }
 
 void controlGripper(int state){

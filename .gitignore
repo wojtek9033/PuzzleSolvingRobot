@@ -18,3 +18,4 @@ __pycache__/
 # Colcon/ROS2 workspace-specific ignores
 colcon_install_layout.*
 *.swp
+_old/*
