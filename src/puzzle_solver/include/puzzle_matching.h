@@ -19,12 +19,6 @@ struct MatchInfo {
     double similarityScore;
 };
 
-struct Puzzle {
-    std::vector<Element> Elements;
-    //std::vector<int> elementsPlaced;
-    //std::vector<std::pair(cv::Point, double)> Destinations;
-};
-
 double chamferDistance(const std::vector<cv::Point> e1, const std::vector<cv::Point> e2);
 std::vector<Element> matchingPipeline(std::vector<Element> &processedElements);
 void printMatches(const std::map<std::pair<int,int>, std::vector<MatchInfo>> data);
@@ -33,6 +27,7 @@ std::map<std::pair<int,int>, MatchInfo> extractBestMatches(std::map<std::pair<in
 void assignMatches(std::vector<Element> &puzzle,const std::map<std::pair<int,int>, MatchInfo> bestMatches);
 void printMatches(const std::map<std::pair<int,int>, MatchInfo> matchMap);
 std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData);
-void drawAssembly (std::vector<Element>);
+void drawAssembly(const std::vector<Element> &assembly);
+std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assembly);
 
 #endif // PUZZLE_MATCHING_H

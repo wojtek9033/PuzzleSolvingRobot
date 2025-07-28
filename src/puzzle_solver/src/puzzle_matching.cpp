@@ -45,21 +45,21 @@ std::map<std::pair<int,int>, std::vector<MatchInfo>> findMatches(std::vector<Ele
     Element elemA, elemB;
     double similarityScore;
 
-    for (int i = 0; i < allElementsData.size(); i++){
+    for (size_t i = 0; i < allElementsData.size(); i++){
         elemA = allElementsData.at(i);
 
-        for (int j = 0; j < allElementsData.size(); j++) {
+        for (size_t j = 0; j < allElementsData.size(); j++) {
             elemB = allElementsData.at(j);
             if (elemA.id == elemB.id) continue; // avoid self-self matching
 
-            for (int ii = 0; ii < elemA.normalizedEdges.size(); ii++){
+            for (size_t ii = 0; ii < elemA.normalizedEdges.size(); ii++){
                 if (elemA.edgeType.at(ii) == 0) continue; // skip flats
 
-                for (int jj = 0; jj < elemB.normalizedEdges.size(); jj++){
+                for (size_t jj = 0; jj < elemB.normalizedEdges.size(); jj++){
                     if((elemA.edgeType.at(ii) == 1 && elemB.edgeType.at(jj) == -1) || (elemA.edgeType.at(ii) == -1 && elemB.edgeType.at(jj) == 1)){
                         std::pair<int, int> keyA = {elemA.id, ii};
                         similarityScore = chamferDistance(elemA.normalizedEdges.at(ii),elemB.normalizedEdges.at(jj));
-                        Match = {elemB.id, jj, similarityScore};
+                        Match = {elemB.id, static_cast<int>(jj), similarityScore};
                         allMatches[keyA].push_back(Match);
 
                     } else continue;
@@ -133,7 +133,7 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     Element firstElement;
     std::vector<Element> assembly;
 
-    for (int i = 0; i < allElementsData.size(); i++){
+    for (size_t i = 0; i < allElementsData.size(); i++){
         if(allElementsData.at(i).isCornerPiece == true){
             firstElement = allElementsData.at(i);
             break;
@@ -143,7 +143,7 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     // store rotation angle of the last flat edge in the piece
     double lastFlatAngle;
     int lastFlatIdx{0};
-    for (int i = 0; i < 4; i ++){
+    for (size_t i = 0; i < 4; i ++){
         if (firstElement.edgeType.at(i) == 0){
             lastFlatAngle = firstElement.initialEdgeOrientation.at(i);
             lastFlatIdx = i;
@@ -153,14 +153,14 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     // rotate the first element so that its flats are rotated 360 and 270
     // clockwise means negative angles
     double rotationAngle = firstElement.rotationAngle = lastFlatAngle - CV_2PI;
-    for (int i = 0; i < 4; i ++){
+    for (size_t i = 0; i < 4; i ++){
         if (firstElement.initialEdgeOrientation.at(i) - rotationAngle > CV_2PI )
             firstElement.finalEdgeOrientation.push_back(firstElement.initialEdgeOrientation.at(i) - rotationAngle - CV_2PI);
         else firstElement.finalEdgeOrientation.push_back(firstElement.initialEdgeOrientation.at(i) - rotationAngle);
     }
 
     // transform each edge centroid
-    for (int i = 0; i < 4; i++){
+    for (size_t i = 0; i < 4; i++){
         int x_c = firstElement.centroid.x;
         int y_c = firstElement.centroid.y;
         int x = firstElement.edgeCentroid.at(i).x;
@@ -194,7 +194,7 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     }
 
     int lastMatchedEdgeIdx{-1};
-    for (int i = 0; i < PUZZLE_SIZE -1; i++){
+    for (size_t i = 0; i < PUZZLE_SIZE -1; i++){
         Element first = assembly.at(i);
 
         int firstFreeEdgeIdx;
@@ -236,7 +236,7 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
 
         std::cout << "Rotation angle is is: " << pair.rotationAngle * (180/CV_PI) << std::endl;
         // getting final orientation of each edge
-        for (int j = 0; j < 4; j++){
+        for (size_t j = 0; j < 4; j++){
             double angle = pair.initialEdgeOrientation.at(j) - pair.rotationAngle;
             if (angle > CV_2PI) angle -= CV_2PI;
             else if (angle < 0) angle += CV_2PI;
@@ -246,7 +246,7 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
         // transform each edge centroid
         int x_c = pair.centroid.x;
         int y_c = pair.centroid.y;
-        for (int j = 0; j < 4; j++){
+        for (size_t j = 0; j < 4; j++){
             int x = pair.edgeCentroid.at(j).x;
             int y = pair.edgeCentroid.at(j).y;
             double new_x = x_c + (x - x_c)*cos(-pair.rotationAngle) - (y - y_c)*sin(-pair.rotationAngle);
@@ -262,15 +262,15 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     return assembly;
 }
 
-void drawAssembly(vector<Element> assembly){
-    for (int i = 0; i < assembly.size(); i++){
+void drawAssembly(const vector<Element> &assembly) {
+    for (size_t i = 0; i < assembly.size(); i++){
         Mat MM = getRotationMatrix2D(assembly.at(i).centroid, assembly.at(i).rotationAngle * (180/CV_PI), 1);
         Mat puzzlePiece;
         int id = assembly.at(i).id;
         warpAffine(initialPuzzleImages.at(id), puzzlePiece, MM, initialPuzzleImages.at(id).size());
         std::cout << "Element " << i << ": " << std::endl;
         std::cout << "Rotated by: " << assembly.at(i).rotationAngle * (180/CV_PI) << std::endl;
-        for (int j = 0; j < 4; j++){
+        for (size_t j = 0; j < 4; j++){
             std::cout << "  Edge " << j << " initial rotation is " << assembly.at(i).initialEdgeOrientation.at(j) * 180/CV_PI << std::endl;
             std::cout << "  Edge " << j << " final rotation is " << assembly.at(i).finalEdgeOrientation.at(j) * 180/CV_PI << std::endl;
         }
@@ -278,6 +278,50 @@ void drawAssembly(vector<Element> assembly){
         imshow(windowName, puzzlePiece);
     }
     waitKey();
+}
+
+std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assembly) {
+
+    // initial step: move each point of the element so that the element centroid is in 0.0
+    for (auto &element : assembly) {
+        element.edgeCentroid.at(0) -= element.centroid;
+        element.edgeCentroid.at(1) -= element.centroid;
+        element.edgeCentroid.at(2) -= element.centroid;
+        element.edgeCentroid.at(3) -= element.centroid;
+        element.centroid.x = 0.0;
+        element.centroid.y = 0.0;
+    }
+    std::vector<std::array<double,3>> elementsPlaced;
+    elementsPlaced.emplace_back(std::array<double,3>{
+        static_cast<double>(assembly.at(0).centroid.x), 
+        static_cast<double>(assembly.at(0).centroid.y), 
+        assembly.at(0).rotationAngle});
+
+    double goal_x, goal_y;
+    for (size_t i = 1; i < assembly.size(); i ++) { //start loop from 1 - we asume element 0 is already in right spot
+        int placed_edge_idx = assembly.at(i).pairedEdges.first; // index of edge being matched to
+        int pair_edge_idx = assembly.at(i).pairedEdges.second; // index of edge beeing a pair of placed edge
+        Element &pair = assembly.at(i);
+        Element &placed = assembly.at(i-1);
+
+        // Step 1: calculate initial translation of centroid with respect to pair edge
+        cv::Point pair_centroid_translation = pair.centroid - pair.edgeCentroid.at(pair_edge_idx);
+        // Step 2: Move all edgeCentroids so that pair edge lays in placed edge coordinates
+        cv::Point pair_edges_centroid_translation = placed.edgeCentroid.at(placed_edge_idx) - pair.edgeCentroid.at(pair_edge_idx);
+        pair.edgeCentroid.at(0) += pair_edges_centroid_translation;
+        pair.edgeCentroid.at(1) += pair_edges_centroid_translation;
+        pair.edgeCentroid.at(2) += pair_edges_centroid_translation;
+        pair.edgeCentroid.at(3) += pair_edges_centroid_translation;
+        // Step 3: Update pair element centroid with new coordinates
+        pair.centroid = pair.edgeCentroid.at(pair_edge_idx) + pair_centroid_translation;
+
+        elementsPlaced.emplace_back(std::array<double,3>{
+            static_cast<double>(pair.centroid.x), 
+            static_cast<double>(pair.centroid.y),
+            pair.rotationAngle});
+    }
+
+    return elementsPlaced;
 }
 
 
