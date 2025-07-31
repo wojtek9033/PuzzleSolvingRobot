@@ -3,8 +3,7 @@
 #include <scara_msgs/action/scara_task.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <std_msgs/msg/bool.hpp>
-#include <moveit/move_group_interface/move_group_interface.hpp>
-
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <memory>
 
 class ScaraTaskServer : public rclcpp::Node {
@@ -32,10 +31,10 @@ public:
                 std::bind(&ScaraTaskServer::confirm_callback, this, std::placeholders::_1)
             );
 
-            joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
-                "/joint_states",
+            arm_in_pos_sub_ = this->create_subscription<std_msgs::msg::Bool> (
+                "/scara/in_pos",
                 10,
-                std::bind(&ScaraTaskServer::joint_states_callback, this, std::placeholders::_1)
+                std::bind(&ScaraTaskServer::arm_in_pos_callback, this, std::placeholders::_1)
             );
 
             generate_capture_waypoints();
@@ -45,10 +44,9 @@ public:
 
 private:
     rclcpp_action::Server<ScaraTask>::SharedPtr task_action_server_;
-    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_arm_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr ready_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr confirm_sub_;
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_in_pos_sub_;
     std::vector<geometry_msgs::msg::Pose> capture_poses_;
     std::mutex solver_confirm_mutex_;
     std::mutex robot_confirm_mutex_;
@@ -58,9 +56,7 @@ private:
     bool robot_confirm_received_ = false;
     bool canceled_ = false;
 
-    rclcpp_action::GoalResponse handle_goal(
-        const rclcpp_action::GoalUUID &uuid,
-        std::shared_ptr<const ScaraTask::Goal> goal) {
+    rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const ScaraTask::Goal> goal) {
             (void)uuid;
             RCLCPP_INFO(this->get_logger(), "Received goal: %s", goal->command.c_str());
             return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -69,8 +65,6 @@ private:
     rclcpp_action::CancelResponse handle_cancel(const std::shared_ptr<GoalHandle> goal_handle) {
         (void)goal_handle;
         RCLCPP_INFO(this->get_logger(), "Received cancel goal request");
-        auto move_arm_ = moveit::planning_interface::MoveGroupInterface(shared_from_this(), "arm");
-        move_arm_.stop();
         {
             std::lock_guard<std::mutex> lock(solver_confirm_mutex_);
             canceled_ = true;
@@ -87,113 +81,10 @@ private:
         RCLCPP_INFO(get_logger(), "Executing goal...");
         auto result = std::make_shared<ScaraTask::Result>();
         auto feedback = std::make_shared<ScaraTask::Feedback>();
-
-        if(!move_arm_){
-            move_arm_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(shared_from_this(), "arm");
-        }
-
+ 
         const auto &cmd = goal_handle->get_goal()->command;
-        if (cmd == "test") {
-            std::vector<double> arm_joint_goal = {1.2, 1.2, 1.2, 0.0};
-            move_arm_->setPoseReferenceFrame("base_link");
-            move_arm_->setStartStateToCurrentState();
-            
-            move_arm_->setRandomTarget();
-   
-            moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
-            bool arm_plan_success = (move_arm_->plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-            
-            if(arm_plan_success)
-            {
-              RCLCPP_INFO(get_logger(), "Planner SUCCEED, moving the arm");
-              move_arm_->move();
-            }
-            else
-            {
-              RCLCPP_ERROR(get_logger(), "One or more planners failed!");
-              return;
-            }
-          
-            result->success = true;
-            goal_handle->succeed(result);
-            RCLCPP_INFO(get_logger(), "Goal succeeded");
-
-        } else if (cmd == "capture" || cmd == "calibrate") {
-            size_t num_poses{0};
-            if (cmd == "calibrate") 
-                num_poses = 1; // for calibration, we only need one pose
-            else 
-                num_poses = capture_poses_.size();
-
-            for (size_t i = 0; i < num_poses; i++) {
-                if (goal_handle->is_canceling()) {
-                    result->success = false;
-                    goal_handle->canceled(result);
-                    RCLCPP_WARN(this->get_logger(), "Capture task canceled.");
-                    return;
-                }
-                feedback->current_step = "Moving  to capture pose " + std::to_string(i + 1);
-                goal_handle->publish_feedback(feedback);
-
-                move_arm_->setPoseReferenceFrame("base_link");
-                move_arm_->setStartStateToCurrentState();
-                move_arm_->setGoalPositionTolerance(0.01);
-                move_arm_->setGoalOrientationTolerance(0.01);
-
-                bool arm_within_bounds = move_arm_->setPoseTarget(capture_poses_.at(i));
-                
-                if (!arm_within_bounds)
-                {
-                  RCLCPP_ERROR(get_logger(), "Target joint position(s) were outside of limits!");
-                  return;
-                }
-                
-                moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
-                bool arm_plan_success = (move_arm_->plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-                if(arm_plan_success)
-                {
-                    RCLCPP_INFO(get_logger(), "Planner SUCCEED for pose %ld, moving the arm", i + 1);
-                    move_arm_->move();
-
-                    {
-                        RCLCPP_INFO(this->get_logger(), "Waiting for robot to reach target position...");
-                        std::unique_lock<std::mutex> lock(robot_confirm_mutex_);
-                        robot_confirm_.wait(lock, [this]{return robot_confirm_received_ || canceled_; });
-                        if (canceled_){
-                            result->success = false;
-                            goal_handle->canceled(result);
-                            return;
-                        }
-                        robot_confirm_received_ = false;
-                    }
-
-                    std_msgs::msg::Bool msg;
-                    msg.data = true;
-                    ready_pub_->publish(msg);
-                    RCLCPP_INFO(this->get_logger(), "Robot at pose %ld, notified client", i + 1);
-                    
-                    {
-                        RCLCPP_INFO(this->get_logger(), "Waiting for confirmation from solver...");
-                        std::unique_lock<std::mutex> lock(solver_confirm_mutex_);
-                        // while waiting for the flags, unlock the mutex in order to modify states of flags by other threads (ex. confirm_callback)
-                        solver_confirm_.wait(lock, [this]{return solver_confirm_received_ || canceled_; });
-                        if (canceled_){
-                            result->success = false;
-                            goal_handle->canceled(result);
-                            return;
-                        }
-                        solver_confirm_received_ = false;
-                  }
-                  RCLCPP_INFO(this->get_logger(), "Confirm received.");
-
-                } else {
-                  RCLCPP_ERROR(get_logger(), "One or more planners FAILED for pose %ld!", i + 1);
-                  return;
-                }
-            }
-            result->success = true;
-            goal_handle->succeed(result);
-            RCLCPP_INFO(this->get_logger(), "Goal capture succeed");
+        if (cmd == "take_pictures") {
+            // rozmiar pola widzenia 49mm x 36mm w:1600 h:1200
 
         } else if (cmd == "assemble") {
             //PLACE HOLDER FOR ASSEMBLE
@@ -215,22 +106,18 @@ private:
         solver_confirm_.notify_one(); // waking up the waiting thread in execute()
     }
 
-    void joint_states_callback(const sensor_msgs::msg::JointState msg) {
-        auto joint_pose = move_arm_->getCurrentJointValues();        
-        if (msg.position.at(0) == joint_pose.at(0) 
-            && msg.position.at(1) == joint_pose.at(1) 
-            && msg.position.at(2) == joint_pose.at(2)) {
+    void arm_in_pos_callback(const std_msgs::msg::Bool::SharedPtr msg) {   
+        if (msg->data) {
                 std::lock_guard<std::mutex> lock (robot_confirm_mutex_);
                 robot_confirm_received_ = true;
                 robot_confirm_.notify_one();
-            }
+        }
     }
 
     void generate_capture_waypoints() {
         geometry_msgs::msg::Pose pose;
         int puzzleSize{9};
         for (int i = 0; i < puzzleSize; i ++) {
-            // x: 2.002987 y: 0.247675 z: 1.340460 w: 0.612770 - from setRandomPose()
             double theta = M_PI;
             pose.orientation.x = 0.0;
             pose.orientation.y = 0.0;
