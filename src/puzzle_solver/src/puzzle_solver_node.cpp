@@ -5,11 +5,13 @@
 #include "puzzle_utils.h"
 #include "puzzle_processing.h"
 #include "puzzle_matching.h"
+#include "scara_positions.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <cv_bridge/cv_bridge.hpp> // Bridge between ROS 2 and OpenCV
 
@@ -26,22 +28,38 @@ using ClientGoalHandle = rclcpp_action::ClientGoalHandle<scara_msgs::action::Sca
 
 class PuzzleSolverNode : public rclcpp::Node{
 public:
-        PuzzleSolverNode(size_t puzzle_size) : Node("puzzle_solver_node"){
-            RCLCPP_INFO(this->get_logger(), "Puzzle solver node started.");
+        PuzzleSolverNode() 
+            :   Node("puzzle_solver_node"),
+                config_file_(package_path + "/config/solverConfig.txt"),
+                images_directory_(package_path + "/images/*.jpg"),
+                image_width_mm_(58.4),
+                image_height_mm_(43.9),
+                image_width_px_(3200.0),
+                image_height_px_(2400.0) {
+            
+            this->declare_parameter<int>("puzzle_size", 9);
+            PUZZLE_SIZE = this->get_parameter("puzzle_size").as_int();
 
             client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
             timer_ = create_wall_timer(1s, std::bind(&PuzzleSolverNode::timerCallback, this));
 
-            image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+            image_sub_ = this->create_subscription<sensor_msgs::msg::Image> (
                 "/camera/image_raw",
                 1,
                 std::bind(&PuzzleSolverNode::imageCallback, this, std::placeholders::_1)
             );
-            robot_sub_ = this->create_subscription<std_msgs::msg::Bool>(
+            capture_trig_sub_ = this->create_subscription<std_msgs::msg::Bool> (
                 "/capture/trigger",
                 10,
                 std::bind(&PuzzleSolverNode::triggerCallback, this, std::placeholders::_1)
             );
+            
+            joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
+                "/joint_states",
+                10,
+                std::bind(&PuzzleSolverNode::jointStatesCallback, this, std::placeholders::_1)
+            );
+
             confirm_pub_ = this->create_publisher<std_msgs::msg::Bool> (
                 "/capture/confirm",
                 10
@@ -50,8 +68,9 @@ public:
                 "/assembly/solution",
                 10
             );
+
             loadProcessingParameters();
-            PUZZLE_SIZE = puzzle_size;
+            RCLCPP_INFO(this->get_logger(), "Puzzle solver node started.");
         }
         ~PuzzleSolverNode(){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node destroyed.");
@@ -61,19 +80,22 @@ private:
     rclcpp_action::Client<scara_msgs::action::ScaraTask>::SharedPtr client_;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
-    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr robot_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr capture_trig_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr confirm_pub_;
     rclcpp::Publisher<scara_msgs::msg::PiecePose>::SharedPtr assemble_pub_;
     std::vector<cv::Mat> puzzle_images_;
     std::vector<Element> processed_puzzle_images_;
     std::vector<Element> assembly_;
     std::vector<scara_msgs::msg::PiecePose> robot_positions_;
+    std::vector<double> image_angles_;
     cv::Mat latest_image_;
-    std::string configFile = package_path + "/config/solverConfig.txt";
-    std::string imagesDirectory = package_path + "/images/*.jpg";
-    const double milimeters_per_pixel_x = 0.125;
-    const double milimeters_per_pixel_y = 0.125;
+    double latest_joint_3_angle_;
+    const std::string config_file_;
+    const std::string images_directory_;
+    const double image_width_mm_, image_height_mm_, image_width_px_, image_height_px_;
 
+private:
     void timerCallback() {
         timer_->cancel();
 
@@ -154,6 +176,7 @@ private:
 
         rclcpp::sleep_for(std::chrono::milliseconds(500));
         puzzle_images_.push_back(latest_image_.clone());
+        image_angles_.push_back(latest_joint_3_angle_);
         RCLCPP_INFO(this->get_logger(), "Captured image.");
         auto confirm_msg = std_msgs::msg::Bool();
         confirm_msg.data = true;
@@ -163,6 +186,10 @@ private:
             // START ASSEMBLING IN SEPARATE THREAD
             std::thread{std::bind(&PuzzleSolverNode::assembly, this)}.detach();
         }
+    }
+
+    void jointStatesCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+        latest_joint_3_angle_ = msg->position.at(2);
     }
 
     void assembly(){
@@ -180,11 +207,11 @@ private:
         }
         RCLCPP_INFO(this->get_logger(), "Puzzle assembly finished. Publishing data to server...");
 
-        robot_positions_ = convert_to_msg(assembly_);
+        robot_positions_ = convert_to_msg(assembly_ );
     }
 
     int loadProcessingParameters(){
-        if(loadParameters(configFile)){
+        if(loadParameters(config_file_)){
             RCLCPP_ERROR(this->get_logger(), "Could not read processing parameters for puzzle solver!");
             return 1;
         }
@@ -192,7 +219,7 @@ private:
     }    
 
     int processPuzzlePieces(bool showImages = false){
-        for (int i = 0; i < PUZZLE_SIZE; i++) {
+        for (size_t i = 0; i < PUZZLE_SIZE; i++) {
             RCLCPP_INFO_STREAM(this->get_logger(), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
 
             Element elem = elementPipeline(puzzle_images_.at(i), i); //i acts as unique ID for each element
@@ -200,7 +227,7 @@ private:
                 processed_puzzle_images_.push_back(elem); 
             }
             else {
-                RCLCPP_ERROR(this->get_logger(), "Pre-processing could not finish for element %d! Adjust processing parameters.", i+1);
+                RCLCPP_ERROR(this->get_logger(), "Pre-processing could not finish for element %ld! Adjust processing parameters.", i+1);
                 return 1;
             }
             if (showImages){
@@ -212,43 +239,22 @@ private:
         return 0;
     }
 
-    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(const std::vector<Element> &assembly) {
+    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
+
+        const double y_mm_per_px = image_height_mm_/image_height_px_;
+        const double x_mm_per_px = image_width_mm_/image_width_px_;
 
         std::vector<scara_msgs::msg::PiecePose> robot_poses;
-        scara_msgs::msg::PiecePose pose;
-        for (size_t i = 0; i < assembly.size(); i++) {
-            double theta = CV_PI;
-            double offset_x = 0.0;
-            double offset_y = 0.0;
-            pose.start_pose.orientation.x = 0.0;
-            pose.start_pose.orientation.y = 0.0;
-            pose.start_pose.orientation.z = sin(theta/ 2.0);
-            pose.start_pose.orientation.w = cos(theta/ 2.0);
-            pose.start_pose.position.x = offset_x + assembly.at(i).centroid.x * milimeters_per_pixel_x;
-            pose.start_pose.position.y = offset_y + assembly.at(i).centroid.y * milimeters_per_pixel_y; 
-            pose.start_pose.position.z = 0; // fixed for every piece
+        //for (size_t i = 1; i < assembly.size(); i++) {
+            //robot_poses.at(i).start_pose
+        //}
 
-            theta = assembly.at(i).rotationAngle;
-            pose.goal_pose.orientation.x = 0.0;
-            pose.goal_pose.orientation.y = 0.0;
-            pose.goal_pose.orientation.z = sin(theta/ 2.0);
-            pose.goal_pose.orientation.w = cos(theta/ 2.0);
-            if (i == 0) {
-                // First element has allways the same position
-                pose.goal_pose.position.x = 0.7;
-                pose.goal_pose.position.y = 0.10;
-                pose.goal_pose.position.z = 0.50; // fixed for every piece
-            } else {
-                int first_edge_idx = assembly.at(i).pairedEdges.first;
-                int pair_edge_idx = assembly.at(i).pairedEdges.second;
-                double goal_x = 0.7 + (assembly.at(i).centroid.x - (assembly.at(i-1).edgeCentroid.at(first_edge_idx).x + assembly.at(i).edgeCentroid.at(pair_edge_idx).x)/2) * milimeters_per_pixel_x;
-                double goal_y = 0.10 + (assembly.at(i).centroid.y - (assembly.at(i-1).edgeCentroid.at(first_edge_idx).y + assembly.at(i).edgeCentroid.at(pair_edge_idx).y)/2) * milimeters_per_pixel_y;
-                pose.goal_pose.position.x = 0;
-                pose.goal_pose.position.y = 0;
-                pose.goal_pose.position.z = 0; // fixed for every piece
-            }
-            robot_poses.push_back(pose);
+        std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
+        for (std::array<double,3>& pos : elements_placed) {
+            pos.at(0) *= y_mm_per_px;
+            pos.at(1) *= x_mm_per_px;
         }
+        
 
         return robot_poses;
     }
@@ -257,7 +263,7 @@ private:
 int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<PuzzleSolverNode>(9);
+    auto node = std::make_shared<PuzzleSolverNode>();
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
