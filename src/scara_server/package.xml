@@ -13,8 +13,13 @@
   <exec_depend>action_msgs</exec_depend>
   <exec_depend>ros2launch</exec_depend>
   
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>scara_msgs</depend>
-  <depend>moveit_ros_planning_interface</depend>
+  <depend>puzzle_solver</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

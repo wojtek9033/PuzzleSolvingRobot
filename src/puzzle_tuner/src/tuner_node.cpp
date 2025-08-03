@@ -29,7 +29,11 @@ public:
             1,
             std::bind(&TunerNode::camera_callback, this, std::placeholders::_1)
         );
-        loadParameters();
+
+        config_filepath_ = ament_index_cpp::get_package_share_directory("puzzle_tuner") + "/config/solver_config.txt";
+
+        load_parameters(config_filepath_);
+        RCLCPP_INFO(this->get_logger(), "Puzzle tuner node initialized. Waiting for task server to become available...");
     }
 
 private:
@@ -41,7 +45,8 @@ private:
     bool robot_in_pos_ = false;
     cv::Mat src_, temp_, processed_;
     std::mutex image_mutex;
-
+    
+    std::string config_filepath_;
     double scale_down = 0.4;
     int blurKernelSize{1};
     int thresholdValue{128};
@@ -64,9 +69,10 @@ private:
     void timerCallback() {
         timer_->cancel();
 
-        if (!client_->wait_for_action_server()) {
+        if (!client_->wait_for_action_server(10s)) {
             RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting!");
             rclcpp::shutdown();
+            return;
         }
         auto goal_msg = scara_msgs::action::ScaraTask::Goal();
         goal_msg.command = "calibrate";
@@ -147,8 +153,8 @@ private:
         destroyAllWindows();
     }
 
-    void loadParameters() {
-        std::ifstream file("src/config.txt");
+    void load_parameters(const std::string& path) {
+        std::ifstream file(path);
         int tempBlurKernelSize;
         int tempThresholdValue;
         int tempStructElementSize;
@@ -167,6 +173,7 @@ private:
                     return;
                 }
                 else {
+                    RCLCPP_INFO(this->get_logger(), "Succesfully read solver parameters from config file.");
                     blurKernelSize = (tempBlurKernelSize-1)/2;
                     thresholdValue = tempThresholdValue;
                     structElementSize = (tempStructElementSize-1)/2;
@@ -177,7 +184,7 @@ private:
             }
             file.close();
         } else {
-            RCLCPP_ERROR(this->get_logger(), "No config file found. Using default parameters!");
+            RCLCPP_WARN(this->get_logger(), "No config file found. Using default parameters!");
         }
     }
 

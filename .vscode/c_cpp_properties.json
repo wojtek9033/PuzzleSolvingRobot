@@ -2,23 +2,18 @@
   "configurations": [
     {
       "browse": {
-        "databaseFilename": "${default}",
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
         "limitSymbolsToIncludedHeaders": false
       },
       "includePath": [
-        "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_msgs/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/install/scara_controller/include/**",
+        "/home/wojciech/Workspaces/SCARA/install/scara_msgs/include/**",
+        "/home/wojciech/Workspaces/SCARA/install/scara_controller/include/**",
         "/opt/ros/jazzy/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/puzzle_solver/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_bringup/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_controller/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_firmware/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_iksolver/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_kinematics/include/**",
-        "/home/wojciech/Workspaces/ROS2/SCARA/src/scara_server/include/**",
+        "/home/wojciech/Workspaces/SCARA/src/puzzle_solver/include/**",
+        "/home/wojciech/Workspaces/SCARA/src/scara_controller/include/**",
         "/usr/include/**"
       ],
-      "name": "ROS",
+      "name": "ros2",
       "intelliSenseMode": "gcc-x64",
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "gnu11",

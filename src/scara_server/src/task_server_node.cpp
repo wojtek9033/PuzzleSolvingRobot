@@ -6,6 +6,8 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <memory>
 
+#include <puzzle_solver/include/scara_positions.h>
+
 class ScaraTaskServer : public rclcpp::Node {
 public:
     using ScaraTask = scara_msgs::action::ScaraTask;
@@ -23,6 +25,11 @@ public:
             ready_pub_ = this->create_publisher<std_msgs::msg::Bool>(
                 "/capture/trigger",
                  10
+            );
+
+            arm_cmd_pub_ = this -> create_publisher<geometry_msgs::msg::Pose>(
+                "/scara/ik_goal",
+                10
             );
 
             confirm_sub_ = this->create_subscription<std_msgs::msg::Bool>(
@@ -45,6 +52,7 @@ public:
 private:
     rclcpp_action::Server<ScaraTask>::SharedPtr task_action_server_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr ready_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr arm_cmd_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr confirm_sub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_in_pos_sub_;
     std::vector<geometry_msgs::msg::Pose> capture_poses_;
@@ -78,6 +86,7 @@ private:
     }
 
     void execute(const std::shared_ptr<GoalHandle> goal_handle){
+
         RCLCPP_INFO(get_logger(), "Executing goal...");
         auto result = std::make_shared<ScaraTask::Result>();
         auto feedback = std::make_shared<ScaraTask::Feedback>();
@@ -85,10 +94,30 @@ private:
         const auto &cmd = goal_handle->get_goal()->command;
         if (cmd == "take_pictures") {
             // rozmiar pola widzenia 49mm x 36mm w:1600 h:1200
-
-        } else if (cmd == "assemble") {
-            //PLACE HOLDER FOR ASSEMBLE
         
+        } else if (cmd == "assemble") {
+
+        } else if (cmd == "calibrate") {
+            {
+                std::lock_guard<std::mutex> lock(robot_confirm_mutex_);
+                robot_confirm_received_ = false;  // reset
+            }
+            arm_cmd_pub_ -> publish(scara_positions::first_piece_pose.start_pose);
+
+            std::unique_lock<std::mutex> lock(robot_confirm_mutex_);
+            bool completed = robot_confirm_.wait_for(lock, std::chrono::seconds(10), [this]() {
+                return robot_confirm_received_;
+            });
+
+            if (completed) {
+                result->success = true;
+                goal_handle->succeed(result);
+            } else {
+                RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation");
+                result->success = false;
+                goal_handle->abort(result);
+            }
+
         } else {
             RCLCPP_ERROR(this->get_logger(), "Unknown command '%s'", cmd.c_str());
             auto result = std::make_shared<ScaraTask::Result>();

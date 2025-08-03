@@ -26,6 +26,7 @@ add_executable(puzzle_solver_node
     src/puzzle_matching.cpp
     src/puzzle_processing.cpp
     src/puzzle_utils.cpp
+    src/scara_positions.cpp
 )
 
 # Link libraries
