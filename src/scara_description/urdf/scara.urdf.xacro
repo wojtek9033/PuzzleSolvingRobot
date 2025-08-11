@@ -4,8 +4,11 @@
     <xacro:arg name="is_sim" default="true"/>
 
     <!-- Include -->
-    <xacro:include filename="$(find scara_description)/urdf/scara_gazebo.xacro"/>
-    <xacro:include filename="$(find scara_description)/urdf/scara_ros2_control.xacro"/>
+    <xacro:include filename="$(find scara_description)/urdf/scara_ros2_control.xacro"/>\
+    
+    <xacro:if value="$(arg is_sim)">
+        <xacro:include filename="$(find scara_description)/urdf/scara_gazebo.xacro"/>
+    </xacro:if>
 
     <!-- Variables -->
     <xacro:property name="PI" value="3.14159265359"/>

@@ -4,11 +4,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    task_server_node = Node(
-        package="scara_server",
-        executable="task_server_node",
+    puzzle_tuner_node = Node(
+        package="puzzle_tuner",
+        executable="puzzle_tuner_node",
     )
 
     return LaunchDescription([
-        task_server_node
+        puzzle_tuner_node
     ])

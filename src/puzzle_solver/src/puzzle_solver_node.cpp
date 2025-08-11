@@ -2,10 +2,10 @@
 #include <chrono>
 #include <memory>
 
-#include "puzzle_utils.h"
-#include "puzzle_processing.h"
-#include "puzzle_matching.h"
-#include "scara_positions.h"
+#include "puzzle_solver/puzzle_utils.h"
+#include "puzzle_solver/puzzle_processing.h"
+#include "puzzle_solver/puzzle_matching.h"
+#include "puzzle_solver/scara_positions.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>

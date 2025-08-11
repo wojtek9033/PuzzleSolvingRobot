@@ -1,4 +1,4 @@
-#include "puzzle_utils.h"
+#include "puzzle_solver/puzzle_utils.h"
 
 std::vector<cv::Scalar> colors = {
     cv::Scalar(4, 255, 207),   // Yellow

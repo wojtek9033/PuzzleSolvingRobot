@@ -29,12 +29,14 @@ ament_target_dependencies(task_server_node
   puzzle_solver
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+target_link_libraries(task_server_node
+  puzzle_solver::scara_positions
+)
+
+target_include_directories(task_server_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
 install(TARGETS 
   task_server_node

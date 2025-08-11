@@ -12,33 +12,12 @@ def generate_launch_description():
 
     is_sim_arg = DeclareLaunchArgument(
         "is_sim",
-        default_value="True"
+        default_value="False"
     )
+    robot_description_arg = DeclareLaunchArgument("robot_description")
 
     is_sim = LaunchConfiguration("is_sim")
-
-    robot_description = ParameterValue(
-        Command(
-            [
-                "xacro ",
-                os.path.join(
-                    get_package_share_directory("scara_description"),
-                    "urdf",
-                    "scara.urdf.xacro",
-                ),
-                " is_sim:=False"
-            ]
-        ),
-        value_type=str,
-    )
-
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[{"robot_description": robot_description,
-                     "use_sim_time": False}],
-        condition=UnlessCondition(is_sim), # When starting simulation, robot_state_publisher is already started by gazebo.launch.py
-    )
+    robot_description = LaunchConfiguration("robot_description")
 
     controller_manager = Node(
         package="controller_manager",
@@ -74,7 +53,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             is_sim_arg,
-            robot_state_publisher_node,
+            robot_description_arg,
             controller_manager,
             joint_state_broadcaster_spawner,
             arm_controller_spawner,

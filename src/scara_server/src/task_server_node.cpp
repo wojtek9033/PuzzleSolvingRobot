@@ -6,7 +6,7 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <memory>
 
-#include <puzzle_solver/include/scara_positions.h>
+#include "puzzle_solver/scara_positions.h"
 
 class ScaraTaskServer : public rclcpp::Node {
 public:

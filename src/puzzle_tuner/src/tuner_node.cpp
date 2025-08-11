@@ -22,7 +22,7 @@ public:
     TunerNode() : rclcpp::Node("tuner_node") {
 
         client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
-        timer_ = create_wall_timer(1s, std::bind(&TunerNode::timerCallback, this));
+        timer_ = create_wall_timer(1s, std::bind(&TunerNode::timer_callback, this));
 
         camera_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
             "/camera/image_raw",
@@ -66,7 +66,7 @@ private:
     const char* preprocWindowName = "Adjusting preprocessing";
     const char* cornersWindowName = "";
     
-    void timerCallback() {
+    void timer_callback() {
         timer_->cancel();
 
         if (!client_->wait_for_action_server(10s)) {
@@ -79,21 +79,21 @@ private:
         RCLCPP_INFO(this->get_logger(), "Tuner client sending calibration request");
 
         auto send_goal_options = rclcpp_action::Client<scara_msgs::action::ScaraTask>::SendGoalOptions();
-        send_goal_options.goal_response_callback = std::bind(&TunerNode::goalCallback, this, std::placeholders::_1);
-        send_goal_options.result_callback = std::bind(&TunerNode::resultCallback, this, std::placeholders::_1);
+        send_goal_options.goal_response_callback = std::bind(&TunerNode::goal_callback, this, std::placeholders::_1);
+        send_goal_options.result_callback = std::bind(&TunerNode::result_callback, this, std::placeholders::_1);
 
         client_->async_send_goal(goal_msg, send_goal_options);
 
     }
 
-    void goalCallback (const ClientGoalHandle::SharedPtr &goal_handle) {
+    void goal_callback (const ClientGoalHandle::SharedPtr &goal_handle) {
         if (!goal_handle)
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
         else
             RCLCPP_INFO(this->get_logger(), "Calibration goal accepted by server, waiting for robot...");
     }
 
-    void resultCallback (const ClientGoalHandle::WrappedResult &result) {
+    void result_callback (const ClientGoalHandle::WrappedResult &result) {
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 break;
@@ -118,7 +118,7 @@ private:
             {
                 src_ = cv_bridge::toCvCopy(msg, "bgr8")->image.clone();
                 captured_ = true;
-                //adjust_proc_params();
+                adjust_proc_params();
             }
         } 
         catch (cv_bridge::Exception &e) {

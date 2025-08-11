@@ -1,4 +1,4 @@
-#include "scara_positions.h"
+#include "puzzle_solver/scara_positions.h"
 
 namespace scara_positions {
 

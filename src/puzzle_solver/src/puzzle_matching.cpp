@@ -1,4 +1,4 @@
-#include "puzzle_matching.h"
+#include "puzzle_solver/puzzle_matching.h"
 
 using std::vector;
 using cv::Point;

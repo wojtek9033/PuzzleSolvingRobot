@@ -1,4 +1,4 @@
-#include "puzzle_processing.h"
+#include "puzzle_solver/puzzle_processing.h"
 
 double scale_down = 0.4;
 
