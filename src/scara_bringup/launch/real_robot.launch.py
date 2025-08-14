@@ -42,7 +42,7 @@ def generate_launch_description():
     )
 
     controller = TimerAction(
-        period=3.0,
+        period=1.0,
         actions=[IncludeLaunchDescription(
                 os.path.join(
                     get_package_share_directory("scara_controller"),
@@ -57,7 +57,7 @@ def generate_launch_description():
     )
 
     iksolver = TimerAction(
-        period=6.0,
+        period=2.0,
         actions=[IncludeLaunchDescription(
                 os.path.join(
                     get_package_share_directory("scara_kinematics"),
@@ -69,7 +69,7 @@ def generate_launch_description():
     )
 
     server = TimerAction(
-        period=6.0,
+        period=7.0,
         actions=[IncludeLaunchDescription(
                 os.path.join(
                     get_package_share_directory("scara_server"),
