@@ -8,12 +8,17 @@
 
 #include "puzzle_solver/scara_positions.h"
 
+using namespace std::chrono_literals;
+
 class ScaraTaskServer : public rclcpp::Node {
 public:
     using ScaraTask = scara_msgs::action::ScaraTask;
     using GoalHandle = rclcpp_action::ServerGoalHandle<ScaraTask>;
 
-    ScaraTaskServer() : Node("Scara_task_server") {
+    ScaraTaskServer()
+         :  Node("Scara_task_server"),
+            PUZZLE_SIZE(4) {
+            
             task_action_server_ = rclcpp_action::create_server<ScaraTask>(
                 this,
                 "scara_task",
@@ -63,6 +68,7 @@ private:
     bool solver_confirm_received_ = false;
     bool robot_confirm_received_ = false;
     bool canceled_ = false;
+    size_t PUZZLE_SIZE;
 
     rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const ScaraTask::Goal> goal) {
             (void)uuid;
@@ -85,35 +91,74 @@ private:
         std::thread{std::bind(&ScaraTaskServer::execute, this, goal_handle)}.detach();
     }
 
-    void execute(const std::shared_ptr<GoalHandle> goal_handle){
+    bool wait_for_arm_confirm() {
+        {
+            std::lock_guard<std::mutex> lock(robot_confirm_mutex_);
+            robot_confirm_received_ = false;
+        }
 
-        RCLCPP_INFO(get_logger(), "Executing goal...");
+        std::unique_lock<std::mutex> lock(robot_confirm_mutex_);
+        bool completed = robot_confirm_.wait_for(lock, std::chrono::seconds(10), [this]() {
+            return robot_confirm_received_;
+        });
+
+        if (completed) {
+            return 1;
+        } else {
+            RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation");
+            return 0;
+        }
+    }
+
+    void execute(const std::shared_ptr<GoalHandle> goal_handle){
+        RCLCPP_INFO(get_logger(), "Initializing arm...");
         auto result = std::make_shared<ScaraTask::Result>();
         auto feedback = std::make_shared<ScaraTask::Feedback>();
  
+        arm_cmd_pub_->publish(scara_positions::arm_middle_pose.start_pose);
+        if (wait_for_arm_confirm()) {
+            RCLCPP_INFO(this->get_logger(), "Arm initialized.");
+        } else {
+            RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+            goal_handle->abort(result);
+        }
+        RCLCPP_INFO(get_logger(), "Executing goal...");
+
         const auto &cmd = goal_handle->get_goal()->command;
-        if (cmd == "take_pictures") {
+        if (cmd == "capture") {
             // rozmiar pola widzenia 49mm x 36mm w:1600 h:1200
+            for(size_t i = 0; i < PUZZLE_SIZE; i++) {
+                if(goal_handle->is_canceling()) {
+                    RCLCPP_INFO(this->get_logger(), "Capture goal canceled.");
+                    result->success = false;
+                    goal_handle->canceled(result);
+                    break;
+                }
+                arm_cmd_pub_->publish(scara_positions::robot_poses.at(i).start_pose);
+                if (wait_for_arm_confirm()) {
+                    feedback->current_step = i;
+                    RCLCPP_INFO(this->get_logger(), "Server waiting for solver to capture picture...");
+                    rclcpp::sleep_for(std::chrono::milliseconds(500));
+                } else {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                }
+            }
+            result->success = true;
+            goal_handle->succeed(result);
         
         } else if (cmd == "assemble") {
 
         } else if (cmd == "calibrate") {
-            {
-                std::lock_guard<std::mutex> lock(robot_confirm_mutex_);
-                robot_confirm_received_ = false;  // reset
-            }
+
             arm_cmd_pub_ -> publish(scara_positions::first_piece_pose.start_pose);
 
-            std::unique_lock<std::mutex> lock(robot_confirm_mutex_);
-            bool completed = robot_confirm_.wait_for(lock, std::chrono::seconds(10), [this]() {
-                return robot_confirm_received_;
-            });
-
-            if (completed) {
+            if (wait_for_arm_confirm()) {
                 result->success = true;
                 goal_handle->succeed(result);
             } else {
-                RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation");
+                RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
                 result->success = false;
                 goal_handle->abort(result);
             }

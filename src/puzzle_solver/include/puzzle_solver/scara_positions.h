@@ -4,6 +4,7 @@
 #include <scara_msgs/msg/piece_pose.hpp>
 
 namespace scara_positions {
+    extern const scara_msgs::msg::PiecePose arm_middle_pose;
     extern const scara_msgs::msg::PiecePose first_piece_pose;
     extern const scara_msgs::msg::PiecePose second_piece_pose;
     extern const scara_msgs::msg::PiecePose third_piece_pose;
@@ -13,6 +14,7 @@ namespace scara_positions {
     extern const scara_msgs::msg::PiecePose seventh_piece_pose;
     extern const scara_msgs::msg::PiecePose eight_piece_pose;
     extern const scara_msgs::msg::PiecePose nineth_piece_pose;
+    extern const std::vector<scara_msgs::msg::PiecePose> robot_poses;
 } // namespace scara_positions
 
 #endif // SCARA_POSITIONS_H

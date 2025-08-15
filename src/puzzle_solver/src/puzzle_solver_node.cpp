@@ -21,7 +21,7 @@
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
 std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
 
-std::string package_path = ament_index_cpp::get_package_share_directory("puzzle_solver");
+std::string package_path = ament_index_cpp::get_package_share_directory("puzzle_tuner");
 
 using namespace std::chrono_literals;
 using ClientGoalHandle = rclcpp_action::ClientGoalHandle<scara_msgs::action::ScaraTask>;
@@ -43,17 +43,18 @@ public:
             client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
             timer_ = create_wall_timer(1s, std::bind(&PuzzleSolverNode::timerCallback, this));
 
-            image_sub_ = this->create_subscription<sensor_msgs::msg::Image> (
+            camera_sub_ = this->create_subscription<sensor_msgs::msg::Image> (
                 "/camera/image_raw",
-                1,
-                std::bind(&PuzzleSolverNode::imageCallback, this, std::placeholders::_1)
+                10,
+                std::bind(&PuzzleSolverNode::camera_callback, this, std::placeholders::_1)
             );
+            /*
             capture_trig_sub_ = this->create_subscription<std_msgs::msg::Bool> (
                 "/capture/trigger",
                 10,
-                std::bind(&PuzzleSolverNode::triggerCallback, this, std::placeholders::_1)
+                std::bind(&PuzzleSolverNode::trigger_callback, this, std::placeholders::_1)
             );
-            
+            */
             joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
                 "/joint_states",
                 10,
@@ -69,8 +70,8 @@ public:
                 10
             );
 
-            loadProcessingParameters();
-            RCLCPP_INFO(this->get_logger(), "Puzzle solver node started.");
+            load_processing_parameters(config_file_);
+            RCLCPP_INFO(this->get_logger(), "Ready for processing.");
         }
         ~PuzzleSolverNode(){
             RCLCPP_INFO(this->get_logger(), "Puzzle solver node destroyed.");
@@ -79,7 +80,7 @@ public:
 private:
     rclcpp_action::Client<scara_msgs::action::ScaraTask>::SharedPtr client_;
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr camera_sub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr capture_trig_sub_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr confirm_pub_;
@@ -89,7 +90,7 @@ private:
     std::vector<Element> assembly_;
     std::vector<scara_msgs::msg::PiecePose> robot_positions_;
     std::vector<double> image_angles_;
-    cv::Mat latest_image_;
+    cv::Mat camera_frame_;
     double latest_joint_3_angle_;
     const std::string config_file_;
     const std::string images_directory_;
@@ -99,7 +100,7 @@ private:
     void timerCallback() {
         timer_->cancel();
 
-        if (!client_->wait_for_action_server()) {
+        if (!client_->wait_for_action_server(10s)) {
             RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting!");
             rclcpp::shutdown();
         }
@@ -112,6 +113,8 @@ private:
         send_goal_options.goal_response_callback = std::bind(&PuzzleSolverNode::goalCallback, this, std::placeholders::_1);
         send_goal_options.feedback_callback = std::bind(&PuzzleSolverNode::feedbackCallback, this, std::placeholders::_1, std::placeholders::_2);
         send_goal_options.result_callback = std::bind(&PuzzleSolverNode::resultCallback, this, std::placeholders::_1);
+
+        client_->async_send_goal(goal_msg, send_goal_options);
     }
 
     void goalCallback(const ClientGoalHandle::SharedPtr &goal_handle) {
@@ -122,79 +125,85 @@ private:
     }
 
     void feedbackCallback(ClientGoalHandle::SharedPtr, const std::shared_ptr<const scara_msgs::action::ScaraTask::Feedback> feedback) {
-        if (latest_image_.empty()) {
+        if (camera_frame_.empty()) {
             RCLCPP_ERROR(this->get_logger(), "No images received yet, cannot save!");
             return;
         }
 
-        feedback->current_step;
-        puzzle_images_.push_back(latest_image_.clone());
-        RCLCPP_INFO(this->get_logger(), "Captured image.");
-        auto confirm_msg = std_msgs::msg::Bool();
-        confirm_msg.data = true;
-        confirm_pub_->publish(confirm_msg);
+        if (feedback->current_step <= 9) {
+            // lower than 9 means when pictures are taken
+            puzzle_images_.push_back(camera_frame_.clone());
+            image_angles_.push_back(latest_joint_3_angle_);
+            RCLCPP_INFO(this->get_logger(), "Solver captured image %ld", puzzle_images_.size());
+
+            if (puzzle_images_.size() == PUZZLE_SIZE){
+                // START ASSEMBLING IN SEPARATE THREAD
+                RCLCPP_INFO(this->get_logger(), "Starting thread for preprocessing and assembly.");
+                std::thread{std::bind(&PuzzleSolverNode::processing_pipeline, this)}.detach();
+            }
+        } else if (feedback->current_step > 9) {
+            // higher than 9 means when puzzle elements are placed
+        }
+        
+
     }
 
     void resultCallback(const ClientGoalHandle::WrappedResult &result) {
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
-                break;
+                return;
             case rclcpp_action::ResultCode::ABORTED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+                return;
             case rclcpp_action::ResultCode::CANCELED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+                return;
             default:
                 RCLCPP_ERROR(get_logger(), "Unknown result code");
                 return;
         }
-
-        if (puzzle_images_.size() == PUZZLE_SIZE && assembly_.empty()){
-            // START ASSEMBLING IN SEPARATE THREAD
-            std::thread{std::bind(&PuzzleSolverNode::assembly, this)}.detach();
-        }
     }
 
-    void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg){
+    void camera_callback(const sensor_msgs::msg::Image::SharedPtr msg){
         try {
-            // Convert a sensor_msgs::Image message to an OpenCV-compatible CvImage
-            latest_image_ = cv_bridge::toCvShare(msg, "bgr8")->image.clone();
+            camera_frame_ = cv_bridge::toCvShare(msg, "bgr8")->image.clone();
         }
         catch (cv_bridge::Exception &e) {
             RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
             return;
         }
     }
-
-    void triggerCallback(const std_msgs::msg::Bool::SharedPtr msg){
+    /*
+    void trigger_callback(const std_msgs::msg::Bool::SharedPtr msg){
         if (!msg->data)
             return;
 
-        if (latest_image_.empty()) {
+        if (camera_frame_.empty()) {
             RCLCPP_ERROR(this->get_logger(), "No images received yet, cannot save!");
             return;
         }
 
         rclcpp::sleep_for(std::chrono::milliseconds(500));
-        puzzle_images_.push_back(latest_image_.clone());
+        puzzle_images_.push_back(camera_frame_.clone());
         image_angles_.push_back(latest_joint_3_angle_);
-        RCLCPP_INFO(this->get_logger(), "Captured image.");
+        RCLCPP_INFO(this->get_logger(), "Solver captured image %ld", puzzle_images_.size());
         auto confirm_msg = std_msgs::msg::Bool();
         confirm_msg.data = true;
         confirm_pub_->publish(confirm_msg);
-        rclcpp::sleep_for(std::chrono::milliseconds(250)); // wait for Server node to release a thread
+        rclcpp::sleep_for(std::chrono::milliseconds(100)); // wait for Server node to release a thread
         if (puzzle_images_.size() == PUZZLE_SIZE){
             // START ASSEMBLING IN SEPARATE THREAD
             std::thread{std::bind(&PuzzleSolverNode::assembly, this)}.detach();
         }
     }
-
+    */
     void jointStatesCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
         latest_joint_3_angle_ = msg->position.at(2);
     }
 
-    void assembly(){
-        RCLCPP_INFO(this->get_logger(), "All images received. Starting processing...");
-        if (processPuzzlePieces(true)) {
+    void processing_pipeline(){
+        RCLCPP_INFO(this->get_logger(), "Images pre-processing in progress...");
+        if (process_puzzle_images(true)) {
             RCLCPP_ERROR(this->get_logger(), "Proccesing puzzle images did not succeed!");
             return;
         }
@@ -210,15 +219,15 @@ private:
         robot_positions_ = convert_to_msg(assembly_ );
     }
 
-    int loadProcessingParameters(){
-        if(loadParameters(config_file_)){
-            RCLCPP_ERROR(this->get_logger(), "Could not read processing parameters for puzzle solver!");
-            return 1;
+    void load_processing_parameters(const std::string& path){
+        if(loadParameters(path)){
+            RCLCPP_ERROR(this->get_logger(), "Could not read solver parameters!");
+            rclcpp::shutdown();
         }
-        return 0;
+        RCLCPP_INFO(this->get_logger(), "Succesfully read solver parameters.");
     }    
 
-    int processPuzzlePieces(bool showImages = false){
+    int process_puzzle_images(bool showImages = false){
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
             RCLCPP_INFO_STREAM(this->get_logger(), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
 

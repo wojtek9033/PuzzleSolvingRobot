@@ -145,23 +145,16 @@ private:
         temp_ = src_.clone();
 
         preproc_image();
-        while (true){
-            char key = (char)cv::waitKey(0);
-            if (key == 's') {
-                save_parameters(config_filepath_);
-                break;
-            }
-            if (key == 27) break; // ESC key
+        if ((char)cv::waitKey(0) == 's') {
+            save_parameters(config_filepath_);
+            RCLCPP_INFO(this->get_logger(), "Saved pre-processing parameters.");
         }
+            
         destroyAllWindows();
         adjust_corners();
-        while (true){
-            char key = (char)cv::waitKey(0);
-            if (key == 's') {
-                save_parameters(config_filepath_);
-                break;
-            }
-            if (key == 27) break; // ESC key
+        if ((char)cv::waitKey(0) == 's') {
+            save_parameters(config_filepath_);
+            RCLCPP_INFO(this->get_logger(), "Saved corner detection parameters.");
         }
         destroyAllWindows();
         RCLCPP_INFO(this->get_logger(), "Parameters adjusting procedure ended.");

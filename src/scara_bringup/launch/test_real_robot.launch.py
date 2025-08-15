@@ -18,12 +18,6 @@ def generate_launch_description():
         ),
         description='Absolute path to robot urdf file'
     )
-    
-    calibration_arg = DeclareLaunchArgument(
-        name='calibration',
-        default_value='False',
-        description='Start in calibration mode'
-    )
 
     robot_description = ParameterValue(
         Command([
@@ -67,49 +61,11 @@ def generate_launch_description():
         launch_arguments={"is_sim": "False"}.items()
         )]
     )
-
-    server = TimerAction(
-        period=7.0,
-        actions=[IncludeLaunchDescription(
-                os.path.join(
-                    get_package_share_directory("scara_server"),
-                    "launch",
-                    "scara_server.launch.py"
-        ))]
-    )
-
-    tuner = TimerAction(
-        period=6.0,
-        actions=[IncludeLaunchDescription(
-                os.path.join(
-                    get_package_share_directory("puzzle_tuner"),
-                    "launch",
-                    "tuner.launch.py"
-        ),
-        condition=IfCondition(LaunchConfiguration('calibration'))
-        )]
-    )
-
-    solver = TimerAction(
-        period=6.0,
-        actions=[IncludeLaunchDescription(
-                os.path.join(
-                    get_package_share_directory("puzzle_solver"),
-                    "launch",
-                    "solver.launch.py"
-        ),
-        condition=UnlessCondition(LaunchConfiguration('calibration'))
-        )]
-    )
     
     return LaunchDescription([
         model_arg,
-        calibration_arg,
         robot_state_publisher_node,
         controller,
         iksolver,
-        server,
-        tuner,
-        solver
     ])
     

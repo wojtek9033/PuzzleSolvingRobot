@@ -5,4 +5,4 @@ string command
 bool success
 ---
 # Feedback
-string current_step
+int8 current_step
