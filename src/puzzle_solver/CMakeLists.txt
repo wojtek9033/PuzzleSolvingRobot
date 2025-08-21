@@ -62,12 +62,11 @@ install(TARGETS scara_positions
 install(TARGETS puzzle_solver_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
 install(DIRECTORY include/
   DESTINATION include
 )
-install(DIRECTORY images/
-  DESTINATION share/${PROJECT_NAME}/images
-)
+
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )

@@ -22,10 +22,9 @@ Size PUZZLE_IMAGES_SIZE;
 vector<Mat> initialPuzzleImages;
 
 int loadParameters(std::string configFile ) {
-    std::cout << "Searching \"" + configFile + "\" for config file..."<< std::endl;
     std::ifstream file(configFile);
     if (file.is_open()) {
-        std::cout << "Succesfully found solver config file."<< std::endl;
+        //Succesfully found solver config file
         std::string line;
         if (std::getline(file,line)){
             std::stringstream ss(line);
@@ -34,7 +33,7 @@ int loadParameters(std::string configFile ) {
             if (!(ss >> BLUR_KERNEL_SIZE >> delim >> BINARY_TRESHOLD_VAL >> delim >> STRUCT_ELEM_SIZE
                   >> delim >> CORNERS_BLOCK_SIZE >> delim >> CORNERS_K_SIZE >> delim >> CORNERS_TRESH_VAL
                   >> delim >> SCALE_DOWN)){
-                std::cerr << "@@@ Error parsing parameters!" << std::endl;
+                //Error parsing parameters!
                 return 1;
             }
             return 0;
@@ -43,31 +42,6 @@ int loadParameters(std::string configFile ) {
         std::cerr << "@@@ Error! No config file found. Using default parameters." << std::endl;
         return 0;
     }
-}
-
-Mat readImage(std::string path){
-    Mat img;
-    img = imread(path, IMREAD_COLOR);
-    int x_range = img.cols/5;
-    int y_range = img.rows/4;
-    if(img.empty()) return img;
-    img  = img(Range(y_range, y_range*3), Range(x_range,x_range*4));      // cropping
-    resize(img, img, Size(),SCALE_DOWN,SCALE_DOWN,INTER_LINEAR);     // scaling
-    preprocImage(img);
-    return img;
-}
-
-int loadImages(std::string directory){
-    vector<std::string> fn;
-    glob(directory, fn, false);
-
-    PUZZLE_SIZE = fn.size();
-
-    for(size_t i = 0; i < PUZZLE_SIZE; i++)
-        initialPuzzleImages.push_back(readImage(fn[i]));
-
-    PUZZLE_IMAGES_SIZE = initialPuzzleImages.at(0).size();
-    return 0;
 }
 
 void preprocImage(Mat &img){
@@ -89,7 +63,6 @@ bool sortPointsCounterClockwise(const Point& p1, const Point& p2, const Point2f&
 
 // Pipeline for detecting corners and choosing the right ones
 vector<Point> getCorners(Mat img, int nmsNeighbourhoodSize){
-
     Mat corners = Mat::zeros( img.size(), CV_32FC1 );
     Mat cornersTresholded = Mat::zeros( img.size(), CV_32FC1 );
     cornerHarris( img, corners, CORNERS_BLOCK_SIZE, CORNERS_K_SIZE, CORNERS_K);
@@ -107,7 +80,6 @@ vector<Point> getCorners(Mat img, int nmsNeighbourhoodSize){
 
     Mat nmsCorners = nonMaximaSuppression(cornersTresholded, nmsNeighbourhoodSize);
     nmsCorners = localCornerAvereging(nmsCorners,8);
-
     Mat extractedCorners = img.clone();
     cvtColor(extractedCorners, extractedCorners, COLOR_GRAY2BGR);
     int counterCorners{0};
@@ -241,6 +213,8 @@ vector<Point> getContour(const Mat &img){
 }
 
 vector<Point> reinforceCorners(const vector<Point> aproxCorners, const vector<Point> contour, const int boxSize){
+    if (aproxCorners.size() < 4)
+        return {};
     vector<Point> reinforcedCorners(4);
     const int numCorners{4};
     vector<vector<Point>> contourInBox(aproxCorners.size());
@@ -283,7 +257,7 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
         if (it != contour.end()){
             cornerIndexes.push_back(std::distance(contour.begin(),it));
         } else {
-            std::cerr << "Error: Corner not found in contour." << std::endl;
+            // Error: Corner not found in contour
             return edges;
         }
     }
@@ -295,7 +269,7 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
         cornerIndexes.insert(cornerIndexes.begin(), temp);
         cornerIndexes.erase(cornerIndexes.end());
     }
-
+    
     // Extract edges between consecutive corners
     for (size_t i = 0; i < cornerIndexes.size(); i++){
         int startIdx = cornerIndexes[i];
@@ -309,11 +283,11 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
             edge.insert(edge.end(), contour.begin(), contour.begin() + endIdx + 1);
         }
 
-        edges[i] = edge;
+        edges.at(i) = edge;
 
     }
-
-    Mat image = Mat::zeros(initialPuzzleImages.at(0).size(),CV_8UC3);
+    
+    Mat image = Mat::zeros(PUZZLE_IMAGES_SIZE, CV_8UC3);
     for (size_t i = 0; i < edges.size(); i++) {
         const auto& edge = edges[i];
 
@@ -330,7 +304,7 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
 Point getCentroid (const vector<Point> points){
 
     if(points.empty()) {
-        std::cerr<<"@@@ Error calculating centroid! Passed vector is empty!" << std::endl;
+        //Error calculating centroid! Passed vector is empty!
         return {};
     }
 
@@ -428,7 +402,6 @@ void normalizeEdges(Element &elem, int numSamples){
 std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double flatTreshold){
     std::array<int,4> edgeType;
     int i = 0;
-    std::cout << "[ ";
     for (const auto &edge : edges) {
         if (edge.empty()) continue;
 
@@ -450,79 +423,29 @@ std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double
 
         if (distance < flatTreshold) {
             edgeType.at(i) = 0; // FLAT
-            std::cout << "FLAT ";
         } else {
 
             if( i == 1 || i == 2 ){
                 if ( centroid.y > centroid.x * a + b ) {
                     edgeType.at(i) = 1; // OUTLET
-                    std::cout << "OUT ";
                 }
                 else {
                     edgeType.at(i) = -1; //INLET
-                    std::cout << "IN ";
                 }
 
             } else {
                 if ( centroid.y < centroid.x * a + b ) {
                     edgeType.at(i) = 1; // OUTLET
-                    std::cout << "OUT ";
                 }
                 else {
                     edgeType.at(i) = -1; //INLET
-
-                    std::cout << "IN ";
                 }
             }
         }
         i++;
     }
-    std::cout << "]" << std::endl;
     return edgeType;
 }
 
-Element elementPipeline(Mat puzzleImage, int id){
-    Element pieceData;
-    pieceData.id = id;
 
-    // find puzzle centroid
-    Mat inverted,dist;
-    bitwise_not(puzzleImage,inverted);
-    distanceTransform(inverted,dist, DIST_L1, DIST_MASK_PRECISE, CV_8U);
-    double minVal, maxVal;
-    cv::Point maxLoc;
-    cv::minMaxLoc(dist, &minVal, &maxVal, nullptr, &maxLoc);
-    cvtColor(dist, dist, COLOR_GRAY2BGR);
-    circle(dist,maxLoc,5,cv::Scalar(255, 0, 0),2);
-    pieceData.centroid = maxLoc;
-    //imshow("Centroid", dist);
-
-    vector<Point> candidateCorners = getCorners(puzzleImage,LOCAL_MAXIMA_NEIGHBORHOOD);
-    if (candidateCorners.size() < 4) {
-        std::cerr << "@@@ Error! Could not find at least 4 corners!" << std::endl;
-        return {};
-    } else if (candidateCorners.size() >= 40) {
-        std::cerr << "@@@ Error! Too many potential corners! Run Tuner to adjust parameters" << std::endl;
-        return {};
-    }
-    vector<Point> puzzleContour = getContour(puzzleImage);
-    vector<Point> reinforcedCorners = reinforceCorners(candidateCorners,puzzleContour, CORNERS_REINF_BOX_SIZE);
-    pieceData.edges = getPuzzleEdges(puzzleContour,reinforcedCorners);
-    pieceData.edgeType = determineInOut(pieceData.edges, FLAT_TRESHOLD);
-
-    // normalize element edges for matching algorithm and get orientation of each edge
-    normalizeEdges(pieceData, NORMALIZE_SAMPLES_VAL);
-
-    int numFlats = std::count(pieceData.edgeType.begin(), pieceData.edgeType.end(),0);
-    if (numFlats > 2){
-        std::cerr << "@@@ Error! Piece " << id << " was assigned more than two flat edges!" << std::endl;
-        return {};
-    } else if(numFlats == 1){
-        pieceData.isEdgePiece = true;
-    } else if(numFlats == 2){
-        pieceData.isCornerPiece = true;
-    }
-
-    return pieceData;
-}
 

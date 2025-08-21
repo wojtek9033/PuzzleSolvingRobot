@@ -30,14 +30,19 @@ class PuzzleSolverNode : public rclcpp::Node{
 public:
         PuzzleSolverNode() 
             :   Node("puzzle_solver_node"),
-                config_file_(package_path + "/config/solverConfig.txt"),
+                config_file_(package_path + "/config/solver_config.txt"),
                 images_directory_(package_path + "/images/*.jpg"),
-                image_width_mm_(58.4),
-                image_height_mm_(43.9),
-                image_width_px_(3200.0),
-                image_height_px_(2400.0) {
+                IMAGE_WIDTH_MM_(58.4),
+                IMAGE_HEIGHT_MM_(43.9),
+                IMAGE_WIDTH_PX_(3200.0),
+                IMAGE_HEIGHT_PX_(2400.0),
+                CORNERS_REINF_BOX_SIZE_{10},
+                NORMALIZE_SAMPLES_VAL_{300},
+                FLAT_TRESHOLD_{10.0},
+                LOCAL_MAXIMA_NEIGHBORHOOD_{6} // neighborhood size of the pixel for finding local maximas
+                {
             
-            this->declare_parameter<int>("puzzle_size", 9);
+            this->declare_parameter<int>("puzzle_size", 4);
             PUZZLE_SIZE = this->get_parameter("puzzle_size").as_int();
 
             client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
@@ -94,7 +99,8 @@ private:
     double latest_joint_3_angle_;
     const std::string config_file_;
     const std::string images_directory_;
-    const double image_width_mm_, image_height_mm_, image_width_px_, image_height_px_;
+    const double IMAGE_WIDTH_MM_, IMAGE_HEIGHT_MM_, IMAGE_WIDTH_PX_, IMAGE_HEIGHT_PX_, FLAT_TRESHOLD_;
+    const int CORNERS_REINF_BOX_SIZE_, NORMALIZE_SAMPLES_VAL_, LOCAL_MAXIMA_NEIGHBORHOOD_; // neighborhood size of the pixel for finding local maximas
 
 private:
     void timerCallback() {
@@ -173,36 +179,14 @@ private:
             return;
         }
     }
-    /*
-    void trigger_callback(const std_msgs::msg::Bool::SharedPtr msg){
-        if (!msg->data)
-            return;
 
-        if (camera_frame_.empty()) {
-            RCLCPP_ERROR(this->get_logger(), "No images received yet, cannot save!");
-            return;
-        }
-
-        rclcpp::sleep_for(std::chrono::milliseconds(500));
-        puzzle_images_.push_back(camera_frame_.clone());
-        image_angles_.push_back(latest_joint_3_angle_);
-        RCLCPP_INFO(this->get_logger(), "Solver captured image %ld", puzzle_images_.size());
-        auto confirm_msg = std_msgs::msg::Bool();
-        confirm_msg.data = true;
-        confirm_pub_->publish(confirm_msg);
-        rclcpp::sleep_for(std::chrono::milliseconds(100)); // wait for Server node to release a thread
-        if (puzzle_images_.size() == PUZZLE_SIZE){
-            // START ASSEMBLING IN SEPARATE THREAD
-            std::thread{std::bind(&PuzzleSolverNode::assembly, this)}.detach();
-        }
-    }
-    */
     void jointStatesCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
         latest_joint_3_angle_ = msg->position.at(2);
     }
 
     void processing_pipeline(){
         RCLCPP_INFO(this->get_logger(), "Images pre-processing in progress...");
+        PUZZLE_IMAGES_SIZE = puzzle_images_.at(0).size();
         if (process_puzzle_images(true)) {
             RCLCPP_ERROR(this->get_logger(), "Proccesing puzzle images did not succeed!");
             return;
@@ -227,11 +211,87 @@ private:
         RCLCPP_INFO(this->get_logger(), "Succesfully read solver parameters.");
     }    
 
+    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
+
+        const double y_mm_per_px = IMAGE_HEIGHT_MM_/IMAGE_HEIGHT_PX_;
+        const double x_mm_per_px = IMAGE_WIDTH_MM_/IMAGE_WIDTH_PX_;
+
+        std::vector<scara_msgs::msg::PiecePose> robot_poses;
+        //for (size_t i = 1; i < assembly.size(); i++) {
+            //robot_poses.at(i).start_pose
+        //}
+
+        std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
+        for (std::array<double,3>& pos : elements_placed) {
+            pos.at(0) *= y_mm_per_px;
+            pos.at(1) *= x_mm_per_px;
+        }
+        
+
+        return robot_poses;
+    }
+
+    Element element_pipeline(cv::Mat puzzleImage, int id){
+    Element piece_data;
+    piece_data.id = id;
+    cv::imshow("Pre-processed image", puzzleImage);
+    cv::waitKey(0);
+    
+    // find puzzle centroid
+    Mat inverted,dist;
+    cv::bitwise_not(puzzleImage,inverted);
+    cv::distanceTransform(inverted,dist, DIST_L1, DIST_MASK_PRECISE, CV_8U);
+    double minVal, maxVal;
+    cv::Point maxLoc;
+    cv::minMaxLoc(dist, &minVal, &maxVal, nullptr, &maxLoc);
+    cv::cvtColor(dist, dist, COLOR_GRAY2BGR);
+    cv::circle(dist,maxLoc,5,cv::Scalar(255, 0, 0),2);
+    piece_data.centroid = maxLoc;
+    cv::imshow("Centroid", dist);
+    cv::waitKey(0); 
+
+    vector<Point> candidate_corners = getCorners(puzzleImage,LOCAL_MAXIMA_NEIGHBORHOOD_);
+    if (candidate_corners.size() < 4) {
+        RCLCPP_ERROR(this->get_logger(), "Critical Error! Could not find at least 4 corners for piece %d.", id);
+        return {};
+    } else if (candidate_corners.size() >= 40) {
+        RCLCPP_ERROR(this->get_logger(), "Error! Too many potential corners! Run Tuner to adjust parameters");
+        return {};
+    }
+    RCLCPP_INFO(this->get_logger(), "Successfully extracted piece %d corners", id + 1);
+    vector<Point> puzzle_contour = getContour(puzzleImage);
+    if (puzzle_contour.empty())
+        RCLCPP_ERROR(this->get_logger(), "Could not get element %d contour!", id + 1);
+
+    vector<Point> reinforced_corners = reinforceCorners(candidate_corners, puzzle_contour, CORNERS_REINF_BOX_SIZE_);
+    if (reinforced_corners.size() != 4) {
+        RCLCPP_ERROR(this->get_logger(), "Something went wrong when reinforcing the corners for element %d.", id + 1);
+    }
+    piece_data.edges = getPuzzleEdges(puzzle_contour, reinforced_corners);
+    RCLCPP_INFO(this->get_logger(), "Successfully extracted piece %d edges", id + 1);
+    piece_data.edgeType = determineInOut(piece_data.edges, FLAT_TRESHOLD_);
+
+    // normalize element edges for matching algorithm and get orientation of each edge
+    normalizeEdges(piece_data, NORMALIZE_SAMPLES_VAL_);
+
+    int numFlats = std::count(piece_data.edgeType.begin(), piece_data.edgeType.end(),0);
+    if (numFlats > 2){
+        RCLCPP_ERROR(this->get_logger(), "Error! Piece %d was assigned more than two flat edges!", id);
+        return {};
+    } else if(numFlats == 1){
+        piece_data.isEdgePiece = true;
+    } else if(numFlats == 2){
+        piece_data.isCornerPiece = true;
+    }
+
+    return piece_data;
+}
+
     int process_puzzle_images(bool showImages = false){
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
             RCLCPP_INFO_STREAM(this->get_logger(), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
-
-            Element elem = elementPipeline(puzzle_images_.at(i), i); //i acts as unique ID for each element
+            preprocImage(puzzle_images_.at(i));
+            Element elem = element_pipeline(puzzle_images_.at(i), i); //i acts as unique ID for each element
             if (!elem.edges.empty()){
                 processed_puzzle_images_.push_back(elem); 
             }
@@ -248,25 +308,6 @@ private:
         return 0;
     }
 
-    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
-
-        const double y_mm_per_px = image_height_mm_/image_height_px_;
-        const double x_mm_per_px = image_width_mm_/image_width_px_;
-
-        std::vector<scara_msgs::msg::PiecePose> robot_poses;
-        //for (size_t i = 1; i < assembly.size(); i++) {
-            //robot_poses.at(i).start_pose
-        //}
-
-        std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
-        for (std::array<double,3>& pos : elements_placed) {
-            pos.at(0) *= y_mm_per_px;
-            pos.at(1) *= x_mm_per_px;
-        }
-        
-
-        return robot_poses;
-    }
 };
 
 int main(int argc, char** argv)

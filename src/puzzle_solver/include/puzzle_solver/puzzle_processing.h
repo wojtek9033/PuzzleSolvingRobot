@@ -57,7 +57,6 @@ std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double
 void normalizeEdges(Element &elem, int numSamples);
 int loadImages(std::string directory);
 int loadParameters(std::string configFile );
-Element elementPipeline(Mat puzzleImage, int id);
 double getOrientation(cv::Point a, cv::Point b);
 
 #endif // PUZZLE_PROCESSING_H

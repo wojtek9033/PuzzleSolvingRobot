@@ -145,12 +145,6 @@ private:
         temp_ = src_.clone();
 
         preproc_image();
-        if ((char)cv::waitKey(0) == 's') {
-            save_parameters(config_filepath_);
-            RCLCPP_INFO(this->get_logger(), "Saved pre-processing parameters.");
-        }
-            
-        destroyAllWindows();
         adjust_corners();
         if ((char)cv::waitKey(0) == 's') {
             save_parameters(config_filepath_);

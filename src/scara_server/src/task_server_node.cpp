@@ -137,6 +137,7 @@ private:
                 arm_cmd_pub_->publish(scara_positions::robot_poses.at(i).start_pose);
                 if (wait_for_arm_confirm()) {
                     feedback->current_step = i;
+                    goal_handle->publish_feedback(feedback);
                     RCLCPP_INFO(this->get_logger(), "Server waiting for solver to capture picture...");
                     rclcpp::sleep_for(std::chrono::milliseconds(500));
                 } else {
@@ -168,8 +169,9 @@ private:
             auto result = std::make_shared<ScaraTask::Result>();
             result->success = false;
             goal_handle->abort(result);
+            return;
         }
-        
+         RCLCPP_INFO(this->get_logger(), "Server finished %s task.", cmd.c_str());
     }
 
     void confirm_callback(const std_msgs::msg::Bool::SharedPtr msg){
