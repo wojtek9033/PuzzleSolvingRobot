@@ -21,7 +21,6 @@ using std::pair;
 
 extern size_t PUZZLE_SIZE;
 extern Size PUZZLE_IMAGES_SIZE;
-extern vector<Mat> initialPuzzleImages;
 
 struct Element {
     // in this struct, id is a unique id of puzzle element. Each edge has its id as an index.

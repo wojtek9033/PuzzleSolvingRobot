@@ -14,12 +14,10 @@ int CORNERS_TRESH_VAL{190};
 
 const int CORNERS_REINF_BOX_SIZE{10};
 const unsigned int NORMALIZE_SAMPLES_VAL{300};
-const double FLAT_TRESHOLD{10.0};
 const int LOCAL_MAXIMA_NEIGHBORHOOD{6}; // neighborhood size of the pixel for finding local maximas
 
 size_t PUZZLE_SIZE{9};
 Size PUZZLE_IMAGES_SIZE;
-vector<Mat> initialPuzzleImages;
 
 int loadParameters(std::string configFile ) {
     std::ifstream file(configFile);
@@ -206,9 +204,6 @@ vector<Point> getContour(const Mat &img){
     if (imageContours.size() > 1) imageContours.erase(imageContours.begin()); //if detected, delete the contour of image itself
     puzzleContour = imageContours.at(0);
 
-    //Mat imgPuzzleContours = Mat::zeros(img.size(),CV_8UC3);
-    //drawContours(imgPuzzleContours, imageContours, 0, Scalar(128,0,128), 1, LINE_8);
-
     return puzzleContour;
 }
 
@@ -304,7 +299,6 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
 Point getCentroid (const vector<Point> points){
 
     if(points.empty()) {
-        //Error calculating centroid! Passed vector is empty!
         return {};
     }
 
@@ -393,11 +387,8 @@ void normalizeEdges(Element &elem, int numSamples){
         }
         elem.edgeCentroid[i] = getCentroid(elem.edges.at(i));
         //double edgeAngle = std::atan2(pieceData.edgeCentroid[i].y - pieceData.centroid.y,  pieceData.edgeCentroid[i].x - pieceData.centroid.x);
-
     }
 }
-
-
 
 std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double flatTreshold){
     std::array<int,4> edgeType;
@@ -407,8 +398,11 @@ std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double
 
         // Compute centroid
         Point centroid = getCentroid(edge);
-        Point p1 = edge.back();
-        Point p2 = edge.front();
+        int offset = static_cast<int>(edge.size() * 0.20);
+        auto it1 = edge.begin() + offset;
+        auto it2 = edge.end() - offset;
+        Point p1 = *it1;
+        Point p2 = *it2;
 
         double a = (p2.y - p1.y) / static_cast<double>(p2.x - p1.x);
         double b = p2.y - a * p2.x;
@@ -420,7 +414,7 @@ std::array<int,4> determineInOut(const vector<vector<Point>> edges, const double
 
         // Compute perpendicular distance from centroid to line
         double distance = std::abs(A * centroid.x + B * centroid.y + C) / std::sqrt(A * A + B * B);
-
+        
         if (distance < flatTreshold) {
             edgeType.at(i) = 0; // FLAT
         } else {

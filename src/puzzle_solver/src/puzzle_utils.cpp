@@ -45,6 +45,6 @@ void plotEdges(const std::vector<std::vector<cv::Point>> &plotData, std::string 
             cv::line(graph, d[j]+ cv::Point(graphCentre.y,graphCentre.x), d[j + 1]+ cv::Point(graphCentre.y,graphCentre.x), colors.at(i), 1);
         }
     }
-    imshow(name, graph);
-
+    cv::imshow(name, graph);
+    cv::waitKey(0);
 }

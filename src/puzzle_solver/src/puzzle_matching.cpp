@@ -90,17 +90,6 @@ std::map<std::pair<int,int>, MatchInfo> extractBestMatches(std::map<std::pair<in
     return bestMatches;
 }
 
-void printMatches(const std::map<std::pair<int,int>, std::vector<MatchInfo>> matchMap){
-
-    std::cout << "All matches: \n";
-    for (const auto & [key, matches] : matchMap){
-        std::cout <<"Element " << key.first + 1  << " edge " << key.second << ", matches:\n";
-        for (const auto & match : matches){
-            std::cout << "Element " << match.idB + 1 << " edge " << match.edgeB << ", with score: " << match.similarityScore << std::endl;
-        }
-    }
-}
-
 void assignMatches(std::vector<Element> &puzzle,const std::map<std::pair<int,int>, MatchInfo> bestMatchesMap){
     for (const auto & [key, match] : bestMatchesMap) {
         int searchId = key.first;
@@ -114,16 +103,6 @@ void assignMatches(std::vector<Element> &puzzle,const std::map<std::pair<int,int
                 break;
             }
         }
-    }
-}
-
-void printMatches(const std::map<std::pair<int,int>, MatchInfo> matchMap){
-
-    std::cout << "Best matches:\n";
-    for (const auto& [key, match] : matchMap) {
-        std::cout << "Element " << key.first + 1 << " (Edge " << key.second << ") → "
-                  << "Element " << match.idB + 1<< " (Edge " << match.edgeB << ") "
-                  << "Score: " << match.similarityScore << "\n";
     }
 }
 
@@ -262,18 +241,18 @@ std::vector<Element> puzzleAssembly(const std::vector<Element> &allElementsData)
     return assembly;
 }
 
-void drawAssembly(const vector<Element> &assembly) {
+void drawAssembly(const std::vector<Element> &assembly, const std::vector<cv::Mat> &initialPuzzleImages) {
     for (size_t i = 0; i < assembly.size(); i++){
         Mat MM = getRotationMatrix2D(assembly.at(i).centroid, assembly.at(i).rotationAngle * (180/CV_PI), 1);
         Mat puzzlePiece;
         int id = assembly.at(i).id;
         warpAffine(initialPuzzleImages.at(id), puzzlePiece, MM, initialPuzzleImages.at(id).size());
-        std::cout << "Element " << i << ": " << std::endl;
-        std::cout << "Rotated by: " << assembly.at(i).rotationAngle * (180/CV_PI) << std::endl;
-        for (size_t j = 0; j < 4; j++){
-            std::cout << "  Edge " << j << " initial rotation is " << assembly.at(i).initialEdgeOrientation.at(j) * 180/CV_PI << std::endl;
-            std::cout << "  Edge " << j << " final rotation is " << assembly.at(i).finalEdgeOrientation.at(j) * 180/CV_PI << std::endl;
-        }
+        //std::cout << "Element " << i << ": " << std::endl;
+        //std::cout << "Rotated by: " << assembly.at(i).rotationAngle * (180/CV_PI) << std::endl;
+        //for (size_t j = 0; j < 4; j++){
+        //    std::cout << "  Edge " << j << " initial rotation is " << assembly.at(i).initialEdgeOrientation.at(j) * 180/CV_PI << std::endl;
+        //    std::cout << "  Edge " << j << " final rotation is " << assembly.at(i).finalEdgeOrientation.at(j) * 180/CV_PI << std::endl;
+        //}
         std::string windowName = "Element " + std::to_string(i + 1);
         imshow(windowName, puzzlePiece);
     }
@@ -322,21 +301,5 @@ std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assemb
     }
 
     return elementsPlaced;
-}
-
-
-std::vector<Element> matchingPipeline(std::vector<Element> &processedElements){
-    std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
-    std::map<std::pair<int,int>, MatchInfo> puzzleBestMatches;
-
-    puzzleMatchInfo = findMatches(processedElements);
-    printMatches(puzzleMatchInfo);
-    std::cout<<std::endl;
-    puzzleBestMatches = extractBestMatches(puzzleMatchInfo);
-    printMatches(puzzleBestMatches);
-    assignMatches(processedElements,puzzleBestMatches);
-    std::vector<Element> assembly = puzzleAssembly(processedElements);
-    // drawAssembly(assembly);
-    return assembly;
 }
 

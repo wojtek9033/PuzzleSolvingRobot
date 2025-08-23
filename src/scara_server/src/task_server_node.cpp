@@ -137,9 +137,9 @@ private:
                 arm_cmd_pub_->publish(scara_positions::robot_poses.at(i).start_pose);
                 if (wait_for_arm_confirm()) {
                     feedback->current_step = i;
+                    rclcpp::sleep_for(std::chrono::milliseconds(500));
                     goal_handle->publish_feedback(feedback);
                     RCLCPP_INFO(this->get_logger(), "Server waiting for solver to capture picture...");
-                    rclcpp::sleep_for(std::chrono::milliseconds(500));
                 } else {
                     RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
                     result->success = false;

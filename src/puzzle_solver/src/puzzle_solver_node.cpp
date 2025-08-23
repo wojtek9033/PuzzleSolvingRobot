@@ -13,7 +13,7 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
-#include <cv_bridge/cv_bridge.hpp> // Bridge between ROS 2 and OpenCV
+#include <cv_bridge/cv_bridge.hpp>
 
 #include "scara_msgs/msg/piece_pose.hpp"
 #include "scara_msgs/action/scara_task.hpp"
@@ -34,11 +34,11 @@ public:
                 images_directory_(package_path + "/images/*.jpg"),
                 IMAGE_WIDTH_MM_(58.4),
                 IMAGE_HEIGHT_MM_(43.9),
-                IMAGE_WIDTH_PX_(3200.0),
-                IMAGE_HEIGHT_PX_(2400.0),
+                IMAGE_WIDTH_PX_(800.0),
+                IMAGE_HEIGHT_PX_(600.0),
                 CORNERS_REINF_BOX_SIZE_{10},
                 NORMALIZE_SAMPLES_VAL_{300},
-                FLAT_TRESHOLD_{10.0},
+                FLAT_TRESHOLD_{4.0},
                 LOCAL_MAXIMA_NEIGHBORHOOD_{6} // neighborhood size of the pixel for finding local maximas
                 {
             
@@ -53,13 +53,7 @@ public:
                 10,
                 std::bind(&PuzzleSolverNode::camera_callback, this, std::placeholders::_1)
             );
-            /*
-            capture_trig_sub_ = this->create_subscription<std_msgs::msg::Bool> (
-                "/capture/trigger",
-                10,
-                std::bind(&PuzzleSolverNode::trigger_callback, this, std::placeholders::_1)
-            );
-            */
+
             joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
                 "/joint_states",
                 10,
@@ -70,6 +64,7 @@ public:
                 "/capture/confirm",
                 10
             );
+
             assemble_pub_ = this->create_publisher<scara_msgs::msg::PiecePose>(
                 "/assembly/solution",
                 10
@@ -137,7 +132,7 @@ private:
         }
 
         if (feedback->current_step <= 9) {
-            // lower than 9 means when pictures are taken
+            // lower than 9 means when pictures are taken 
             puzzle_images_.push_back(camera_frame_.clone());
             image_angles_.push_back(latest_joint_3_angle_);
             RCLCPP_INFO(this->get_logger(), "Solver captured image %ld", puzzle_images_.size());
@@ -187,7 +182,7 @@ private:
     void processing_pipeline(){
         RCLCPP_INFO(this->get_logger(), "Images pre-processing in progress...");
         PUZZLE_IMAGES_SIZE = puzzle_images_.at(0).size();
-        if (process_puzzle_images(true)) {
+        if (process_puzzle_images()) {
             RCLCPP_ERROR(this->get_logger(), "Proccesing puzzle images did not succeed!");
             return;
         }
@@ -231,15 +226,15 @@ private:
         return robot_poses;
     }
 
-    Element element_pipeline(cv::Mat puzzleImage, int id){
+Element element_pipeline(cv::Mat image, int id){
     Element piece_data;
     piece_data.id = id;
-    cv::imshow("Pre-processed image", puzzleImage);
+    cv::imshow("Pre-processed image", image);
     cv::waitKey(0);
     
     // find puzzle centroid
     Mat inverted,dist;
-    cv::bitwise_not(puzzleImage,inverted);
+    cv::bitwise_not(image,inverted);
     cv::distanceTransform(inverted,dist, DIST_L1, DIST_MASK_PRECISE, CV_8U);
     double minVal, maxVal;
     cv::Point maxLoc;
@@ -250,46 +245,53 @@ private:
     cv::imshow("Centroid", dist);
     cv::waitKey(0); 
 
-    vector<Point> candidate_corners = getCorners(puzzleImage,LOCAL_MAXIMA_NEIGHBORHOOD_);
+    vector<Point> candidate_corners = getCorners(image,LOCAL_MAXIMA_NEIGHBORHOOD_);
     if (candidate_corners.size() < 4) {
-        RCLCPP_ERROR(this->get_logger(), "Critical Error! Could not find at least 4 corners for piece %d.", id);
+        RCLCPP_ERROR(this->get_logger(), "Critical Error! Could not find at least 4 corners for piece %d.", id + 1);
         return {};
     } else if (candidate_corners.size() >= 40) {
         RCLCPP_ERROR(this->get_logger(), "Error! Too many potential corners! Run Tuner to adjust parameters");
         return {};
     }
     RCLCPP_INFO(this->get_logger(), "Successfully extracted piece %d corners", id + 1);
-    vector<Point> puzzle_contour = getContour(puzzleImage);
+
+    vector<Point> puzzle_contour = getContour(image);
     if (puzzle_contour.empty())
         RCLCPP_ERROR(this->get_logger(), "Could not get element %d contour!", id + 1);
+    RCLCPP_INFO(this->get_logger(), "Successfully extracted piece %d contour", id + 1);
 
     vector<Point> reinforced_corners = reinforceCorners(candidate_corners, puzzle_contour, CORNERS_REINF_BOX_SIZE_);
     if (reinforced_corners.size() != 4) {
         RCLCPP_ERROR(this->get_logger(), "Something went wrong when reinforcing the corners for element %d.", id + 1);
     }
+    RCLCPP_INFO(this->get_logger(), "Successfully reinforced piece %d corners", id + 1);
+
     piece_data.edges = getPuzzleEdges(puzzle_contour, reinforced_corners);
     RCLCPP_INFO(this->get_logger(), "Successfully extracted piece %d edges", id + 1);
-    piece_data.edgeType = determineInOut(piece_data.edges, FLAT_TRESHOLD_);
 
+    piece_data.edgeType = determineInOut(piece_data.edges, FLAT_TRESHOLD_);
     // normalize element edges for matching algorithm and get orientation of each edge
     normalizeEdges(piece_data, NORMALIZE_SAMPLES_VAL_);
-
+    
     int numFlats = std::count(piece_data.edgeType.begin(), piece_data.edgeType.end(),0);
     if (numFlats > 2){
-        RCLCPP_ERROR(this->get_logger(), "Error! Piece %d was assigned more than two flat edges!", id);
+        RCLCPP_ERROR(this->get_logger(), "Error! Piece %d was assigned more than two flat edges!", id + 1);
         return {};
     } else if(numFlats == 1){
         piece_data.isEdgePiece = true;
     } else if(numFlats == 2){
         piece_data.isCornerPiece = true;
     }
-
+    RCLCPP_INFO_STREAM(this->get_logger(), "Element " << id + 1 << " edge types: [" << piece_data.edgeType[0] << "," << piece_data.edgeType[1] << "," << piece_data.edgeType[2] << "," << piece_data.edgeType[3] << "]");
     return piece_data;
 }
 
-    int process_puzzle_images(bool showImages = false){
+    int process_puzzle_images(){
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
             RCLCPP_INFO_STREAM(this->get_logger(), "Proccesing element " << i+1 << " of " << PUZZLE_SIZE << ".");
+            cv::rotate(puzzle_images_.at(i), puzzle_images_.at(i), cv::ROTATE_180);
+            cv::imshow("Initial image", puzzle_images_.at(i));
+            cv::waitKey(0);
             preprocImage(puzzle_images_.at(i));
             Element elem = element_pipeline(puzzle_images_.at(i), i); //i acts as unique ID for each element
             if (!elem.edges.empty()){
@@ -297,17 +299,50 @@ private:
             }
             else {
                 RCLCPP_ERROR(this->get_logger(), "Pre-processing could not finish for element %ld! Adjust processing parameters.", i+1);
+                destroyAllWindows();
                 return 1;
             }
-            if (showImages){
-                plotEdges(processed_puzzle_images_.at(i).normalizedEdges, "edges", PUZZLE_IMAGES_SIZE);
-                waitKey(0);
-            }
+            //plotEdges(processed_puzzle_images_.at(i).normalizedEdges, "edges", PUZZLE_IMAGES_SIZE);
+            destroyAllWindows();
         }
-        if (showImages) destroyAllWindows();
+        
         return 0;
     }
 
+    void print_matches(const std::map<std::pair<int,int>, std::vector<MatchInfo>> matchMap){
+        RCLCPP_INFO(this->get_logger(), "All matches:");
+        for (const auto & [key, matches] : matchMap){
+            RCLCPP_INFO_STREAM(this->get_logger(), "Element " << key.first + 1  << " edge " << key.second << ", matches:");
+            for (const auto & match : matches){
+                RCLCPP_INFO_STREAM(this->get_logger(), "Element " << match.idB + 1 << " edge " << match.edgeB << ", with score: " << match.similarityScore);
+            }
+        }
+    }
+
+    void print_matches(const std::map<std::pair<int,int>, MatchInfo> matchMap){
+        RCLCPP_INFO(this->get_logger(), "Best matches:");
+        for (const auto& [key, match] : matchMap) {
+            RCLCPP_INFO_STREAM(this->get_logger(), "Element " << key.first + 1 << " (Edge " << key.second << ") -> " 
+            << "Element " << match.idB + 1<< " (Edge " << match.edgeB << ") " << "Score: " << match.similarityScore);
+        }
+    }
+    
+    std::vector<Element> matchingPipeline(std::vector<Element> &processed_elements){
+        std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzle_match_info;
+        std::map<std::pair<int,int>, MatchInfo> puzzle_best_matches;
+
+        puzzle_match_info = findMatches(processed_elements);
+        RCLCPP_INFO(this->get_logger(), "Found initial matches.");
+        print_matches(puzzle_match_info);
+        puzzle_best_matches = extractBestMatches(puzzle_match_info);
+        RCLCPP_INFO(this->get_logger(), "Extracted best matches.");
+        print_matches(puzzle_best_matches);
+        assignMatches(processed_elements, puzzle_best_matches);
+        RCLCPP_INFO(this->get_logger(), "Assigned matches.");
+        std::vector<Element> assembly = puzzleAssembly(processed_elements);
+        drawAssembly(assembly, puzzle_images_);
+        return assembly;
+    }
 };
 
 int main(int argc, char** argv)
