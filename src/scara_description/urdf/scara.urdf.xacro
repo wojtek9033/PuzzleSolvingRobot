@@ -164,14 +164,6 @@
             </geometry>
         </visual>
 
-        <!-- camera -->
-        <visual>
-            <origin xyz="0.173 0.0195 -0.0075" rpy="${PI} 0 -${PI/2}"/>
-            <geometry>
-                <mesh filename="package://scara_description/meshes/CAMERA.stl" scale="0.001 0.001 0.001"/>
-            </geometry>
-        </visual>
-
         <collision>
             <origin xyz="0 0 -0.0215" rpy="${PI/2} 0 -${PI/2}"/>
             <geometry>
@@ -203,9 +195,6 @@
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
-    </link>
-
-    <link name="gripper">        
         <visual>
             <origin xyz="0 0 -0.0275" rpy="${PI} 0 ${PI}"/>
             <geometry>
@@ -225,6 +214,16 @@
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
+    </link>
+
+    <link name="camera">
+        <!-- camera -->
+        <visual>
+            <origin xyz="0.03 0.0195 -0.0075" rpy="${PI} 0 -${PI/2}"/>
+            <geometry>
+                <mesh filename="package://scara_description/meshes/CAMERA.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
     </link>
 
     <!-- joints -->
@@ -268,9 +267,10 @@
     </joint>
 
     <joint name="joint_5" type="fixed">
-        <parent link="gripper_base"/>
-        <child link="gripper"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="elbow"/>
+        <child link="camera"/>
+        <origin xyz="0.142525 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="-${PI}" upper="${PI}"/>
     </joint>
-
 </robot>

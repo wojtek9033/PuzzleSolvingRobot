@@ -15,7 +15,12 @@
 
 class ScaraKinematics : public rclcpp::Node {
 public:
-    ScaraKinematics() : Node("scara_kinematics_node") {
+    ScaraKinematics() 
+        :   Node("scara_kinematics_node"),
+            shoulder_gear_no_(33.0),
+            elbow_gear_no_(62.0)  
+            {
+                
         using std::placeholders::_1;
 
         this->declare_parameter<bool>("is_sim", false);
@@ -29,10 +34,16 @@ public:
             std::bind(&ScaraKinematics::urdf_callback, this, _1)
         );
 
-        goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
-            "/scara/ik_goal",
+        gripper_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
+            "/scara/gripper/ik_goal",
             10,
-            std::bind(&ScaraKinematics::goal_callback, this, _1)
+            std::bind(&ScaraKinematics::gripper_goal_callback, this, _1)
+        );
+
+        camera_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
+            "/scara/camera/ik_goal",
+            10,
+            std::bind(&ScaraKinematics::camera_goal_callback, this, _1)
         );
 
         joint_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
@@ -59,13 +70,28 @@ public:
 
 
 private:
+
+    double shoulder_gear_no_, elbow_gear_no_, last_joint_1, last_joint_2, last_joint_3, last_joint_4;
+    bool is_sim_;
+
+    std::string config_filepath_;
+    std::vector<double> initial_joint_positions_, joint_length_, lower_limits_, upper_limits_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr arm_in_pos_pub_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr gripper_goal_sub_, camera_goal_sub_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr desc_sub_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr  joint_pub_;
+    enum class LimitError : std::uint8_t { None=255, Joint1=0, Joint2=1, Joint3=2, Joint4=3 };
+    enum class Effector : std::uint8_t { Gripper=0, Camera=1 };
+    static constexpr double RAD2DEG = 180.0 / M_PI;
+    
     struct IKResult {
-        double joint1;
-        double joint2;
-        double joint3;
-        double joint4;
+        std::array<double,4> joint_angle;
         bool success;
     };
+    IKResult result_;
+
+private:
 
     void load_initial_positions(const std::string &filepath) {
 
@@ -88,11 +114,14 @@ private:
         RCLCPP_INFO(this->get_logger(), "Succesfully read robot initial positions.");
     }
 
-    IKResult compute_ik_from_pose(const geometry_msgs::msg::Pose &goal_pose) {
+    IKResult compute_ik_from_pose(const geometry_msgs::msg::Pose &goal_pose, Effector effector) {
 
         double j2_offset = joint_length_.at(1);
         double j3_length = joint_length_.at(2);
         double j4_length = joint_length_.at(3);
+
+        double offset = (effector == Effector::Camera) ? joint_length_.at(4) : 0.0;
+        j4_length += offset;
 
         double x = goal_pose.position.x;
         double y = goal_pose.position.y;
@@ -128,10 +157,10 @@ private:
             theta3 += (shoulder_gear_no_/elbow_gear_no_) * theta2;
 
         IKResult res;
-        res.joint1 = j1_goal;
-        res.joint2 = theta2;
-        res.joint3 = theta3;
-        res.joint4 = theta4;
+        res.joint_angle[0] = j1_goal;
+        res.joint_angle[1] = theta2;
+        res.joint_angle[2] = theta3;
+        res.joint_angle[3] = theta4;
         res.success = true;
 
         return res;
@@ -145,7 +174,7 @@ private:
             return;
         }
 
-        int counter{0};
+        size_t counter{0};
         for(auto const& [joint_name, joint_ptr] : model.joints_) {
             if (!joint_ptr.get()->parent_link_name.compare("world"))
                 continue;
@@ -182,49 +211,69 @@ private:
         RCLCPP_INFO(this->get_logger(), "Succesfully received robot description.");
     }
 
-    void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
-        IKResult result_ = compute_ik_from_pose(*msg);
+    LimitError check_joint_limits(const IKResult &res, const std::vector<double>& ll, const std::vector<double>& ul) {
+
+        for (size_t i = 0; i < res.joint_angle.size(); i++) {
+            if (res.joint_angle[i] < ll.at(i) || res.joint_angle[i] > ul.at(i)) {
+                return static_cast<LimitError>(i);
+            }
+        }
+        return LimitError::None;
+    }
+
+    void publish_joint_angles(const IKResult &res, const std::vector<double>& joint_init_pos, bool sim) {
+        std_msgs::msg::Float64MultiArray out;
+        if (sim) {
+            out.data = {
+                res.joint_angle[0],
+                res.joint_angle[1],
+                res.joint_angle[2],
+                res.joint_angle[3]};
+        }
+        else {
+            out.data = {
+                res.joint_angle[0] - joint_init_pos.at(0),
+                res.joint_angle[1] - joint_init_pos.at(1),
+                res.joint_angle[2] - (shoulder_gear_no_/elbow_gear_no_) * joint_init_pos.at(2),
+                res.joint_angle[3] - joint_init_pos.at(3)};
+        }
+
+        joint_pub_->publish(out);
+        RCLCPP_INFO(this->get_logger(), "Published joint targers.");
+    }
+
+    void gripper_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        IKResult result_ = compute_ik_from_pose(*msg, Effector::Gripper);
 
         if(!result_.success) {
             RCLCPP_ERROR(this->get_logger(), "IK Solver failed!");
             return;
         }
 
-        if (result_.joint1 < lower_limits_.at(0) || result_.joint1 > upper_limits_.at(0)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 1 out of bounds! %f < %f < %f", lower_limits_.at(0) * (180/M_PI), result_.joint1 * (180/M_PI), upper_limits_.at(0) * (180/M_PI));
-            return;
+        const LimitError joint_out_of_bounds = check_joint_limits(result_, lower_limits_, upper_limits_);
+        if(joint_out_of_bounds != LimitError::None) {
+            uint8_t joint_num = static_cast<uint8_t>(joint_out_of_bounds);
+            RCLCPP_ERROR(this->get_logger(), "Joint %d out of bounds! %f < %f < %f", joint_num, lower_limits_.at(joint_num) * RAD2DEG, result_.joint_angle[joint_num] * RAD2DEG, upper_limits_.at(joint_num) * RAD2DEG);
         }
-        if (result_.joint2 < lower_limits_.at(1) || result_.joint2 > upper_limits_.at(1)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 2 out of bounds! %f < %f < %f", lower_limits_.at(1) * (180/M_PI), result_.joint2 * (180/M_PI), upper_limits_.at(1) * (180/M_PI));
-            return;
-        }
-        if (result_.joint3 < lower_limits_.at(2) || result_.joint3 > upper_limits_.at(2)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 3 out of bounds! %f < %f < %f", lower_limits_.at(2) * (180/M_PI), result_.joint3 * (180/M_PI), upper_limits_.at(2) * (180/M_PI));
-            return;
-        }
-        if (result_.joint4 < lower_limits_.at(3) || result_.joint4 > upper_limits_.at(3)) {
-            RCLCPP_ERROR(this->get_logger(), "Joint 4 out of bounds! %f < %f < %f", lower_limits_.at(3) * (180/M_PI), result_.joint4 * (180/M_PI), upper_limits_.at(3) * (180/M_PI));
+
+        publish_joint_angles(result_, initial_joint_positions_, is_sim_);
+    }
+
+    void camera_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        IKResult result_ = compute_ik_from_pose(*msg, Effector::Camera);
+
+        if(!result_.success) {
+            RCLCPP_ERROR(this->get_logger(), "IK Solver failed!");
             return;
         }
 
-        std_msgs::msg::Float64MultiArray out;
-        if (is_sim_) {
-            out.data = {
-                result_.joint1,
-                result_.joint2,
-                result_.joint3,
-                result_.joint4};
-        }
-        else {
-            out.data = {
-                result_.joint1 - initial_joint_positions_.at(0),
-                result_.joint2 - initial_joint_positions_.at(1),
-                result_.joint3 - (shoulder_gear_no_/elbow_gear_no_) * initial_joint_positions_.at(2),
-                result_.joint4 - initial_joint_positions_.at(3)};
+        const LimitError joint_out_of_bounds = check_joint_limits(result_, lower_limits_, upper_limits_);
+        if(joint_out_of_bounds != LimitError::None) {
+            uint8_t joint_num = static_cast<uint8_t>(joint_out_of_bounds);
+            RCLCPP_ERROR(this->get_logger(), "Joint %d out of bounds! %f < %f < %f", joint_num, lower_limits_.at(joint_num) * RAD2DEG, result_.joint_angle[joint_num] * RAD2DEG, upper_limits_.at(joint_num) * RAD2DEG);
         }
 
-        joint_pub_->publish(out);
-        RCLCPP_INFO(this->get_logger(), "Published joint targers.");
+        publish_joint_angles(result_, initial_joint_positions_, is_sim_);
     }
 
     void joint_states_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
@@ -242,19 +291,6 @@ private:
         last_joint_3 = msg->position.at(2);
         last_joint_4 = msg->position.at(3);
     }
-
-    bool is_sim_;
-    double shoulder_gear_no_{33.0};
-    double elbow_gear_no_{62.0};
-    double last_joint_1, last_joint_2, last_joint_3, last_joint_4;
-    IKResult result_;
-    std::string config_filepath_;
-    std::vector<double> initial_joint_positions_, joint_length_, lower_limits_, upper_limits_;
-    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr arm_in_pos_pub_;
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_sub_;
-    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr goal_sub_;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr desc_sub_;
-    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr  joint_pub_;
 };
 
 int main (int argc, char** argv) {

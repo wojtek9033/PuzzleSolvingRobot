@@ -32,8 +32,13 @@ public:
                  10
             );
 
-            arm_cmd_pub_ = this -> create_publisher<geometry_msgs::msg::Pose>(
-                "/scara/ik_goal",
+            gripper_goal_pub_ = this -> create_publisher<geometry_msgs::msg::Pose>(
+                "/scara/gripper/ik_goal",
+                10
+            );
+
+            camera_goal_pub_ = this -> create_publisher<geometry_msgs::msg::Pose>(
+                "/scara/camera/ik_goal",
                 10
             );
 
@@ -57,7 +62,7 @@ public:
 private:
     rclcpp_action::Server<ScaraTask>::SharedPtr task_action_server_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr ready_pub_;
-    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr arm_cmd_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr gripper_goal_pub_, camera_goal_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr confirm_sub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_in_pos_sub_;
     std::vector<geometry_msgs::msg::Pose> capture_poses_;
@@ -115,7 +120,7 @@ private:
         auto result = std::make_shared<ScaraTask::Result>();
         auto feedback = std::make_shared<ScaraTask::Feedback>();
  
-        arm_cmd_pub_->publish(scara_positions::arm_middle_pose.start_pose);
+        gripper_goal_pub_->publish(scara_positions::arm_middle_pose.start_pose);
         if (wait_for_arm_confirm()) {
             RCLCPP_INFO(this->get_logger(), "Arm initialized.");
         } else {
@@ -134,7 +139,7 @@ private:
                     goal_handle->canceled(result);
                     break;
                 }
-                arm_cmd_pub_->publish(scara_positions::robot_poses.at(i).start_pose);
+                gripper_goal_pub_->publish(scara_positions::robot_poses.at(i).start_pose);
                 if (wait_for_arm_confirm()) {
                     feedback->current_step = i;
                     rclcpp::sleep_for(std::chrono::milliseconds(500));
@@ -153,7 +158,7 @@ private:
 
         } else if (cmd == "calibrate") {
 
-            arm_cmd_pub_ -> publish(scara_positions::first_piece_pose.start_pose);
+            gripper_goal_pub_ -> publish(scara_positions::first_piece_pose.start_pose);
 
             if (wait_for_arm_confirm()) {
                 result->success = true;

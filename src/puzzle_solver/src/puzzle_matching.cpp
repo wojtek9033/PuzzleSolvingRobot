@@ -247,16 +247,10 @@ void drawAssembly(const std::vector<Element> &assembly, const std::vector<cv::Ma
         Mat puzzlePiece;
         int id = assembly.at(i).id;
         warpAffine(initialPuzzleImages.at(id), puzzlePiece, MM, initialPuzzleImages.at(id).size());
-        //std::cout << "Element " << i << ": " << std::endl;
-        //std::cout << "Rotated by: " << assembly.at(i).rotationAngle * (180/CV_PI) << std::endl;
-        //for (size_t j = 0; j < 4; j++){
-        //    std::cout << "  Edge " << j << " initial rotation is " << assembly.at(i).initialEdgeOrientation.at(j) * 180/CV_PI << std::endl;
-        //    std::cout << "  Edge " << j << " final rotation is " << assembly.at(i).finalEdgeOrientation.at(j) * 180/CV_PI << std::endl;
-        //}
         std::string windowName = "Element " + std::to_string(i + 1);
         imshow(windowName, puzzlePiece);
     }
-    waitKey();
+    cv::waitKey();
 }
 
 std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assembly) {
@@ -285,7 +279,7 @@ std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assemb
 
         // Step 1: calculate initial translation of centroid with respect to pair edge
         cv::Point pair_centroid_translation = pair.centroid - pair.edgeCentroid.at(pair_edge_idx);
-        // Step 2: Move all edgeCentroids so that pair edge lays in placed edge coordinates
+        // Step 2: Move all edge centroids so that pair edge lays in placed edge coordinates
         cv::Point pair_edges_centroid_translation = placed.edgeCentroid.at(placed_edge_idx) - pair.edgeCentroid.at(pair_edge_idx);
         pair.edgeCentroid.at(0) += pair_edges_centroid_translation;
         pair.edgeCentroid.at(1) += pair_edges_centroid_translation;

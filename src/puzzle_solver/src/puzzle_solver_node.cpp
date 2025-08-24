@@ -36,9 +36,11 @@ public:
                 IMAGE_HEIGHT_MM_(43.9),
                 IMAGE_WIDTH_PX_(800.0),
                 IMAGE_HEIGHT_PX_(600.0),
-                CORNERS_REINF_BOX_SIZE_{10},
-                NORMALIZE_SAMPLES_VAL_{300},
-                FLAT_TRESHOLD_{4.0},
+                CORNERS_REINF_BOX_SIZE_(10),
+                NORMALIZE_SAMPLES_VAL_(300),
+                FLAT_TRESHOLD_(4.0),
+                ASSEMBLY_TABLE_HEIGHT_(0.23),
+                PICTURE_TABLE_HEIGHT_(0.23),
                 LOCAL_MAXIMA_NEIGHBORHOOD_{6} // neighborhood size of the pixel for finding local maximas
                 {
             
@@ -94,7 +96,7 @@ private:
     double latest_joint_3_angle_;
     const std::string config_file_;
     const std::string images_directory_;
-    const double IMAGE_WIDTH_MM_, IMAGE_HEIGHT_MM_, IMAGE_WIDTH_PX_, IMAGE_HEIGHT_PX_, FLAT_TRESHOLD_;
+    const double IMAGE_WIDTH_MM_, IMAGE_HEIGHT_MM_, IMAGE_WIDTH_PX_, IMAGE_HEIGHT_PX_, FLAT_TRESHOLD_, ASSEMBLY_TABLE_HEIGHT_, PICTURE_TABLE_HEIGHT_;
     const int CORNERS_REINF_BOX_SIZE_, NORMALIZE_SAMPLES_VAL_, LOCAL_MAXIMA_NEIGHBORHOOD_; // neighborhood size of the pixel for finding local maximas
 
 private:
@@ -140,13 +142,11 @@ private:
             if (puzzle_images_.size() == PUZZLE_SIZE){
                 // START ASSEMBLING IN SEPARATE THREAD
                 RCLCPP_INFO(this->get_logger(), "Starting thread for preprocessing and assembly.");
-                std::thread{std::bind(&PuzzleSolverNode::processing_pipeline, this)}.detach();
+                std::thread{std::bind(&PuzzleSolverNode::solver_pipeline, this)}.detach();
             }
         } else if (feedback->current_step > 9) {
             // higher than 9 means when puzzle elements are placed
         }
-        
-
     }
 
     void resultCallback(const ClientGoalHandle::WrappedResult &result) {
@@ -179,25 +179,6 @@ private:
         latest_joint_3_angle_ = msg->position.at(2);
     }
 
-    void processing_pipeline(){
-        RCLCPP_INFO(this->get_logger(), "Images pre-processing in progress...");
-        PUZZLE_IMAGES_SIZE = puzzle_images_.at(0).size();
-        if (process_puzzle_images()) {
-            RCLCPP_ERROR(this->get_logger(), "Proccesing puzzle images did not succeed!");
-            return;
-        }
-        RCLCPP_INFO(this->get_logger(), "Succesfully processed all images. Preparing assembly...");
-        
-        assembly_ = matchingPipeline(processed_puzzle_images_);
-        if (assembly_.empty()) {
-            RCLCPP_ERROR(this->get_logger(), "Puzzle assembly did not succeed!");
-            return;
-        }
-        RCLCPP_INFO(this->get_logger(), "Puzzle assembly finished. Publishing data to server...");
-
-        robot_positions_ = convert_to_msg(assembly_ );
-    }
-
     void load_processing_parameters(const std::string& path){
         if(loadParameters(path)){
             RCLCPP_ERROR(this->get_logger(), "Could not read solver parameters!");
@@ -205,26 +186,6 @@ private:
         }
         RCLCPP_INFO(this->get_logger(), "Succesfully read solver parameters.");
     }    
-
-    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
-
-        const double y_mm_per_px = IMAGE_HEIGHT_MM_/IMAGE_HEIGHT_PX_;
-        const double x_mm_per_px = IMAGE_WIDTH_MM_/IMAGE_WIDTH_PX_;
-
-        std::vector<scara_msgs::msg::PiecePose> robot_poses;
-        //for (size_t i = 1; i < assembly.size(); i++) {
-            //robot_poses.at(i).start_pose
-        //}
-
-        std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
-        for (std::array<double,3>& pos : elements_placed) {
-            pos.at(0) *= y_mm_per_px;
-            pos.at(1) *= x_mm_per_px;
-        }
-        
-
-        return robot_poses;
-    }
 
 Element element_pipeline(cv::Mat image, int id){
     Element piece_data;
@@ -342,6 +303,57 @@ Element element_pipeline(cv::Mat image, int id){
         std::vector<Element> assembly = puzzleAssembly(processed_elements);
         drawAssembly(assembly, puzzle_images_);
         return assembly;
+    }
+
+    std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
+
+        const double y_mm_per_px = IMAGE_HEIGHT_MM_/IMAGE_HEIGHT_PX_;
+        const double x_mm_per_px = IMAGE_WIDTH_MM_/IMAGE_WIDTH_PX_;
+
+        double image_center_x = IMAGE_WIDTH_PX_/2.0;
+        double image_center_y = IMAGE_HEIGHT_PX_/2.0;
+
+
+        std::vector<scara_msgs::msg::PiecePose> arm_pos;
+        for (size_t i = 0; i < PUZZLE_SIZE; i++) {
+            arm_pos.at(i).start_pose.position.x = image_center_x - scara_positions::robot_poses.at(i).start_pose.position.x;
+            arm_pos.at(i).start_pose.position.y = image_center_y - scara_positions::robot_poses.at(i).start_pose.position.y;
+            arm_pos.at(i).start_pose.position.z = PICTURE_TABLE_HEIGHT_;
+        }
+
+        std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
+        for (std::array<double,3>& pos : elements_placed) {
+            pos.at(0) *= x_mm_per_px;
+            pos.at(1) *= y_mm_per_px;
+        }
+        
+        for (size_t i = 0; i < PUZZLE_SIZE; i++) {
+            arm_pos.at(i).goal_pose.position.x = elements_placed.at(i).at(0);
+            arm_pos.at(i).goal_pose.position.y = elements_placed.at(i).at(1);
+            arm_pos.at(i).goal_pose.position.z = ASSEMBLY_TABLE_HEIGHT_;
+            arm_pos.at(i).goal_pose.orientation.w = elements_placed.at(i).at(2);
+        }
+        
+        return arm_pos;
+    }
+
+
+    void solver_pipeline(){
+        RCLCPP_INFO(this->get_logger(), "Images pre-processing in progress...");
+        PUZZLE_IMAGES_SIZE = puzzle_images_.at(0).size();
+        if (process_puzzle_images()) {
+            RCLCPP_ERROR(this->get_logger(), "Proccesing puzzle images did not succeed!");
+            return;
+        }
+        RCLCPP_INFO(this->get_logger(), "Succesfully processed all images. Preparing assembly...");
+        
+        assembly_ = matchingPipeline(processed_puzzle_images_);
+        if (assembly_.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Puzzle assembly did not succeed!");
+            return;
+        }
+        robot_positions_ = convert_to_msg(assembly_ );
+        RCLCPP_INFO(this->get_logger(), "Puzzle assembly finished.");
     }
 };
 
