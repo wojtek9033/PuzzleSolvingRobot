@@ -7,7 +7,7 @@ class SerialTransmitter : public rclcpp::Node {
 
 public:
     SerialTransmitter() : rclcpp::Node("serial_transmitter_node") , running_(true) {
-        declare_parameter<std::string>("port", "/dev/ttyUSB0");
+        declare_parameter<std::string>("port", "/dev/ttyACM0");
         std::string port_ = get_parameter("port").as_string();
 
         sub_ = create_subscription<std_msgs::msg::String>(

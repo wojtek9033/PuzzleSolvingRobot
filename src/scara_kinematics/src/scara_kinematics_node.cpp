@@ -120,8 +120,8 @@ private:
         double j3_length = joint_length_.at(2);
         double j4_length = joint_length_.at(3);
 
-        double offset = (effector == Effector::Camera) ? joint_length_.at(4) : 0.0;
-        j4_length += offset;
+        double camera_offset = (effector == Effector::Camera) ? (joint_length_.at(4) - joint_length_.at(3)) : 0.0;
+        j4_length += camera_offset;
 
         double x = goal_pose.position.x;
         double y = goal_pose.position.y;
@@ -215,6 +215,11 @@ private:
 
         for (size_t i = 0; i < res.joint_angle.size(); i++) {
             if (res.joint_angle[i] < ll.at(i) || res.joint_angle[i] > ul.at(i)) {
+                if (i == 0) {
+                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f < %f < %f", i, lower_limits_.at(i), result_.joint_angle[i], upper_limits_.at(i));
+                } else {
+                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f < %f < %f", i, lower_limits_.at(i) * RAD2DEG, result_.joint_angle[i] * RAD2DEG, upper_limits_.at(i) * RAD2DEG);
+                }
                 return static_cast<LimitError>(i);
             }
         }
@@ -250,10 +255,8 @@ private:
             return;
         }
 
-        const LimitError joint_out_of_bounds = check_joint_limits(result_, lower_limits_, upper_limits_);
-        if(joint_out_of_bounds != LimitError::None) {
-            uint8_t joint_num = static_cast<uint8_t>(joint_out_of_bounds);
-            RCLCPP_ERROR(this->get_logger(), "Joint %d out of bounds! %f < %f < %f", joint_num, lower_limits_.at(joint_num) * RAD2DEG, result_.joint_angle[joint_num] * RAD2DEG, upper_limits_.at(joint_num) * RAD2DEG);
+        if(check_joint_limits(result_, lower_limits_, upper_limits_) != LimitError::None) {
+            return;
         }
 
         publish_joint_angles(result_, initial_joint_positions_, is_sim_);
@@ -267,10 +270,8 @@ private:
             return;
         }
 
-        const LimitError joint_out_of_bounds = check_joint_limits(result_, lower_limits_, upper_limits_);
-        if(joint_out_of_bounds != LimitError::None) {
-            uint8_t joint_num = static_cast<uint8_t>(joint_out_of_bounds);
-            RCLCPP_ERROR(this->get_logger(), "Joint %d out of bounds! %f < %f < %f", joint_num, lower_limits_.at(joint_num) * RAD2DEG, result_.joint_angle[joint_num] * RAD2DEG, upper_limits_.at(joint_num) * RAD2DEG);
+        if(check_joint_limits(result_, lower_limits_, upper_limits_) != LimitError::None) {
+            return;
         }
 
         publish_joint_angles(result_, initial_joint_positions_, is_sim_);

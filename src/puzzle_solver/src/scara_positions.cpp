@@ -13,7 +13,7 @@ namespace scara_positions {
         pose.start_pose.orientation.z = 0.0;
         pose.start_pose.orientation.w = 1.0;
 
-        pose.goal_pose.position.x = 0.0;
+        pose.goal_pose.position.x = 0.0; 
         pose.goal_pose.position.y = 0.0;
         pose.goal_pose.position.z = 0.0;
         pose.goal_pose.orientation.x = 0.0;
@@ -27,8 +27,8 @@ namespace scara_positions {
     const scara_msgs::msg::PiecePose first_piece_pose = []{
         scara_msgs::msg::PiecePose pose;
 
-        pose.start_pose.position.x = 0.12;
-        pose.start_pose.position.y = -0.1;
+        pose.start_pose.position.x = 0.112;
+        pose.start_pose.position.y = -0.13;
         pose.start_pose.position.z = 0.0;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
@@ -50,7 +50,7 @@ namespace scara_positions {
         scara_msgs::msg::PiecePose pose;
         
         pose.start_pose.position.x = 0.15;
-        pose.start_pose.position.y = -0.135;
+        pose.start_pose.position.y = -0.17;
         pose.start_pose.position.z = 0.0;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
@@ -71,8 +71,8 @@ namespace scara_positions {
     const scara_msgs::msg::PiecePose third_piece_pose = []{
         scara_msgs::msg::PiecePose pose;
 
-        pose.start_pose.position.x = 0.19;
-        pose.start_pose.position.y = -0.1;
+        pose.start_pose.position.x = 0.205;
+        pose.start_pose.position.y = -0.132;
         pose.start_pose.position.z = 0.0;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
@@ -93,8 +93,8 @@ namespace scara_positions {
     const scara_msgs::msg::PiecePose fourth_piece_pose = []{
         scara_msgs::msg::PiecePose pose;
         
-        pose.start_pose.position.x = 0.154;
-        pose.start_pose.position.y = -0.052;
+        pose.start_pose.position.x = 0.155;
+        pose.start_pose.position.y = -0.087;
         pose.start_pose.position.z = 0.0;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
