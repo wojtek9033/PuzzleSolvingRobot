@@ -34,10 +34,16 @@ public:
             std::bind(&ScaraKinematics::urdf_callback, this, _1)
         );
 
-        gripper_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
-            "/scara/gripper/ik_goal",
+        gripper_on_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
+            "/scara/gripper_on/ik_goal",
             10,
-            std::bind(&ScaraKinematics::gripper_goal_callback, this, _1)
+            std::bind(&ScaraKinematics::gripper_on_goal_callback, this, _1)
+        );
+
+        gripper_off_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
+            "/scara/gripper_off/ik_goal",
+            10,
+            std::bind(&ScaraKinematics::gripper_off_goal_callback, this, _1)
         );
 
         camera_goal_sub_ = this->create_subscription<geometry_msgs::msg::Pose> (
@@ -78,15 +84,17 @@ private:
     std::vector<double> initial_joint_positions_, joint_length_, lower_limits_, upper_limits_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr arm_in_pos_pub_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_sub_;
-    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr gripper_goal_sub_, camera_goal_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr gripper_on_goal_sub_, gripper_off_goal_sub_, camera_goal_sub_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr desc_sub_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr  joint_pub_;
     enum class LimitError : std::uint8_t { None=255, Joint1=0, Joint2=1, Joint3=2, Joint4=3 };
     enum class Effector : std::uint8_t { Gripper=0, Camera=1 };
+    enum class Gripper : std::uint8_t { Release=0, Pickup=1, Hold =2};
     static constexpr double RAD2DEG = 180.0 / M_PI;
     
     struct IKResult {
         std::array<double,4> joint_angle;
+        std::uint8_t gripper_state;
         bool success;
     };
     IKResult result_;
@@ -114,7 +122,7 @@ private:
         RCLCPP_INFO(this->get_logger(), "Succesfully read robot initial positions.");
     }
 
-    IKResult compute_ik_from_pose(const geometry_msgs::msg::Pose &goal_pose, Effector effector) {
+    IKResult compute_ik_from_pose(const geometry_msgs::msg::Pose &goal_pose, Effector effector, Gripper gripper_state = Gripper::Release) {
 
         double j2_offset = joint_length_.at(1);
         double j3_length = joint_length_.at(2);
@@ -133,7 +141,7 @@ private:
         double r2 = dx * dx + y * y;
         double cos_theta3 = (r2 - j3_length * j3_length - j4_length * j4_length) / (2 * j3_length * j4_length);
         if (std::abs(cos_theta3) > 1.0) 
-            return {0.0, 0.0, 0.0, 0.0, false};
+            return {0.0, 0.0, 0.0, 0.0, 0, false};
 
         double sin_theta3 = std::sqrt(1.0 - cos_theta3 * cos_theta3);
         if (y < 0.0)
@@ -161,6 +169,7 @@ private:
         res.joint_angle[1] = theta2;
         res.joint_angle[2] = theta3;
         res.joint_angle[3] = theta4;
+        res.gripper_state = static_cast<uint8_t>(gripper_state);
         res.success = true;
 
         return res;
@@ -226,29 +235,21 @@ private:
         return LimitError::None;
     }
 
-    void publish_joint_angles(const IKResult &res, const std::vector<double>& joint_init_pos, bool sim) {
+    void publish_joint_angles(const IKResult &res, const std::vector<double>& joint_init_pos) {
         std_msgs::msg::Float64MultiArray out;
-        if (sim) {
-            out.data = {
-                res.joint_angle[0],
-                res.joint_angle[1],
-                res.joint_angle[2],
-                res.joint_angle[3]};
-        }
-        else {
             out.data = {
                 res.joint_angle[0] - joint_init_pos.at(0),
                 res.joint_angle[1] - joint_init_pos.at(1),
                 res.joint_angle[2] - (shoulder_gear_no_/elbow_gear_no_) * joint_init_pos.at(2),
-                res.joint_angle[3] - joint_init_pos.at(3)};
-        }
+                res.joint_angle[3] - joint_init_pos.at(3),
+                static_cast<double>(res.gripper_state)};
 
         joint_pub_->publish(out);
         RCLCPP_INFO(this->get_logger(), "Published joint targers.");
     }
 
-    void gripper_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
-        IKResult result_ = compute_ik_from_pose(*msg, Effector::Gripper);
+    void gripper_on_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        IKResult result_ = compute_ik_from_pose(*msg, Effector::Gripper, Gripper::Pickup);
 
         if(!result_.success) {
             RCLCPP_ERROR(this->get_logger(), "IK Solver failed!");
@@ -259,7 +260,22 @@ private:
             return;
         }
 
-        publish_joint_angles(result_, initial_joint_positions_, is_sim_);
+        publish_joint_angles(result_, initial_joint_positions_);
+    }
+
+    void gripper_off_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        IKResult result_ = compute_ik_from_pose(*msg, Effector::Gripper, Gripper::Release);
+
+        if(!result_.success) {
+            RCLCPP_ERROR(this->get_logger(), "IK Solver failed!");
+            return;
+        }
+
+        if(check_joint_limits(result_, lower_limits_, upper_limits_) != LimitError::None) {
+            return;
+        }
+
+        publish_joint_angles(result_, initial_joint_positions_);
     }
 
     void camera_goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
@@ -274,7 +290,7 @@ private:
             return;
         }
 
-        publish_joint_angles(result_, initial_joint_positions_, is_sim_);
+        publish_joint_angles(result_, initial_joint_positions_);
     }
 
     void joint_states_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {

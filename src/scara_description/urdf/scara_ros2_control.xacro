@@ -32,5 +32,9 @@
       <command_interface name="position"/>
       <state_interface name="position"/>
     </joint>
+    <joint name="joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
   </ros2_control>
 </robot>

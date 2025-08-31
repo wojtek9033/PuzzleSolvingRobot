@@ -202,7 +202,7 @@
             </geometry>
         </visual>
         <visual>
-            <origin xyz="0.005 0 -0.0525" rpy="${PI} 0 ${PI}"/>
+            <origin xyz="0.0035 0 -0.0525" rpy="${PI} 0 ${PI}"/>
             <geometry>
                 <box size="0.01 0.001 0.01"/>
             </geometry>
@@ -217,11 +217,19 @@
     </link>
 
     <link name="camera">
-        <!-- camera -->
         <visual>
             <origin xyz="0.03 0.0195 -0.0075" rpy="${PI} 0 -${PI/2}"/>
             <geometry>
                 <mesh filename="package://scara_description/meshes/CAMERA.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <link name="suction_cup">
+        <visual>
+            <origin xyz="0 0 -0.06" rpy="${PI} 0 ${PI}"/>
+            <geometry>
+                <cylinder radius="0.008" length="0.005"/>
             </geometry>
         </visual>
     </link>
@@ -266,11 +274,21 @@
         <limit effort="${effort}" velocity="${velocity}" lower="-${PI}" upper="${PI}"/>
     </joint>
 
+    <!-- joint_5 is a fake joint to allow camera positioning-->
     <joint name="joint_5" type="fixed">
         <parent link="elbow"/>
         <child link="camera"/>
         <origin xyz="0.142525 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
         <limit effort="${effort}" velocity="${velocity}" lower="-${PI}" upper="${PI}"/>
+    </joint>
+
+    <!-- joint_6 is a fake ravolute joint to allow scara_interface to controll suction gripper state-->
+    <joint name="joint_6" type="revolute">
+        <parent link="gripper_base"/>
+        <child link="suction_cup"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="${effort}" velocity="${velocity}" lower="0.0" upper="${PI}"/>
     </joint>
 </robot>

@@ -45,11 +45,6 @@ CallbackReturn ScaraInterface::on_init(const hardware_interface::HardwareInfo &h
 }
 
 std::vector<hardware_interface::StateInterface> ScaraInterface::export_state_interfaces() {
-    if (position_commands_.size() != info_.joints.size()) {
-    RCLCPP_FATAL(this->get_logger(), "Invalid size of position_commands_ vector!");
-    throw std::runtime_error("Mismatched vector size");
-    }
-
     std::vector<hardware_interface::StateInterface> state_interfaces;
     for (size_t i = 0; i < info_.joints.size(); i++) {
         state_interfaces.emplace_back(hardware_interface::StateInterface(info_.joints.at(i).name, hardware_interface::HW_IF_POSITION, &position_states_.at(i)));
@@ -59,11 +54,6 @@ std::vector<hardware_interface::StateInterface> ScaraInterface::export_state_int
 }
 
 std::vector<hardware_interface::CommandInterface> ScaraInterface::export_command_interfaces() {
-    if (position_commands_.size() != info_.joints.size()) {
-    RCLCPP_FATAL(this->get_logger(), "Invalid size of position_commands_ vector!");
-    throw std::runtime_error("Mismatched vector size");
-    }
-
     std::vector<hardware_interface::CommandInterface> command_interfaces;
     for (size_t i = 0; i < info_.joints.size(); i++) {
         command_interfaces.emplace_back(hardware_interface::CommandInterface(info_.joints.at(i).name, hardware_interface::HW_IF_POSITION, &position_commands_.at(i)));
@@ -142,7 +132,7 @@ bool ScaraInterface::send_command_to_arduino(std::vector<double> position_comman
     double shoulder = (position_commands.at(1) * 180.0)/ M_PI; 
     double elbow = (position_commands.at(2) * 180.0)/ M_PI;
     double wrist = (position_commands.at(3) * 180.0)/ M_PI;
-
+    double gripper_state = position_commands.at(4);
     std::ostringstream oss;
     oss << std::fixed
         << std::setprecision(3) 
@@ -153,7 +143,9 @@ bool ScaraInterface::send_command_to_arduino(std::vector<double> position_comman
         << 'e'
         << elbow << ';'
         << 'w'
-        << wrist;
+        << wrist << ';'
+        << 'g'
+        << gripper_state;
 
     std::string msg = oss.str();    
     RCLCPP_INFO_STREAM(this->get_logger(), "Sending command to arduino: " << msg);
