@@ -1,0 +1,1 @@
+scara_msgs/PiecePose[] puzzle_assembly

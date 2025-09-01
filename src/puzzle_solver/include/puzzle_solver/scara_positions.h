@@ -15,6 +15,7 @@ namespace scara_positions {
     extern const scara_msgs::msg::PiecePose eight_piece_pose;
     extern const scara_msgs::msg::PiecePose nineth_piece_pose;
     extern const std::vector<scara_msgs::msg::PiecePose> robot_poses;
+    extern const scara_msgs::msg::PiecePose first_placed_piece_pose;
 } // namespace scara_positions
 
 #endif // SCARA_POSITIONS_H

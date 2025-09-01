@@ -7,7 +7,7 @@ namespace scara_positions {
 
         pose.start_pose.position.x = 0.26;
         pose.start_pose.position.y = -0.01;
-        pose.start_pose.position.z = 0.0;
+        pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
         pose.start_pose.orientation.z = 0.0;
@@ -29,7 +29,7 @@ namespace scara_positions {
 
         pose.start_pose.position.x = 0.112;
         pose.start_pose.position.y = -0.13;
-        pose.start_pose.position.z = 0.0;
+        pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
         pose.start_pose.orientation.z = 0.0;
@@ -51,7 +51,7 @@ namespace scara_positions {
         
         pose.start_pose.position.x = 0.15;
         pose.start_pose.position.y = -0.17;
-        pose.start_pose.position.z = 0.0;
+        pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
         pose.start_pose.orientation.z = 0.0;
@@ -73,7 +73,7 @@ namespace scara_positions {
 
         pose.start_pose.position.x = 0.205;
         pose.start_pose.position.y = -0.132;
-        pose.start_pose.position.z = 0.0;
+        pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
         pose.start_pose.orientation.z = 0.0;
@@ -95,7 +95,7 @@ namespace scara_positions {
         
         pose.start_pose.position.x = 0.155;
         pose.start_pose.position.y = -0.087;
-        pose.start_pose.position.z = 0.0;
+        pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
         pose.start_pose.orientation.z = 0.0;
@@ -233,5 +233,27 @@ namespace scara_positions {
         eight_piece_pose,
         nineth_piece_pose
     };
+    
+        const scara_msgs::msg::PiecePose first_placed_piece_pose = []{
+        scara_msgs::msg::PiecePose pose;
+
+        pose.start_pose.position.x = 0.112;
+        pose.start_pose.position.y = 0.13;
+        pose.start_pose.position.z = 0.221;
+        pose.start_pose.orientation.x = 0.0;
+        pose.start_pose.orientation.y = 0.0;
+        pose.start_pose.orientation.z = 0.0;
+        pose.start_pose.orientation.w = 1.0;
+
+        pose.goal_pose.position.x = 0.0;
+        pose.goal_pose.position.y = 0.0;
+        pose.goal_pose.position.z = 0.0;
+        pose.goal_pose.orientation.x = 0.0;
+        pose.goal_pose.orientation.y = 0.0;
+        pose.goal_pose.orientation.z = 0.0;
+        pose.goal_pose.orientation.w = 0.0;
+
+        return pose;
+    }();
 
 } // namespace solver_constants

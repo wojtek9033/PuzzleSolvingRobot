@@ -37,7 +37,8 @@ struct Element {
     std::vector<double> finalEdgeOrientation;
     bool isCornerPiece{false};
     bool isEdgePiece{false};
-    double rotationAngle{0};
+    double imageAngle{0.0};
+    double rotationAngle{0.0};
     std::pair<int, int> pairedEdges;
 };
 

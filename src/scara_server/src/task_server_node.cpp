@@ -1,6 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <scara_msgs/action/scara_task.hpp>
+#include <scara_msgs/msg/puzzle_assembly.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -17,6 +18,10 @@ public:
 
     ScaraTaskServer()
          :  Node("Scara_task_server"),
+            solver_confirm_received_(false),
+            robot_confirm_received_(false),
+            canceled_(false),
+            received_assembly_data_(false),
             PUZZLE_SIZE(4) {
             
             task_action_server_ = rclcpp_action::create_server<ScaraTask>(
@@ -59,7 +64,11 @@ public:
                 std::bind(&ScaraTaskServer::arm_in_pos_callback, this, std::placeholders::_1)
             );
 
-            generate_capture_waypoints();
+            puzzle_assembly_sub_ = this->create_subscription<scara_msgs::msg::PuzzleAssembly> (
+                "/puzzle/solution",
+                10,
+                std::bind(&ScaraTaskServer::assembly_data_callback, this, std::placeholders::_1)
+            );
             RCLCPP_INFO(this->get_logger(), "Scara Task Server started.");
         }
         
@@ -70,14 +79,14 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr gripper_on_goal_pub_, gripper_off_goal_pub_, camera_goal_pub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr confirm_sub_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_in_pos_sub_;
+    rclcpp::Subscription<scara_msgs::msg::PuzzleAssembly>::SharedPtr puzzle_assembly_sub_;
     std::vector<geometry_msgs::msg::Pose> capture_poses_;
+    std::vector<scara_msgs::msg::PiecePose> assembly_positions_;
     std::mutex solver_confirm_mutex_;
     std::mutex robot_confirm_mutex_;
     std::condition_variable solver_confirm_;
     std::condition_variable robot_confirm_; 
-    bool solver_confirm_received_ = false;
-    bool robot_confirm_received_ = false;
-    bool canceled_ = false;
+    bool solver_confirm_received_, robot_confirm_received_, canceled_, received_assembly_data_;
     size_t PUZZLE_SIZE;
 
     rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const ScaraTask::Goal> goal) {
@@ -120,23 +129,30 @@ private:
         }
     }
 
-    void execute(const std::shared_ptr<GoalHandle> goal_handle){
+    bool initialize_arm() {
         RCLCPP_INFO(get_logger(), "Initializing arm...");
-        auto result = std::make_shared<ScaraTask::Result>();
-        auto feedback = std::make_shared<ScaraTask::Feedback>();
- 
         gripper_off_goal_pub_->publish(scara_positions::arm_middle_pose.start_pose);
         if (wait_for_arm_confirm()) {
             RCLCPP_INFO(this->get_logger(), "Arm initialized.");
+            return true;
         } else {
             RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
-            goal_handle->abort(result);
+            return false;
         }
-        RCLCPP_INFO(get_logger(), "Executing goal...");
+    }
 
+    void execute(const std::shared_ptr<GoalHandle> goal_handle){
+        auto result = std::make_shared<ScaraTask::Result>();
+        auto feedback = std::make_shared<ScaraTask::Feedback>();
+ 
         const auto &cmd = goal_handle->get_goal()->command;
         if (cmd == "capture") {
+            if (!initialize_arm()) {
+                result->success = false;
+                goal_handle->abort(result);
+            }
             // rozmiar pola widzenia 49mm x 36mm w:1600 h:1200
+            RCLCPP_INFO(get_logger(), "Executing goal: capture");
             for(size_t i = 0; i < PUZZLE_SIZE; i++) {
                 if(goal_handle->is_canceling()) {
                     RCLCPP_INFO(this->get_logger(), "Capture goal canceled.");
@@ -160,9 +176,108 @@ private:
             goal_handle->succeed(result);
         
         } else if (cmd == "assemble") {
+            if (!received_assembly_data_) {
+                result->success = false;
+                goal_handle->abort(result);
+            }
+            if (!initialize_arm()) {
+                result->success = false;
+                goal_handle->abort(result);
+            }
+            RCLCPP_INFO(get_logger(), "Executing goal: assemble");
+
+            for (size_t i = 0; i < assembly_positions_.size(); i++) {
+                if(goal_handle->is_canceling()) {
+                    RCLCPP_INFO(this->get_logger(), "Assembly goal canceled.");
+                    result->success = false;
+                    goal_handle->canceled(result);
+                    break;
+                }
+
+                scara_msgs::msg::PiecePose pose_above_table;
+                pose_above_table.start_pose.position.x = assembly_positions_.at(i).start_pose.position.x;
+                pose_above_table.start_pose.position.y = assembly_positions_.at(i).start_pose.position.y;
+                pose_above_table.start_pose.position.z = 0.221;
+                pose_above_table.start_pose.orientation.z = assembly_positions_.at(i).start_pose.orientation.z;
+                
+                pose_above_table.goal_pose.position.x = assembly_positions_.at(i).goal_pose.position.x;
+                pose_above_table.goal_pose.position.y = assembly_positions_.at(i).goal_pose.position.y;
+                pose_above_table.goal_pose.position.z = 0.221;
+                pose_above_table.goal_pose.orientation.z = assembly_positions_.at(i).goal_pose.orientation.z;
+
+                RCLCPP_INFO(this->get_logger(), "Moving arm to start position above pickup table for element %ld.", i);
+                gripper_off_goal_pub_->publish(pose_above_table.start_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                RCLCPP_INFO(this->get_logger(), "Moving arm to pickup position for element %ld.", i);
+                gripper_on_goal_pub_->publish(assembly_positions_.at(i).start_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                RCLCPP_INFO(this->get_logger(), "Moving arm with element %ld to position above pickup table.", i);
+                gripper_on_goal_pub_->publish(pose_above_table.start_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                RCLCPP_INFO(this->get_logger(), "Moving arm with element %ld to position above assembly table.", i);
+                gripper_on_goal_pub_->publish(scara_positions::arm_middle_pose.start_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                gripper_on_goal_pub_->publish(pose_above_table.goal_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                RCLCPP_INFO(this->get_logger(), "Placing element %ld on assembly table.", i);
+                gripper_on_goal_pub_->publish(assembly_positions_.at(i).goal_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                RCLCPP_INFO(this->get_logger(), "Finishing procedure for element %ld.", i);
+                gripper_off_goal_pub_->publish(pose_above_table.goal_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                gripper_off_goal_pub_->publish(scara_positions::arm_middle_pose.start_pose);
+                if (!wait_for_arm_confirm()) {
+                    RCLCPP_ERROR(this->get_logger(), "Timeout: Did not receive arm movement confirmation.");
+                    result->success = false;
+                    goal_handle->abort(result);
+                    break;
+                }
+                feedback->current_step = i;
+                goal_handle->publish_feedback(feedback);
+            }
 
         } else if (cmd == "calibrate") {
-
+            RCLCPP_INFO(get_logger(), "Executing goal: calibrate");
+            if (!initialize_arm()) {
+                RCLCPP_INFO(get_logger(), "Failed to initialize arm.");
+                result->success = false;
+                goal_handle->abort(result);
+            }
             camera_goal_pub_ -> publish(scara_positions::first_piece_pose.start_pose);
 
             if (wait_for_arm_confirm()) {
@@ -194,27 +309,17 @@ private:
 
     void arm_in_pos_callback(const std_msgs::msg::Bool::SharedPtr msg) {   
         if (msg->data) {
-                std::lock_guard<std::mutex> lock (robot_confirm_mutex_);
-                robot_confirm_received_ = true;
-                robot_confirm_.notify_one();
+            std::lock_guard<std::mutex> lock (robot_confirm_mutex_);
+            robot_confirm_received_ = true;
+            robot_confirm_.notify_one();
         }
     }
 
-    void generate_capture_waypoints() {
-        geometry_msgs::msg::Pose pose;
-        int puzzleSize{9};
-        for (int i = 0; i < puzzleSize; i ++) {
-            double theta = M_PI;
-            pose.orientation.x = 0.0;
-            pose.orientation.y = 0.0;
-            pose.orientation.z = sin(theta/ 2.0);
-            pose.orientation.w = cos(theta/ 2.0);
-            pose.position.x = 0.07 + 0.04*(i / (int)sqrt(puzzleSize));
-            pose.position.y = -0.18 + 0.04*(i % (int)sqrt(puzzleSize));
-            pose.position.z = 0.13;
-            capture_poses_.push_back(pose);
-        }
+    void assembly_data_callback(scara_msgs::msg::PuzzleAssembly::SharedPtr msg) {
+        assembly_positions_ = msg->puzzle_assembly;
+        received_assembly_data_ = true;
     }
+
 };
 
 int main (int argc, char** argv) {

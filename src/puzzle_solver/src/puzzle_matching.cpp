@@ -254,7 +254,6 @@ void drawAssembly(const std::vector<Element> &assembly, const std::vector<cv::Ma
 }
 
 std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assembly) {
-
     // initial step: move each point of the element so that the element centroid is in 0.0
     for (auto &element : assembly) {
         element.edgeCentroid.at(0) -= element.centroid;
@@ -264,13 +263,13 @@ std::vector<std::array<double,3>> placeElementsIn2D(std::vector<Element>& assemb
         element.centroid.x = 0.0;
         element.centroid.y = 0.0;
     }
+    
     std::vector<std::array<double,3>> elementsPlaced;
     elementsPlaced.emplace_back(std::array<double,3>{
         static_cast<double>(assembly.at(0).centroid.x), 
         static_cast<double>(assembly.at(0).centroid.y), 
         assembly.at(0).rotationAngle});
 
-    double goal_x, goal_y;
     for (size_t i = 1; i < assembly.size(); i ++) { //start loop from 1 - we asume element 0 is already in right spot
         int placed_edge_idx = assembly.at(i).pairedEdges.first; // index of edge being matched to
         int pair_edge_idx = assembly.at(i).pairedEdges.second; // index of edge beeing a pair of placed edge

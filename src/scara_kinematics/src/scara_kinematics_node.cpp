@@ -135,7 +135,7 @@ private:
         double y = goal_pose.position.y;
         double z = goal_pose.position.z;
 
-        double j1_goal = z;
+        double j1_goal = lower_limits_[0] + z;
 
         double dx = x - j2_offset;
         double r2 = dx * dx + y * y;
@@ -225,9 +225,9 @@ private:
         for (size_t i = 0; i < res.joint_angle.size(); i++) {
             if (res.joint_angle[i] < ll.at(i) || res.joint_angle[i] > ul.at(i)) {
                 if (i == 0) {
-                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f < %f < %f", i, lower_limits_.at(i), result_.joint_angle[i], upper_limits_.at(i));
+                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f <= %f <= %f", i, ll.at(i), res.joint_angle[i], ul.at(i));
                 } else {
-                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f < %f < %f", i, lower_limits_.at(i) * RAD2DEG, result_.joint_angle[i] * RAD2DEG, upper_limits_.at(i) * RAD2DEG);
+                    RCLCPP_ERROR(this->get_logger(), "Joint %ld out of bounds! %f <= %f <= %f", i, ll.at(i) * RAD2DEG, res.joint_angle[i] * RAD2DEG, ul.at(i) * RAD2DEG);
                 }
                 return static_cast<LimitError>(i);
             }

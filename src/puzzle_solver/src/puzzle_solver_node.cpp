@@ -16,6 +16,7 @@
 #include <cv_bridge/cv_bridge.hpp>
 
 #include "scara_msgs/msg/piece_pose.hpp"
+#include "scara_msgs/msg/puzzle_assembly.hpp"
 #include "scara_msgs/action/scara_task.hpp"
 
 std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzleMatchInfo;
@@ -36,19 +37,19 @@ public:
                 IMAGE_HEIGHT_MM_(43.9),
                 IMAGE_WIDTH_PX_(800.0),
                 IMAGE_HEIGHT_PX_(600.0),
+                FLAT_TRESHOLD_(4.0),
+                ASSEMBLY_TABLE_HEIGHT_MM_(3.0),
+                PICTURE_TABLE_HEIGHT_MM_(3.0),
                 CORNERS_REINF_BOX_SIZE_(10),
                 NORMALIZE_SAMPLES_VAL_(300),
-                FLAT_TRESHOLD_(4.0),
-                ASSEMBLY_TABLE_HEIGHT_(0.23),
-                PICTURE_TABLE_HEIGHT_(0.23),
-                LOCAL_MAXIMA_NEIGHBORHOOD_{6} // neighborhood size of the pixel for finding local maximas
+                LOCAL_MAXIMA_NEIGHBORHOOD_{6}
                 {
             
             this->declare_parameter<int>("puzzle_size", 4);
             PUZZLE_SIZE = this->get_parameter("puzzle_size").as_int();
 
             client_ = rclcpp_action::create_client<scara_msgs::action::ScaraTask>(this, "scara_task");
-            timer_ = create_wall_timer(1s, std::bind(&PuzzleSolverNode::timerCallback, this));
+            timer_ = create_wall_timer(1s, std::bind(&PuzzleSolverNode::timer_callback, this));
 
             camera_sub_ = this->create_subscription<sensor_msgs::msg::Image> (
                 "/camera/image_raw",
@@ -59,7 +60,7 @@ public:
             joint_states_sub_ = this->create_subscription<sensor_msgs::msg::JointState> (
                 "/joint_states",
                 10,
-                std::bind(&PuzzleSolverNode::jointStatesCallback, this, std::placeholders::_1)
+                std::bind(&PuzzleSolverNode::joint_states_callback, this, std::placeholders::_1)
             );
 
             confirm_pub_ = this->create_publisher<std_msgs::msg::Bool> (
@@ -67,8 +68,8 @@ public:
                 10
             );
 
-            assemble_pub_ = this->create_publisher<scara_msgs::msg::PiecePose>(
-                "/assembly/solution",
+            puzzle_assembly_pub_ = this->create_publisher<scara_msgs::msg::PuzzleAssembly>(
+                "/puzzle/solution",
                 10
             );
 
@@ -86,48 +87,51 @@ private:
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr capture_trig_sub_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr confirm_pub_;
-    rclcpp::Publisher<scara_msgs::msg::PiecePose>::SharedPtr assemble_pub_;
+    rclcpp::Publisher<scara_msgs::msg::PuzzleAssembly>::SharedPtr puzzle_assembly_pub_;
     std::vector<cv::Mat> puzzle_images_;
     std::vector<Element> processed_puzzle_images_;
     std::vector<Element> assembly_;
     std::vector<scara_msgs::msg::PiecePose> robot_positions_;
     std::vector<double> image_angles_;
     cv::Mat camera_frame_;
-    double latest_joint_3_angle_;
+    double captured_picture_angle_;
     const std::string config_file_;
     const std::string images_directory_;
-    const double IMAGE_WIDTH_MM_, IMAGE_HEIGHT_MM_, IMAGE_WIDTH_PX_, IMAGE_HEIGHT_PX_, FLAT_TRESHOLD_, ASSEMBLY_TABLE_HEIGHT_, PICTURE_TABLE_HEIGHT_;
-    const int CORNERS_REINF_BOX_SIZE_, NORMALIZE_SAMPLES_VAL_, LOCAL_MAXIMA_NEIGHBORHOOD_; // neighborhood size of the pixel for finding local maximas
+    const double IMAGE_WIDTH_MM_, IMAGE_HEIGHT_MM_, IMAGE_WIDTH_PX_, IMAGE_HEIGHT_PX_, FLAT_TRESHOLD_, ASSEMBLY_TABLE_HEIGHT_MM_, PICTURE_TABLE_HEIGHT_MM_;
+    const int CORNERS_REINF_BOX_SIZE_, NORMALIZE_SAMPLES_VAL_, LOCAL_MAXIMA_NEIGHBORHOOD_;
 
 private:
-    void timerCallback() {
+    void request_action(const char* action_name) {
+        auto goal_msg = scara_msgs::action::ScaraTask::Goal();
+        goal_msg.command = action_name;
+        RCLCPP_INFO(this->get_logger(), "Solver client sending %s request", action_name);
+
+        auto send_goal_options = rclcpp_action::Client<scara_msgs::action::ScaraTask>::SendGoalOptions();
+        send_goal_options.goal_response_callback = std::bind(&PuzzleSolverNode::goal_callback, this, std::placeholders::_1);
+        send_goal_options.feedback_callback = std::bind(&PuzzleSolverNode::feedback_callback, this, std::placeholders::_1, std::placeholders::_2);
+        send_goal_options.result_callback = std::bind(&PuzzleSolverNode::result_callback, this, std::placeholders::_1);
+
+        client_->async_send_goal(goal_msg, send_goal_options);
+    }
+
+    void timer_callback() {
         timer_->cancel();
 
         if (!client_->wait_for_action_server(10s)) {
             RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting!");
             rclcpp::shutdown();
         }
-
-        auto goal_msg = scara_msgs::action::ScaraTask::Goal();
-        goal_msg.command = "capture";
-        RCLCPP_INFO(this->get_logger(), "Solver client sending capture request");
-
-        auto send_goal_options = rclcpp_action::Client<scara_msgs::action::ScaraTask>::SendGoalOptions();
-        send_goal_options.goal_response_callback = std::bind(&PuzzleSolverNode::goalCallback, this, std::placeholders::_1);
-        send_goal_options.feedback_callback = std::bind(&PuzzleSolverNode::feedbackCallback, this, std::placeholders::_1, std::placeholders::_2);
-        send_goal_options.result_callback = std::bind(&PuzzleSolverNode::resultCallback, this, std::placeholders::_1);
-
-        client_->async_send_goal(goal_msg, send_goal_options);
+        request_action("capture");
     }
 
-    void goalCallback(const ClientGoalHandle::SharedPtr &goal_handle) {
+    void goal_callback(const ClientGoalHandle::SharedPtr &goal_handle) {
         if (!goal_handle)
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
         else
             RCLCPP_INFO(this->get_logger(), "Goal accepted by server");
     }
 
-    void feedbackCallback(ClientGoalHandle::SharedPtr, const std::shared_ptr<const scara_msgs::action::ScaraTask::Feedback> feedback) {
+    void feedback_callback(ClientGoalHandle::SharedPtr, const std::shared_ptr<const scara_msgs::action::ScaraTask::Feedback> feedback) {
         if (camera_frame_.empty()) {
             RCLCPP_ERROR(this->get_logger(), "No images received yet, cannot save!");
             return;
@@ -136,7 +140,7 @@ private:
         if (feedback->current_step <= 9) {
             // lower than 9 means when pictures are taken 
             puzzle_images_.push_back(camera_frame_.clone());
-            image_angles_.push_back(latest_joint_3_angle_);
+            image_angles_.push_back(captured_picture_angle_);
             RCLCPP_INFO(this->get_logger(), "Solver captured image %ld", puzzle_images_.size());
 
             if (puzzle_images_.size() == PUZZLE_SIZE){
@@ -145,11 +149,11 @@ private:
                 std::thread{std::bind(&PuzzleSolverNode::solver_pipeline, this)}.detach();
             }
         } else if (feedback->current_step > 9) {
-            // higher than 9 means when puzzle elements are placed
+            RCLCPP_INFO(this->get_logger(), "Piece %d placed.", feedback->current_step - 9);
         }
     }
 
-    void resultCallback(const ClientGoalHandle::WrappedResult &result) {
+    void result_callback(const ClientGoalHandle::WrappedResult &result) {
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 return;
@@ -175,8 +179,8 @@ private:
         }
     }
 
-    void jointStatesCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
-        latest_joint_3_angle_ = msg->position.at(2);
+    void joint_states_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+        captured_picture_angle_ = msg->position.at(2) + msg->position.at(3);
     }
 
     void load_processing_parameters(const std::string& path){
@@ -193,7 +197,6 @@ Element element_pipeline(cv::Mat image, int id){
     cv::imshow("Pre-processed image", image);
     cv::waitKey(0);
     
-    // find puzzle centroid
     Mat inverted,dist;
     cv::bitwise_not(image,inverted);
     cv::distanceTransform(inverted,dist, DIST_L1, DIST_MASK_PRECISE, CV_8U);
@@ -205,7 +208,7 @@ Element element_pipeline(cv::Mat image, int id){
     piece_data.centroid = maxLoc;
     cv::imshow("Centroid", dist);
     cv::waitKey(0); 
-
+    piece_data.imageAngle = image_angles_.at(id);
     vector<Point> candidate_corners = getCorners(image,LOCAL_MAXIMA_NEIGHBORHOOD_);
     if (candidate_corners.size() < 4) {
         RCLCPP_ERROR(this->get_logger(), "Critical Error! Could not find at least 4 corners for piece %d.", id + 1);
@@ -263,7 +266,7 @@ Element element_pipeline(cv::Mat image, int id){
                 destroyAllWindows();
                 return 1;
             }
-            //plotEdges(processed_puzzle_images_.at(i).normalizedEdges, "edges", PUZZLE_IMAGES_SIZE);
+
             destroyAllWindows();
         }
         
@@ -288,7 +291,7 @@ Element element_pipeline(cv::Mat image, int id){
         }
     }
     
-    std::vector<Element> matchingPipeline(std::vector<Element> &processed_elements){
+    std::vector<Element> matching_pipeline(std::vector<Element> &processed_elements){
         std::map<std::pair<int,int>, std::vector<MatchInfo>>  puzzle_match_info;
         std::map<std::pair<int,int>, MatchInfo> puzzle_best_matches;
 
@@ -307,31 +310,44 @@ Element element_pipeline(cv::Mat image, int id){
 
     std::vector<scara_msgs::msg::PiecePose> convert_to_msg(std::vector<Element> &assembly) {
 
-        const double y_mm_per_px = IMAGE_HEIGHT_MM_/IMAGE_HEIGHT_PX_;
-        const double x_mm_per_px = IMAGE_WIDTH_MM_/IMAGE_WIDTH_PX_;
+        // Y axis of the image is parallel to robot X axis and faces opossed direction
+        // X axis of the image is parallel to robot Y axis and faces opossed direction
+        const double x_mm_per_px = (IMAGE_WIDTH_MM_/1000)/IMAGE_WIDTH_PX_;
+        const double y_mm_per_px = (IMAGE_HEIGHT_MM_/1000)/IMAGE_HEIGHT_PX_;
 
-        double image_center_x = IMAGE_WIDTH_PX_/2.0;
-        double image_center_y = IMAGE_HEIGHT_PX_/2.0;
+        double image_center_x_px = IMAGE_WIDTH_PX_/2.0;
+        double image_center_y_px = IMAGE_HEIGHT_PX_/2.0;
+
+        double image_vector_x_px, image_vector_y_px;
 
 
-        std::vector<scara_msgs::msg::PiecePose> arm_pos;
+        std::vector<scara_msgs::msg::PiecePose> arm_pos(PUZZLE_SIZE);
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
-            arm_pos.at(i).start_pose.position.x = image_center_x - scara_positions::robot_poses.at(i).start_pose.position.x;
-            arm_pos.at(i).start_pose.position.y = image_center_y - scara_positions::robot_poses.at(i).start_pose.position.y;
-            arm_pos.at(i).start_pose.position.z = PICTURE_TABLE_HEIGHT_;
+            size_t ix = assembly[i].id;
+            image_vector_x_px = assembly[i].centroid.x - image_center_x_px;
+            image_vector_y_px = assembly[i].centroid.y - image_center_y_px;
+
+            const auto& theta = assembly[i].imageAngle;
+            double world_vector_x_px = -image_vector_y_px * std::cos(theta) - image_vector_x_px * sin(theta);
+            double world_vector_y_px = image_vector_y_px * std::sin(theta) - image_vector_x_px * cos(theta);
+
+            arm_pos[i].start_pose.position.x = scara_positions::robot_poses[ix].start_pose.position.x + (world_vector_x_px * x_mm_per_px);
+            arm_pos[i].start_pose.position.y = scara_positions::robot_poses[ix].start_pose.position.y + (world_vector_y_px * y_mm_per_px);
+            arm_pos[i].start_pose.position.z = PICTURE_TABLE_HEIGHT_MM_/1000;
+            arm_pos[i].start_pose.orientation.z = 0.0;
         }
 
         std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
         for (std::array<double,3>& pos : elements_placed) {
-            pos.at(0) *= x_mm_per_px;
-            pos.at(1) *= y_mm_per_px;
+            pos[0] *= x_mm_per_px;
+            pos[1] *= y_mm_per_px;
         }
         
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
-            arm_pos.at(i).goal_pose.position.x = elements_placed.at(i).at(0);
-            arm_pos.at(i).goal_pose.position.y = elements_placed.at(i).at(1);
-            arm_pos.at(i).goal_pose.position.z = ASSEMBLY_TABLE_HEIGHT_;
-            arm_pos.at(i).goal_pose.orientation.w = elements_placed.at(i).at(2);
+            arm_pos[i].goal_pose.position.x = elements_placed[i][0] + scara_positions::first_placed_piece_pose.start_pose.position.x;
+            arm_pos[i].goal_pose.position.y = elements_placed[i][1] + scara_positions::first_placed_piece_pose.start_pose.position.y;
+            arm_pos[i].goal_pose.position.z = ASSEMBLY_TABLE_HEIGHT_MM_/1000;
+            arm_pos[i].goal_pose.orientation.z = elements_placed[i][2] + image_angles_[i];
         }
         
         return arm_pos;
@@ -347,13 +363,18 @@ Element element_pipeline(cv::Mat image, int id){
         }
         RCLCPP_INFO(this->get_logger(), "Succesfully processed all images. Preparing assembly...");
         
-        assembly_ = matchingPipeline(processed_puzzle_images_);
+        assembly_ = matching_pipeline(processed_puzzle_images_);
         if (assembly_.empty()) {
             RCLCPP_ERROR(this->get_logger(), "Puzzle assembly did not succeed!");
             return;
         }
-        robot_positions_ = convert_to_msg(assembly_ );
-        RCLCPP_INFO(this->get_logger(), "Puzzle assembly finished.");
+        RCLCPP_INFO(this->get_logger(), "Puzzle assembly finished. Publishing assembly data...");
+        scara_msgs::msg::PuzzleAssembly msg;
+        msg.puzzle_assembly = convert_to_msg(assembly_ );
+        puzzle_assembly_pub_->publish(msg);
+        RCLCPP_INFO(this->get_logger(), "Published assembly data.");
+        rclcpp::sleep_for(std::chrono::milliseconds(100));
+        request_action("assemble");
     }
 };
 
