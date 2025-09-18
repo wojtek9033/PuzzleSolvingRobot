@@ -27,8 +27,8 @@ namespace scara_positions {
     const scara_msgs::msg::PiecePose first_piece_pose = []{
         scara_msgs::msg::PiecePose pose;
 
-        pose.start_pose.position.x = 0.112;
-        pose.start_pose.position.y = -0.13;
+        pose.start_pose.position.x = 0.11;
+        pose.start_pose.position.y = -0.133;
         pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
         pose.start_pose.orientation.y = 0.0;
@@ -93,7 +93,7 @@ namespace scara_positions {
     const scara_msgs::msg::PiecePose fourth_piece_pose = []{
         scara_msgs::msg::PiecePose pose;
         
-        pose.start_pose.position.x = 0.155;
+        pose.start_pose.position.x = 0.16;
         pose.start_pose.position.y = -0.087;
         pose.start_pose.position.z = 0.221;
         pose.start_pose.orientation.x = 0.0;
