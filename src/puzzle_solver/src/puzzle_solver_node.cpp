@@ -312,7 +312,7 @@ Element element_pipeline(cv::Mat image, int id){
         // Y axis of the image faces opossed direction then world Y axis
 
         const double scale_x = IMAGE_WIDTH_MM_ / IMAGE_WIDTH_PX_ / 1000;
-        const double scale_y = IMAGE_HEIGHT_MM_ / IMAGE_HEIGHT_MM_ / 1000;
+        const double scale_y = IMAGE_HEIGHT_MM_ / IMAGE_HEIGHT_PX_ / 1000;
         const double image_center_x_px = IMAGE_WIDTH_PX_/2.0;
         const double image_center_y_px = IMAGE_HEIGHT_PX_/2.0;
         
