@@ -203,7 +203,11 @@ vector<Point> getContour(const Mat &img){
     findContours(img, imageContours, RETR_TREE, CHAIN_APPROX_NONE);
     if (imageContours.size() > 1) imageContours.erase(imageContours.begin()); //if detected, delete the contour of image itself
     puzzleContour = imageContours.at(0);
-
+    cv::Mat drawing;
+    cvtColor(img, drawing, cv::COLOR_GRAY2BGR);
+    drawContours(drawing, imageContours, -1, cv::Scalar(255,0,255),3);
+    imshow("Image contours", drawing);
+    waitKey(0);
     return puzzleContour;
 }
 
@@ -292,7 +296,7 @@ vector<vector<Point>> getPuzzleEdges(const vector<Point> contour, const vector<P
         }
     }
     imshow("Edges separated", image);
-
+    waitKey(0);
     return edges;
 }
 
