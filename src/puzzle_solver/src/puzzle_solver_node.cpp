@@ -328,8 +328,8 @@ Element element_pipeline(cv::Mat image, int id){
             y_image_px = assembly[i].centroid.y - image_center_y_px;
             
             // transform the tralslation vector from image to world coordinates
-            x_world_px = x_image_px * std::cos(theta) - y_image_px * std::sin(theta);
-            y_world_px = y_image_px * std::sin(theta) - y_image_px * std::cos(theta);
+            x_world_px =  x_image_px * std::cos(theta) - y_image_px * std::sin(theta);
+            y_world_px = -x_image_px * std::sin(theta) - y_image_px * std::cos(theta);
 
             arm_pos[i].start_pose.position.x = scara_positions::robot_poses[ix].start_pose.position.x + (x_world_px * scale_x);
             arm_pos[i].start_pose.position.y = scara_positions::robot_poses[ix].start_pose.position.y + (y_world_px * scale_y);
