@@ -5,10 +5,6 @@
 
 namespace scara_controller {
 
-const double init_shoulder_pos{3.96};
-const double init_elbow_pos{-4.54};
-const double init_wrist_pos{0.0};
-
 ScaraInterface::ScaraInterface() {
 
 };

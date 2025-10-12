@@ -180,7 +180,7 @@ private:
     }
 
     void joint_states_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
-        captured_picture_angle_ = msg->position.at(2) + msg->position.at(3);
+        captured_picture_angle_ = msg->position.at(1) + msg->position.at(2);
     }
 
     void load_processing_parameters(const std::string& path){
@@ -316,7 +316,7 @@ Element element_pipeline(cv::Mat image, int id){
         const double image_center_x_px = IMAGE_WIDTH_PX_/2.0;
         const double image_center_y_px = IMAGE_HEIGHT_PX_/2.0;
         
-        double x_world_px, y_world_px, x_image_px, y_image_px;
+        double x_world, y_world, x_image_px, y_image_px;
 
         std::vector<scara_msgs::msg::PiecePose> arm_pos(PUZZLE_SIZE);
         for (size_t i = 0; i < PUZZLE_SIZE; i++) {
@@ -326,45 +326,26 @@ Element element_pipeline(cv::Mat image, int id){
             // translate centre of puzzle, from image to world coordinates
             x_image_px = assembly[i].centroid.x - image_center_x_px;
             y_image_px = assembly[i].centroid.y - image_center_y_px;
+            RCLCPP_INFO(this->get_logger(), "Translation vector in px: [%f, %f]", x_image_px, y_image_px);
+
             
             // transform the tralslation vector from image to world coordinates
-            x_world_px =  x_image_px * std::cos(theta) - y_image_px * std::sin(theta);
-            y_world_px = -x_image_px * std::sin(theta) - y_image_px * std::cos(theta);
+            x_world =  x_image_px * std::cos(theta) - y_image_px * std::sin(theta);
+            y_world = -x_image_px * std::sin(theta) - y_image_px * std::cos(theta);
+            x_world *= scale_x;
+            y_world *= scale_y;
 
-            arm_pos[i].start_pose.position.x = scara_positions::robot_poses[ix].start_pose.position.x + (x_world_px * scale_x);
-            arm_pos[i].start_pose.position.y = scara_positions::robot_poses[ix].start_pose.position.y + (y_world_px * scale_y);
+            RCLCPP_INFO(this->get_logger(), "World translation vector: [%f, %f]", x_world, y_world);
+
+            arm_pos[i].start_pose.position.x = scara_positions::robot_poses[ix].start_pose.position.x + x_world;
+            arm_pos[i].start_pose.position.y = scara_positions::robot_poses[ix].start_pose.position.y + y_world;
             arm_pos[i].start_pose.position.z = PICTURE_TABLE_HEIGHT_MM_/1000;
             arm_pos[i].start_pose.orientation.z = 0.0;
+
+            RCLCPP_INFO_STREAM(this->get_logger(), "X: " << scara_positions::robot_poses[ix].start_pose.position.x << " ----> " << arm_pos[i].start_pose.position.x);
+            RCLCPP_INFO_STREAM(this->get_logger(), "Y: " << scara_positions::robot_poses[ix].start_pose.position.y << " ----> " << arm_pos[i].start_pose.position.y);
+            RCLCPP_INFO_STREAM(this->get_logger(), "Angle: " << theta * (180/M_PI));
         }
-        /*
-        
-        // Y axis of the image is parallel to robot X axis and faces opossed direction
-        // X axis of the image is parallel to robot Y axis and faces opossed direction
-        const double x_mm_per_px = (IMAGE_WIDTH_MM_/1000)/IMAGE_WIDTH_PX_;
-        const double y_mm_per_px = (IMAGE_HEIGHT_MM_/1000)/IMAGE_HEIGHT_PX_;
-
-        double image_center_x_px = IMAGE_WIDTH_PX_/2.0;
-        double image_center_y_px = IMAGE_HEIGHT_PX_/2.0;
-
-        double image_vector_x_px, image_vector_y_px;
-
-
-        std::vector<scara_msgs::msg::PiecePose> arm_pos(PUZZLE_SIZE);
-        for (size_t i = 0; i < PUZZLE_SIZE; i++) {
-            size_t ix = assembly[i].id;
-            image_vector_x_px = assembly[i].centroid.x - image_center_x_px;
-            image_vector_y_px = assembly[i].centroid.y - image_center_y_px;
-
-            const auto& theta = assembly[i].imageAngle;
-            double world_vector_x_px = -image_vector_y_px * std::cos(theta) - image_vector_x_px * sin(theta);
-            double world_vector_y_px = image_vector_y_px * std::sin(theta) - image_vector_x_px * cos(theta);
-
-            arm_pos[i].start_pose.position.x = scara_positions::robot_poses[ix].start_pose.position.x + (world_vector_x_px * x_mm_per_px);
-            arm_pos[i].start_pose.position.y = scara_positions::robot_poses[ix].start_pose.position.y + (world_vector_y_px * y_mm_per_px);
-            arm_pos[i].start_pose.position.z = PICTURE_TABLE_HEIGHT_MM_/1000;
-            arm_pos[i].start_pose.orientation.z = 0.0;
-        }
-        */
 
         std::vector<std::array<double,3>> elements_placed = placeElementsIn2D(assembly);
         for (std::array<double,3>& pos : elements_placed) {
