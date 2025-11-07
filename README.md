@@ -1,5 +1,5 @@
 
-![Opis obrazu](docs/images/scara_arm.png)
+![SCARA Arm to solve Jigsaw Puzzle](docs/images/scara_arm.png)
 
 A robotic system to assemble jigsaw puzzles of variable size. The robotic arm is a SCARA-like 4 DOF manipulator, and its model is based on the Open Source project "PyBot SCARA Robotic Arm" [Hackday IO](https://hackaday.io/project/175419-pybot-scara-robotic-arm-3d-printed-python). For the purpose of the goal task, the arm models were slighty adjusted. The most important change is the forearm, that is now adjusted to mount a suction cup and a Raspberry Pi HQ Camera. 
 
@@ -12,8 +12,10 @@ A robotic system to assemble jigsaw puzzles of variable size. The robotic arm is
 
 ### Hardware 
 * **Raspberry Pi 5** – the main platform for ROS2.
-* **Arduino Uno** – NEMA17 Stepper Motors, Suction Cup and one-way solenoid Valve.
+* **Arduino Uno** – controlling NEMA17 Stepper Motors, Suction Cup and one-way solenoid Valve.
 * **Raspberry Pi HQ Camera with lense** – in order to provide minimum distortion, choose highest possible focal lenght (software was tested with 16 mm).
+* **Stepper Motors** -  3x NEMA17 and 1x NEMA8.
+* **Stepper controllers** - used A4988, any will do.
 
 ## Packages overview
 * **puzzle_solver** – image processing package, it does all the image analysys and determines matching of elements. Provides the end data for the arm.
@@ -25,6 +27,10 @@ A robotic system to assemble jigsaw puzzles of variable size. The robotic arm is
 * **scara_kinematics** – does the Inverse Kinematics calculations. Provides separate topics for two effectors (Camera/Suction Cup).
 * **scara_msgs** – provides messages definitions for topics.
 * **scara_server** – action server to handle system workflow.
+
+
+![System overview](docs/images/system_overview.png)
+
 
 ## Scara Task Server
 
