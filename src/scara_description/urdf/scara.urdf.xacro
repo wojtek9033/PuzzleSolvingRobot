@@ -114,20 +114,20 @@
         <visual>
             <origin xyz="0 0 -0.0125" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_ARM_TOP.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 -0.0125" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_ARM_TOP.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/ARM_TOP.stl" scale="0.001 0.001 0.001"/>
             </geometry>    
         </collision>
         <!-- arm bottom -->
         <visual>
             <origin xyz="0 0 -0.0415" rpy="${PI/2} 0 -${PI/2} "/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_ARM_BOTTOM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/ARM_BOTTOM.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <!-- reduction -->
@@ -152,7 +152,7 @@
         <visual>
             <origin xyz="0 0 -0.0215" rpy="${PI/2} 0 -${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_FOREARM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
 
@@ -160,14 +160,14 @@
         <visual>
             <origin xyz="0.1625 0.0195 -0.0075" rpy="${PI/2} 0 ${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 -0.0215" rpy="${PI/2} 0 -${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_FOREARM.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/FOREARM.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
@@ -175,7 +175,7 @@
         <collision>
             <origin xyz="0.1625 0.0195 -0.0075" rpy="${PI/2} 0 ${PI/2}"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/CAMERA_BASE.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
@@ -185,13 +185,13 @@
         <visual>
             <origin xyz="0 0 -0.0430" rpy="${PI/2} 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 -0.0430" rpy="${PI/2} 0 0"/>
             <geometry>
-                <mesh filename="package://scara_description/meshes/MY_GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://scara_description/meshes/GRIPPER_GEAR.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
         <xacro:default_inertial mass="1.5"/>
